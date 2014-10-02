@@ -1,7 +1,7 @@
 \name{print.frfast}
 \alias{print.frfast}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{hola git, como vas?
+\title{hola git, como vas? clase
 %%  ~~function to do ... ~~
 }
 \description{
