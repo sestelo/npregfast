@@ -10,8 +10,8 @@ pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,
 implicit none
 integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,idim,nc(nf),kernel,&
-ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,C2(ncmax,nf),icont(kbin,3,nf),nh
-double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),&
+ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,icont(kbin,3,nf),nh
+double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),C2(ncmax,nf),&
 Pb(kbin,3,nf),h(nf),min(n),max(n),Xb(kbin),xmin(nf),&
 xmax(nf),Err(n),Dif(kbin,3,nf,nf),Difi(kbin,3,nf,nf),Difs(kbin,3,nf,nf),&
 C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
@@ -51,7 +51,7 @@ if (kbin.le.nboot) then
 allocate (V(nboot))
 else
 allocate(V(kbin))
-end if	
+end if
 
 
 
@@ -73,12 +73,12 @@ pasoxfino=Xfino(2)-Xfino(1)
 xmin=999999
 xmax=-xmin
 do i=1,n
-	do j=1,nf
-		if (W(i).gt.0) then
-			if (X(i).le.xmin(j).and.F(i).eq.fact(j)) xmin(j)=X(i)
-			if (X(i).ge.xmax(j).and.F(i).eq.fact(j)) xmax(j)=X(i)
-		end if
-	end do
+do j=1,nf
+if (W(i).gt.0) then
+if (X(i).le.xmin(j).and.F(i).eq.fact(j)) xmin(j)=X(i)
+if (X(i).ge.xmax(j).and.F(i).eq.fact(j)) xmax(j)=X(i)
+end if
+end do
 end do
 
 
@@ -86,10 +86,10 @@ end do
 
 
 do j=1,nf
-	Waux=0
-	do i=1,n
-		if (F(i).eq.fact(j)) Waux(i)=W(i)
-	end do
+Waux=0
+do i=1,n
+if (F(i).eq.fact(j)) Waux(i)=W(i)
+end do
     
 	
 
@@ -100,42 +100,36 @@ do j=1,nf
 !aqui hace no parametrico solo
 
 if (model.eq.1) then
-
-		if (ikernel.eq.1) then
-
-		call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
-	else
-		call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
-
-		end if
-
+if (ikernel.eq.1) then
+call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+else
+call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
+end if
 end if
 
 
 
 !aqui el alometrico solo
 if (model.eq.2) then
-
-	call Rfast0 (X,Y,n,Waux,h(j),Xb,Pb(1,1,j),kbin,a(j),b(j))
-		
+call Rfast0 (X,Y,n,Waux,h(j),Xb,Pb(1,1,j),kbin,a(j),b(j))
 end if
 
 
 
 
 
-!aquí calcula no paramétrico y alometrico
+!aqu? calcula no param?trico y alometrico
 if (model.eq.0) then
 
-		if (ikernel.eq.1) then
+if (ikernel.eq.1) then
 
-		call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
 
-		call Rfast0 (X,Y,n,Waux,h(j),Xb,Pba(1,1,j),kbin,a(j),b(j))
-	else
-		call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
+call Rfast0 (X,Y,n,Waux,h(j),Xb,Pba(1,1,j),kbin,a(j),b(j))
+else
+call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
 
-		end if
+end if
 end if
 
 
@@ -147,10 +141,10 @@ end if
 
 !  EVITAMOS PREDICCIONES FUERA DEL RANGO DE LOS DATOS
 
-	do i=1,kbin
-		if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
-		if (model.eq.0.and.Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pba(i,1:3,j)=-1
-	end do
+do i=1,kbin
+if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
+if (model.eq.0.and.Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pba(i,1:3,j)=-1
+end do
 end do
 
 
@@ -162,7 +156,7 @@ open (1,file='xy.dat')
 write (1,'(100(a10,1x))') 'f','x','y'
 
 do i=1,n
-	write (1,'(100(f10.4,1x))') 1.0*f(i),x(i),y(i)
+write (1,'(100(f10.4,1x))') 1.0*f(i),x(i),y(i)
 end do
 close(1)
 
@@ -174,44 +168,44 @@ close(1)
 
 
 
-! punto de corte, calcula el máximo de la estimacion y primera derivada 
+! punto de corte, calcula el m?ximo de la estimacion y primera derivada 
 ! para todos los niveles del factor
 
 C=-1
 
-do j=1,nf	
+do j=1,nf
 	
-	do k=1,2
-		pmax=-999
-		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
+do k=1,2
+pmax=-999
+call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
 		
 		
 		
 		
-		do i=1,kfino
-			if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j)) then
-				if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
-					pmax=pfino(i)
-					C(k,j)=Xfino(i)
-					index=i
+do i=1,kfino
+if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j)) then
+if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
+pmax=pfino(i)
+C(k,j)=Xfino(i)
+index=i
 					
 
 			
 
-				end if
-			end if
-		end do
+end if
+end if
+end do
 	
 		
 
-     	if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el máximo, escribe valor  muy grande
-					C(k,j)=9999 
-		end if
+if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el m?ximo, escribe valor  muy grande
+C(k,j)=9999 
+end if
 
 
-		if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
-					C(k,j)=9999
-		end if
+if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
+C(k,j)=9999
+end if
 
 
 
@@ -219,26 +213,26 @@ do j=1,nf
 
 
 
-	end do
+end do
 	
 
 
 
 	!revisar
 	
-	do k=3,3
-		C(k,j)=9999
-		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
-		do i=2,kfino
-			if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
-				if (Pfino(i)*Pfino(i-1).lt.0) then
-					C(k,j)=0.5*(Xfino(i)+Xfino(i-1))
-					goto 1
-				end if
-			end if
-		end do
+do k=3,3
+C(k,j)=9999
+call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
+do i=2,kfino
+if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
+if (Pfino(i)*Pfino(i-1).lt.0) then
+C(k,j)=0.5*(Xfino(i)+Xfino(i-1))
+goto 1
+end if
+end if
+end do
 1      continue
-	end do
+end do
 
 
 
@@ -270,7 +264,7 @@ end do
 
 !**********************
 !vuelvo a eliminar los 9999 para que en el intervalo de confianza para la dif de maximos
-!no aparezca el valor de -9982... pongo el máx de la localidad en cada caso
+!no aparezca el valor de -9982... pongo el m?x de la localidad en cada caso
 
 
 
@@ -472,7 +466,7 @@ end if
 
 
 
-!aquí calcula no paramétrico y alometrico
+!aqu? calcula no param?trico y alometrico
 if (model.eq.0) then
 
 		if (ikernel.eq.1) then
@@ -578,7 +572,7 @@ end do  ! cierra bucle iboot
 
 
 
-!Intervalos de confianza par‡metros modelo alomŽtrico
+!Intervalos de confianza par?metros modelo alom?trico
 !******************************************************
 
 
@@ -740,12 +734,12 @@ end if
 !if(model.ne.0) then
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!Incluyo código para que me ponga el 9999
+!Incluyo c?digo para que me ponga el 9999
 
 do k=1,2
 	do j=1,nf
 		do iboot=1,nboot
-			if (Cboot(k,j,iboot).ge.xmax(j)) then ! esto lo meti yo, si se sale el máximo, fuera valor  muy grande
+			if (Cboot(k,j,iboot).ge.xmax(j)) then ! esto lo meti yo, si se sale el m?ximo, fuera valor  muy grande
 					Cboot(k,j,iboot)=9999 
 			end if
 
@@ -940,7 +934,7 @@ end do
 ! *************************************
 
 ! elimino de nuevo los 9999 de las bootstrap para poder hacer las diferencias con los intervalos bien
-! para la estimacion y primera derivada,le pongo el m‡ximo de la localidad
+! para la estimacion y primera derivada,le pongo el m?ximo de la localidad
 
 
 
@@ -948,7 +942,7 @@ end do
 do k=1,2
 	do j=1,nf
 		do iboot=1,nboot
-			if (Cboot(k,j,iboot).eq.9999) then ! esto lo meti yo, si se sale el máximo, fuera valor  muy grande
+			if (Cboot(k,j,iboot).eq.9999) then ! esto lo meti yo, si se sale el m?ximo, fuera valor  muy grande
 				Cboot(k,j,iboot)=xmax(j) 
 			end if
 		end do
@@ -1193,7 +1187,7 @@ end
 !		
 !Subroutine RFAST_H
 !
-!* h: ventana, selección por cv (h=-1). Valores de 0 a 1.
+!* h: ventana, selecci?n por cv (h=-1). Valores de 0 a 1.
 !* kernel: tipo de nucleo (1=epanech, 2=triang, 3=gaussian)
 !* nh: grid de busqueda de ventanas, de 0 a 1.
 !* p: grado del polinomio
@@ -1230,7 +1224,7 @@ hmin=0
 hmax=1
 !nh=15 !100
 
-! Selección de las ventanas por CV
+! Selecci?n de las ventanas por CV
 
 if (h.eq.-1)  then
 	call Ventana1D(Xb,Yb,Wb,kbin,h,p,hmin,hmax,nh,rango,kernel)
@@ -1281,7 +1275,7 @@ end subroutine
 !		
 !		VENTANA1D
 !
-!* h: ventana, selección por cv (h=-1). Valores de 0 a 1.
+!* h: ventana, selecci?n por cv (h=-1). Valores de 0 a 1.
 !* kernel: tipo de nucleo (1=epanech, 2=triang, 3=gaussian)
 !* nh: grid de busqueda de ventanas, de 0 a 1.
 !***************************************************
@@ -1298,13 +1292,13 @@ double precision,allocatable::ErrCV(:,:),Predh(:,:)
 integer,external::which_min
 allocate(ErrCV(n,nh),Predh(n,nh))
 
-! Establécense o grid de ventanas de búsqueda
+! Establ?cense o grid de ventanas de b?squeda
 do ih=1,nh
 	hgrid(ih)=hmin+(ih-1)*(hmax-hmin)/(nh-1)
 end do
 
 
-! Para cada punto fanse as estimacións por CV para cada unha das ventanas
+! Para cada punto fanse as estimaci?ns por CV para cada unha das ventanas
 icont=1000
 
 Err=0
@@ -1327,8 +1321,8 @@ end do
 
 3333 continue
 
-! Calcúlanse os erros (globais) obtidos para cada ventana. Para elo calcúlase
-! o erro cadrático medio ponderado polos pesos W iniciais
+! Calc?lanse os erros (globais) obtidos para cada ventana. Para elo calc?lase
+! o erro cadr?tico medio ponderado polos pesos W iniciais
 
 ErrH=9e9
 
@@ -1345,7 +1339,7 @@ do ih=1,nh
 	end if
 end do
 
-! Xa calculados os erros para cada ventana selecciónase a ventana óptima
+! Xa calculados os erros para cada ventana selecci?nase a ventana ?ptima
 ih=which_min(ErrH,nh)
 h= hgrid(ih)
 
@@ -1355,9 +1349,9 @@ do i=1,nh
 end do
 close(1)
 
-! A continuación escríbese un resume dos erros obtidos. O ficheiro ten 3 columnas:
-! Ventana; error absoluto: % de incremento de erro en relación á ventana óptima
-! (lóxicamente, na última columna a ventana óptima terá un valor de 0) 
+! A continuaci?n escr?bese un resume dos erros obtidos. O ficheiro ten 3 columnas:
+! Ventana; error absoluto: % de incremento de erro en relaci?n ? ventana ?ptima
+! (l?xicamente, na ?ltima columna a ventana ?ptima ter? un valor de 0) 
 
 
 sumy=0
@@ -1424,7 +1418,7 @@ end
 
 
 !***************************************************
-!  Subroutine  REG1D  (estimación en un unico punto)
+!  Subroutine  REG1D  (estimaci?n en un unico punto)
 !
 ! kernel: nucleo (1=epa, 2=triang, 3=gaussian)
 !
@@ -1434,7 +1428,7 @@ end
 subroutine Reg1D(X,Y,W,n,h,p,x0,pred,rango,kernel,ifcv)
 implicit none 
 integer i,j,k,icont,p,iopt,ier,n,kernel,ifcv
-double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se(20),r2,&
+double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se,r2,&
 pred(8),B(3),W(n),x0,rango,h2,u,pred2
 double precision,allocatable::Vx(:),Vy(:),WW(:),XX(:,:)
 real :: pi=3.1415927
@@ -2803,7 +2797,7 @@ allocate (Base0(n,nc+p),Base1(n,nc+p),Base2(n,nc+p))
 
       
 
-!      ESTIMACIÓN FINAL
+!      ESTIMACI?N FINAL
 
 	
 	if (nc.ge.0) then
@@ -2856,7 +2850,7 @@ Pb(kbin,3),h,h2,Xb2(kbin),Yb2(kbin),a,b
 
 
 
-		!CONSTRUCCIÓN DE LA MUESTRA BINNING
+		!CONSTRUCCI?N DE LA MUESTRA BINNING
 	Wb=0
 	Yb=0
 	do i=1,n	
@@ -3797,7 +3791,7 @@ double precision x(n),y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
 d1,Area(2),dis1,dis2
 
 
-		!CONSTRUCCIÓN DE LA MUESTRA BINNING
+		!CONSTRUCCI?N DE LA MUESTRA BINNING
 	Wb=0
 	Yb=0
 	do i=1,n	

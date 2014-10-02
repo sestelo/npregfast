@@ -3,7 +3,7 @@
 program hola
 implicit none
 !integer,parameter::kbin=100,ncmax=5,nboot=10
-integer i,p,nf,fact(100),iostat,iend,n,ikernel,iopt,model,kernel,nh
+integer i,p,nf,fact(100),iend,n,ikernel,iopt,model,kernel,nh
 integer,allocatable::F(:)
 integer,allocatable::nc(:)
 double precision,allocatable:: X(:),Y(:),w(:),h(:),C2(:,:),Xb(:),&
@@ -31,16 +31,16 @@ nboot=100
 !fichero="decus_phill_1.txt"
 !fichero=".prn"
 !fichero="pediatria3.txt"
-fichero="Datos_año.prn"
+fichero="Datos_a?o.prn"
 n=0
 open (1,file=fichero)
-	read (1,*,iostat=iend)
+read (1,*,iostat=iend)
 1   continue
     read (1,*,iostat=iend)
-	if (iend.eq.0) then
-		n=n+1
-		goto 1
-	end if		
+if (iend.eq.0) then
+n=n+1
+goto 1
+end if
 close(1)
 
 
@@ -49,10 +49,10 @@ allocate (F(n),X(n),Y(n),W(n),h(100))
 
 W=1
 open (1,file=fichero)
-	read (1,*)
-	do i=1,n	
-		read(1,*) F(i),X(i),Y(i)
-	end do
+read (1,*)
+do i=1,n
+read(1,*) F(i),X(i),Y(i)
+end do
 close (1)
 
 
