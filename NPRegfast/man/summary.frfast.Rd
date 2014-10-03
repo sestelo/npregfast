@@ -6,7 +6,7 @@
 Summarizing fits of frfast class
 }
 \description{
-Takes a fitted \code{frfast} object produced by \code{frfast()} and produces various useful
+Takes a fitted \code{\link{frfast}} object produced by \code{frfast()} and produces various useful
 summaries from it.} 
 \usage{
 summary.frfast(model)
@@ -37,7 +37,8 @@ summary.frfast(model)
 %% ~put references to the literature/web site here ~
 %%}
 \author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.}
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
+}
 
 \examples{
 library(NPRegfast)

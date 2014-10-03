@@ -95,7 +95,7 @@ An object is returned with the following elements:
 %% ~put references to the literature/web site here ~
 %}
 \author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
 }
 %%\note{
 %%  ~~further notes~~
