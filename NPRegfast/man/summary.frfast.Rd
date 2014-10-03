@@ -37,7 +37,7 @@ summary.frfast(model)
 %% ~put references to the literature/web site here ~
 %%}
 \author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 }
 
 \examples{
