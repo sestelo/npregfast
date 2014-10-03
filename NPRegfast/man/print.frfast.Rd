@@ -1,11 +1,10 @@
 \name{print.frfast}
 \alias{print.frfast}
 %- Also NEED an '\alias' for EACH other topic documented here.
-\title{hola git, como vas? clase
-HOLA  HOLITA CARACOLITA
+\title{Short \code{frfast} summary
 }
 \description{
-Un breve resumen
+\code{\link{frfast}} summary
 }
 \usage{
 print.frfast(model, ...)
@@ -33,7 +32,7 @@ print.frfast(model, ...)
 %% ~put references to the literature/web site here ~
 }
 \author{
-Pues unos cuantos. y OLEE
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
 }
 \note{
 %%  ~~further notes~~
