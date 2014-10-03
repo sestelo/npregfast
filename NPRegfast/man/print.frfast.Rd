@@ -2,10 +2,10 @@
 \alias{print.frfast}
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{hola git, como vas? clase
-%%  ~~function to do ... ~~
+HOLA  HOLITA CARACOLITA
 }
 \description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+Un breve resumen
 }
 \usage{
 print.frfast(model, ...)
@@ -33,7 +33,7 @@ print.frfast(model, ...)
 %% ~put references to the literature/web site here ~
 }
 \author{
-%%  ~~who you are~~
+Pues unos cuantos. y OLEE
 }
 \note{
 %%  ~~further notes~~
