@@ -7,7 +7,7 @@ plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = "x",
     fi = length(fac)
     co = length(der)
     facini=fac
-if(fi==0&nf>1|fi>1|co==0&nf>1|co>1){
+if(fi==0&nf>1|fi>1|co==0&nf>1|co>=0){
     if (fi == 0) fi = nf
     if (co == 0) co = 3
     jnf = c()
