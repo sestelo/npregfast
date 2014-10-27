@@ -12,7 +12,7 @@ plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = "x",
     if (co == 0) co = 1 #only show estimation
     jnf = c()
  
-    if(fi>0|co>0){par(mfrow = c(fi, co))}
+    if(fi!=1|co!=1){par(mfrow = c(fi, co))} #I don't use mfrow for one plot
     if (length(fac) == 0){jnf = c(1:nf);fac = model$etiquetas
     }else{for (i in 1:length(fac)) {jnf[i] = which(model$etiquetas == fac[i])}}
     
