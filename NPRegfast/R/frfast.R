@@ -1,5 +1,8 @@
-frfast <-
-function(x,y,f=NULL,model="np",h=-1,w=NULL,p=3,kbin=100,nc=NULL,
+#' @useDynLib NPRegfast
+#' @export frfast
+
+
+frfast <- function(x,y,f=NULL,model="np",h=-1,w=NULL,p=3,kbin=100,nc=NULL,
 ncmax=5,ikernel=1,iopt=1,nboot=500,c2=NULL,rankl=NULL,ranku=NULL,kernel=1,nh=30)
 
 {
@@ -70,7 +73,8 @@ ncmax=5,ikernel=1,iopt=1,nboot=500,c2=NULL,rankl=NULL,ranku=NULL,kernel=1,nh=30)
 		asup     =as.double(rep(-1,nf)),
 		b     =as.double(rep(-1,nf)),
 		binf     =as.double(rep(-1,nf)),
-		bsup     =as.double(rep(-1,nf))
+		bsup     =as.double(rep(-1,nf)),
+    PACKAGE="NPRegfast"
 		)
 
 if(model!=2){

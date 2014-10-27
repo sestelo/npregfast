@@ -1,5 +1,5 @@
-summary.frfast <-
-function(model)
+#' @export summary.frfast
+summary.frfast <-function(model)
 {
 	if (missing(model)) 
         stop("Argument 'model' is missing with no default")

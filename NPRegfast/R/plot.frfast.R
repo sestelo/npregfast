@@ -1,4 +1,7 @@
-plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = "x", ylab = "y", col = "black", 			   ICcol = "grey50", main=NULL,type = "l",ylim=NULL, ICtype = "l", lwd = 2, ...){
+#' @export plot.frfast
+
+plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = "x", ylab = "y", col = "black",
+                       ICcol = "grey50", main=NULL,type = "l",ylim=NULL, ICtype = "l", lwd = 2, ...){
 	
     nf = model$nf
     fi = length(fac)
