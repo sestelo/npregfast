@@ -1,8 +1,6 @@
 subroutine test_allo(X,Y,W,n,kbin,nboot,T,pvalor)
 implicit none
 
-!!DEC$ ATTRIBUTES DLLEXPORT::test_allo
-!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'test_allo_' :: test_allo
 
 integer n,kbin,p,iboot,nboot,j,k,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
@@ -160,15 +158,14 @@ end
 !*********************************************************
 subroutine rfast_h_alo(X,Y,W,n,h,p,Xb,Pb,kbin,kernel,nh)
 
-!!DEC$ ATTRIBUTES DLLEXPORT::rfast
-!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'rfast_' :: RFAST 
+
 
 implicit none
 integer n,i,j,kbin,p,ifcv,icont,ih,ih0,i0,nh,kernel
 
 double precision x(n),Y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
 Pb(kbin),h,ErrCV,erropt,sumw,med,&
-meany,vary,dif,rango,hmin,hmax,beta(p+1),xbb(kbin),pred(3)	
+meany,vary,dif,rango,hmin,hmax,beta(p+1),xbb(kbin),pred(8)	
 
 
 call GRID1D(X,W,n,Xb,kbin)
@@ -252,8 +249,7 @@ end subroutine
  subroutine localtest(F,X,Y,W,n,h,nh,p,kbin,fact,nf,kernel,nboot,pcmax,pcmin,r,D,Ci,Cs)
 
 
-!!DEC$ ATTRIBUTES DLLEXPORT::localtest
-!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'localtest_' :: localtest
+
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,&
@@ -705,8 +701,7 @@ end
 
 subroutine globaltest(F,X,Y,W,n,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor)
 
-!!DEC$ ATTRIBUTES DLLEXPORT::globaltest
-!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
+
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,&
@@ -726,7 +721,7 @@ allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n))
 
 
 h0=h
-call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+call rfast_h(X,Y,W,n,h0(1),p,Xb,Pb,kbin,kernel,nh)
 
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
 
@@ -787,7 +782,7 @@ pvalor=0
    		end do
 
 	
-		call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+		call rfast_h(X,Yboot,W,n,h0(1),p,Xb,Pb,kbin,kernel,nh)
 
 
 
@@ -863,14 +858,11 @@ nf,ikernel,iopt,nboot,xb,pb,li,ls,dif,difi,difs,model,&
 pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu)
 
 
-!!DEC$ ATTRIBUTES DLLEXPORT::frfast
-!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'frfast_' :: frfast
 
 implicit none
 integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,idim,nc(nf),kernel,&
-
-ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,C2(ncmax,nf),&
+ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,&
 icont(kbin,3,nf),nh,ipredict
 double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),&
 Pb(kbin,3,nf),h(nf),min(n),max(n),Xb(kbin),xmin(nf),&
@@ -888,6 +880,7 @@ sumErrboota(:),Errboot(:,:),Errboota(:,:),Errboot2(:,:),Errboota2(:,:),&
 Erra(:),Erra2(:),sesgo(:,:,:),media(:,:,:),err2(:)
 
 REAL(4) rand 
+REAL(8) C2(ncmax,nf)
 
 !REAL(4) u,sumerr,sumerra
 !double precision,external::rand
@@ -2336,7 +2329,7 @@ end
 subroutine Reg1D(X,Y,W,n,h,p,x0,pred,rango,kernel,ifcv)
 implicit none 
 integer i,j,k,icont,p,iopt,ier,n,kernel,ifcv
-double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se(20),r2,&
+double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se,r2,&
 pred(8),B(3),W(n),x0,rango,h2,u,pred2
 double precision,allocatable::Vx(:),Vy(:),WW(:),XX(:,:)
 real :: pi=3.1415927

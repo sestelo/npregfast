@@ -7,10 +7,9 @@ Visualization of the differences between the estimation of curves for two factor
 \description{
 Useful for drawing the differences between the estimation of curves (initial estimate, first or second derivative) for  two factor's levels.  Missing values of factor's levels is not allowed. 
 }
-\method{plot}{diff}
-plot.diff(model, factor2, factor1, der = NULL, est.include = FALSE, xlab = model$name[2], 
-ylab = model$name[1], ylim = NULL, main = NULL, col = "black", CIcol = "grey50", ablinecol = "red", abline = TRUE, type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, lty = 1, CIlty = 2, ...)
-}
+\usage{
+\method{plot}{diff}(model, factor2, factor1, der = NULL, est.include = FALSE, xlab = model$name[2], 
+ylab = model$name[1], ylim = NULL, main = NULL, col = "black", CIcol = "grey50", ablinecol = "red", abline = TRUE, type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, lty = 1, CIlty = 2, ...)}
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{model}{allometric or nonparametric regression model obtained by \code{\link{frfast}} function.
