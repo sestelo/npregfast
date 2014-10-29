@@ -118,7 +118,8 @@ function(formula,data=data,model="np",h=-1.0,nh=30,weights=NULL,kernel="epanech"
 		ipredict=as.integer(ipredict2),
 		predict=array(rep(-1.0),c(kbin,3,nf)),
 		predictl=array(as.double(-1.0),c(kbin,3,nf)),
-		predictu=array(as.double(-1.0),c(kbin,3,nf))
+		predictu=array(as.double(-1.0),c(kbin,3,nf)),
+    PACKAGE="NPRegfast"
 		)
 
 if(tmodel!=2){
