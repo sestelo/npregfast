@@ -28,12 +28,12 @@ function(model,der=NULL){
 					res3[i,1]= c(model$max[k,i])
 					res3[i,2]= c(model$maxl[k,i])
 					res3[i,3]= c(model$maxu[k,i])
-					jnf[i]=which(model$etiquetas==model$etiquetas[i])
-					factores[i]=paste("Level",model$etiquetas[jnf[i]])}
+					jnf[i]=which(model$label==model$label[i])
+					factores[i]=paste("Level",model$label[jnf[i]])}
 	
-			colnames(res)=c("Max point","95% IC_lower","95% IC_upper")
-			colnames(res2)=c("Max point","95% IC_lower","95% IC_upper")
-			colnames(res3)=c("Max point","95% IC_lower","95% IC_upper")
+			colnames(res)=c("Max point","Lwr","Upr")
+			colnames(res2)=c("Max point","Lwr","Upr")
+			colnames(res3)=c("Max point","Lwr","Upr")
 			rownames(res)=c(factores)	
 			rownames(res2)=c(factores)
 			rownames(res3)=c(factores)
@@ -50,10 +50,10 @@ function(model,der=NULL){
 					res[ii,1]= c(model$max[j,i])
 					res[ii,2]= c(model$maxl[j,i])
 					res[ii,3]= c(model$maxu[j,i])
-					jnf[i]=which(model$etiquetas==model$etiquetas[i])
-					factores[i]=paste("Level",model$etiquetas[jnf[i]])}
+					jnf[i]=which(model$label==model$label[i])
+					factores[i]=paste("Level",model$label[jnf[i]])}
 					a=2}
-			colnames(res)=c("Max point","95% IC_lower","95% IC_upper")
+			colnames(res)=c("Max point","Lwr","Upr")
 			rownames(res)=c(rep(factores,length(der)))
 			return(res)		
 		}				

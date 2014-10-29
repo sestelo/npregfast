@@ -1,0 +1,555 @@
+fac=c(4,2)
+sum(fac%in%yof$etiquetas)
+fac=c(1,2)
+sum(fac%in%yof$etiquetas)
+fac=c(1)
+sum(fac%in%yof$etiquetas)
+plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1], col = "black",CIcol = "grey50", main=NULL,type = "l",ylim = NULL, CItype = "l", lwd = 2, ...){	#
+	nf = model$nf#
+    fi = length(fac)#
+    co = length(der)#
+    facini=fac#
+## Argumentos control#
+if(sum(der >2)>=1) stop("Argument \"der\" not suported")#
+if(missing(model)) stop("Argument \"model\" is missing, with no default. Must be a frfast object.")#
+#if(fac!=model$etiquetas) stop("The specified factor is not correct")  #ver argumento control#
+if(fi==0&nf>1|fi>1|co==0&nf>1|co>1|co==0&nf==1){#
+    if (fi == 0) fi = nf #
+    if (co == 0) co = 3#
+    jnf = c()#
+    par(mfrow = c(fi, co))#
+    if (length(fac) == 0){jnf = c(1:nf);fac = model$etiquetas#
+    }else{for (i in 1:length(fac)) {jnf[i] = which(model$etiquetas == fac[i])}} #
+    if (length(der) == 0) {jder = c(1:3)#
+    }else{jder = der + 1}#
+    for (j in jnf) {#
+        for (i in jder) {#
+            if (i == 1) {ylab2 = ylab;ylim2 = c(min(model$ydata[model$fmod == j], na.rm = T), #
+                  max(model$ydata[model$fmod == j], na.rm = T))#
+            }else{ylim2=c(min(model$p[,der = i,fac = j],na.rm=T),max(model$p[,der = i,fac = j],na.rm = T))}#
+            if (i == 2) ylab2 = "First derivative"#
+            if (i == 3) ylab2 = "Second derivative"#
+            if(length(main)==0){title=main}else{title=main[j]}     #
+            if(length(fac)!=0&is.null(main) ) title = paste("Level", model$etiquetas[jnf])#
+            if(length(facini)==0&is.null(main)){title=" "}#
+           # if(is.null(ylim)) ylim=ylim2#
+            plot(model$x, model$p[, der = i, fac = j], type = type, #
+                xlab = xlab, ylab = ylab2, col = col, main = title, ylim = ylim,...)#
+          		  if ((points == TRUE) & (i == 1)) {#
+                  points(model$xdata[model$fmod == j], model$ydata[model$fmod == j],col= "grey80", cex = 0.6)#
+                  lines(model$x, model$p[, der = i, fac = j], type = type, #
+                  xlab = xlab, ylab = ylab2, col = col, main = title,ylim = ylim2)}#
+            lines(model$x, model$pl[, der = i, fac = j], lty = 2, col = CIcol, type = CItype)#
+            lines(model$x, model$pu[, der = i, fac = j], lty = 2, col = CIcol, type = CItype)#
+            if (i == 3) abline(h = 0, col = 2)}}#
+}else{	 #
+		#der=co+1  # esto estaba asi, pero no funcionaba plot(fit,der=1) #cuando formula=DW~RC#
+    	if (length(der) == 0) {jder = c(1:3)#
+  		}else{der = der + 1}#
+    	jnf = c()#
+    	title=main #
+    	if(length(fac)!=0){ for (i in 1:length(fac)) {jnf[i] = which(model$etiquetas == fac[i])}}else{jnf=1}#
+        if(length(fac)==0&is.null(main)){title=""}#
+        if(length(fac)!=0&is.null(main) ) title = paste("Level", model$etiquetas[jnf])  #
+    	if(der==1) ylab2=ylab#
+    	if(der==2) ylab2="First derivative"#
+    	if(der==3) ylab2="Second derivative"#
+    	if((points == TRUE) & (der == 1)) {#
+    		ylim2=c(min(model$ydata[model$fmod==jnf],na.rm=T),max(model$ydata[model$fmod==jnf],na.rm=T))#
+    	}else{ylim2=c(min(model$p[,der,jnf],na.rm=T),max(model$p[,der,jnf],na.rm=T))}#
+           if(is.null(ylim)) ylim=ylim2#
+    	plot(model$x, model$p[, der, jnf], type = type, xlab = xlab, ylab = ylab2, col = col, main = title,#
+    	     ylim = ylim,...)#
+            if ((points == TRUE) & (der == 1)) {#
+                points(model$xdata[model$fmod==jnf],model$ydata[model$fmod==jnf], col = "grey80", cex = 0.6)#
+                lines(model$x,model$p[,der,jnf],type=type,xlab = xlab, ylab = ylab2, col = col, main = title)}#
+        lines(model$x, model$pl[, der , jnf], lty = 2, col = CIcol, type = CItype)#
+        lines(model$x, model$pu[, der , jnf], lty = 2, col = CIcol, type = CItype)#
+            if (der == 3) abline(h = 0, col = 2)#
+}}
+plot(yof,der=1,fac=3)
+plot(yo,der=1,fac=2)
+plot(yo,fac=1)
+plot(yo,fac=2)
+library(seq2R)
+?seq2R
+library(kernlab)
+library(e1071)
+data(spam)
+idx<-sample(1:dim(spam)[1],300)#
+spamtrain<-spam[-idx,]#
+spamtest<-spam[idx,]#
+model<- naiveBayes(type~.,data=spamtrain)#
+summary(model)
+predict(model,spamtest[,-dim(spamtest[2])])
+table(predict(model,spamtest[,-dim(spamtest),[2]]),spamtest$type)
+table(predict(model,spamtest[,-dim(spamtest)[2]]),spamtest$type)
+library(animation)
+knn.ani(k=4)
+model<-knn(spamtrain[,-58],spatmest[,-58],spamtrain[,-58])
+model<-knn(spamtrain[,-58],spamtest[,-58],spamtrain[,-58])
+table(model, spamtest$type)
+model<-knn(spamtrain[,-58],spamtest[,-58],spamtrain[,58])
+table(model, spamtest$type)
+?ksvm
+filter<-ksvm(type~.,data=spamtrain,kernel="rbfdot",kpar="automatic",C=10,cross=10)
+filter
+mailtype<-predict(filter,spamtest[,-58])
+table(mailtype, spamtest[58])
+table(mailtype, spamtest[,58])
+x<-rbind(matrix(rnorm(120,,2),matrix(120)+4,,2))
+x<-rbind(matrix(rnorm(120,.2),matrix(120)+4,.2))
+x<-rbind(matrix(rnorm(120),,2),matrix(rnomr(120)+4,,2))
+x<-rbind(matrix(rnorm(120),,2),matrix(rnorm(120)+4,,2))
+y<-matrix(c(rep(1,60),rep(-1,60)))
+plot(x,col=y)
+plot(x,col=y)#
+plot(x,col=y+2)
+svp<-ksvm(x,y,type="C-svc",kernel="vanilladot")
+vp
+vvp
+svp
+plot(svp,color="heatmap")
+plot(svp,color="terrace")
+svp
+svp<-ksvm(x,y,type="C-svc",kernel="rbfdot")
+plot(svp,data=x)
+Gaussian kernel#
+svp<-ksvm(x,y,type="C-svc",kernel="rbfdot")#
+plot(svp,data=x)
+svp<-ksvm(x,y,type="C-svc",kernel="rbfdot",C=10)
+plot(svp,data=x)
+quartz()
+svp<-ksvm(x,y,type="C-svc",kernel="rbfdot",C=1000)
+plot(svp,data=x)
+data(reuters)
+?reuters
+reuters[[1]]
+reuters
+tsv<-ksvm(reuters,rlabels,kernerl="stringdot",C=10)
+tsv
+x<-seq(-20,20,0.1)
+y<-sin(x)/x+rnomr(401,sd=0.03)
+y<-sin(x)/x+rnorm(401,sd=0.03)
+x<-seq(-20,20,0.1)
+plot(x,y)
+regm<-ksvm(x,y,epsilon=0.02mkernel"rbfdot",kpar=list(sigma=16),cross=5)
+regm<-ksvm(x,y,epsilon=0.02,kernel"rbfdot",kpar=list(sigma=16),cross=5)
+regm<-ksvm(x,y,epsilon=0.02,kernel"rbfdot",kpar=list(sigma=16),cross=5,C=10)
+regm<-ksvm(x,y,epsilon=0.02,kernel="rbfdot",kpar=list(sigma=16),cross=5,C=10)
+plot(x,y,type="l")
+lines(x,predict(regm,x),type="l",col=2)
+?ksmv
+?ksvm
+regm<-ksvm(x,y,epsilon=0.02,kernel="rbfdot",kpar=list(sigma=16),cross=5,C=1)
+plot(x,y,type="l")
+lines(x,predict(regm,x),type="l",col=2)
+quartz()
+regm<-ksvm(x,y,epsilon=0.02,kernel="rbfdot",kpar=list(sigma=16),cross=5,C=100)#
+plot(x,y,type="l")#
+lines(x,predict(regm,x),type="l",col=2)
+data(iris)
+tree<- rpart(Species~.,data=iris)
+library(rpart)
+tree<- rpart(Species~.,data=iris)
+plot(tree)
+text(tree,digits=3)
+data(kyphosis)
+?kyphosis
+fit<-rpart(kyohosis~Age+Number+stars,data=kyphosis)
+head(kyphosis)
+fit<-rpart(Kyohosis~Age+Number+Start,data=kyphosis)
+fit<-rpart(Kyphosis~Age+Number+Start,data=kyphosis)
+fit<-rpart(Kyphosis~Age+Number+Start,data=kyphosis)#
+#
+plot(fit)#
+text(fit,use.n=T)
+data(cpus)
+data(cepeus)
+data(cpu)
+data(cpus)
+library(rpart)
+?cpus
+?cpu
+library(MASS)
+data(cpus)
+library(trees)
+library(tree)
+install.packages("tree")
+install.packages("randomForest")
+library(randomForest)
+filter<-randomForest(type~., data=spamtrain)
+tabla(predict(filter,spamtest),spamtest$type)
+table(predict(filter,spamtest),spamtest$type)
+install.packages("princomp")
+ir.pca<-princomp(log(iris[,-5]),cor=T)
+summary(ir.pca)
+loadings(ir.pca)
+p<-predict(ir.pca)
+?polygon
+x <- c(1:9,8:1)#
+y <- c(1,2*(5:3),2,-1,17,9,8,2:9)#
+op <- par(mfcol=c(3,1))#
+for(xpd in c(FALSE,TRUE,NA)) {#
+  plot(1:10, main = paste("xpd =", xpd))#
+  box("figure", col = "pink", lwd=3)#
+  polygon(x,y, xpd=xpd, col="orange", lty=2, lwd=2, border="red")#
+}
+?polygon
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+library(NPRegfast)
+?NPRegfast
+plot.frfast
+plot.diff
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+n <- 10#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+data(barnacle)
+a<-frfast(DW~RC:F,data=barnacle,nboot=20)
+plot.diff(a,2,1,)
+plot.diff(a,2,1)
+library(NPRegfast)
+?polygon
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+data(barnacle)
+a<-frfast(DW~RC:F,data=barnacle, nboot=20)
+plot.diff(a)
+plot.diff(a,2,1)
+plot.diff(a,2,1,der=0)
+yy
+yy[1]
+yy[1:202]
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+plot.diff(a,2,1,der=0)
+names(frfast)
+names(a)
+head(a$x)
+xx=c(0:a$x,a$x:0)
+attach(a)
+a
+x
+xx=c(0:x,x:0)
+0:x
+xx=c(x)
+xx
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+xx
+xxx=c(x[1:100],x[100:1])
+xxx+
+xxx
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+yy
+n <- 100#
+xx <- c(0:n, n:0)#
+yy <- c(c(0,cumsum(stats::rnorm(n))), rev(c(0,cumsum(stats::rnorm(n)))))#
+plot   (xx, yy, type="n", xlab="Time", ylab="Distance")#
+polygon(xx, yy, col="gray", border = "red")#
+title("Distance Between Brownian Motions")
+yyy<-c(diffl[1:100],diffu[100:1])
+yyy
+diffl
+yyy<-c(diffl[1:100,1,1,2],diffu[100:1,1,1,2])
+yyy
+plot.diff(a,2,1)
+plot.diff(a,2,1,der=0)
+polygon(xxx, yyy, col="gray", border = "red")
+yyy<-c(diffl[1:100,1,1,2],diffu[100:1,1,1,2])
+plot.diff(a,1,2,der=0)
+plot.diff(a,1,2,der=0,yim=c(-0.4,0.4))
+plot.diff(a,1,2,der=0)
+plot.diff(a,2,1,der=0)
+yyy<-c(diffl[1:100,1,2,1],diffu[100:1,1,2,1])
+polygon(xxx, yyy, col="gray", border = "red")
+yyy<-c(diffl[1:100,1,1,2],diffu[100:1,1,1,2])
+plot.diff(a,2,1)
+yyy
+plot.diff(a,2,1,der=0)
+polygon(xxx, yyy, col="gray", border = "red")
+plot.diff(a,1,2,der=0)
+polygon(xxx, yyy, col="gray", border = "red")
+x
+diff
+library(NPRegfast)
+data(barnacle)
+library(NPRegfast)
+data(barnacle)
+globaltest <-#
+function(formula,data=data,der=NULL,weights=NULL,nboot=200,h=-1.0,nh=30,kernel=1,p=3,kbin=100){#
+	if(missing(der)){#
+ 		 stop("Argument \"der\" is missing, with no default")#
+ 	 }#
+#
+	if(missing(formula)){#
+ 		 stop("Argument \"formula\" is missing, with no default")#
+ 	 }#
+ 	 if(missing(data)){#
+ 		 stop("Argument \"data\" is missing, with no default")#
+ 	 }#
+	ffr <- interpret.frfastformula(formula, method = "frfast")#
+	varnames <- ffr$II[2,]#
+	aux<-unlist(strsplit(varnames,split=":"))#
+	varnames<-aux[1]#
+	namef<-aux[2]#
+	if(length(aux)==1){f=NULL}else{f<-data[,namef]}#
+	newdata <- data#
+	data <- na.omit(data[,c(ffr$response, varnames)])#
+	newdata <- na.omit(newdata[,varnames])#
+	n=nrow(data)#
+	if(is.null(f)) f <- rep(1.0,n)#
+	etiquetas<-unique(f)#
+ 	nf<-length(etiquetas)#
+	if(is.null(h)){h <- rep(-1.0,nf)#
+ 		}else{ h<-rep(h,nf)}#1 h para cada localidad. #
+ 							#Interesaria meter !=h para las != localidades, y para las derivadas?#
+	if(is.null(weights)) {#
+ 		weights <- rep(1.0, n)#
+ 	}else{#
+ 		if(sum(weights)<=0 || any(weights)<0 || length(weights)!= n) #
+ 			stop("The specified weights are not correct")}#
+	globaltest	<-.Fortran("globaltest",#
+		f      = as.integer(f),#
+		x      = as.double(data[,varnames]),#
+		y      = as.double(data[,ffr$response]),#
+		w      = as.double(weights),#
+		n      = as.integer(n),#
+		h      = as.double(h),#
+		nh	   = as.integer(nh),#
+		p      = as.integer(p),#
+		kbin   = as.integer(kbin),#
+		fact   = as.integer(c(1:nf)), #fact   =as.integer(c(1:nf))#
+		nf     = as.integer(nf),#
+		kernel = as.integer(kernel),#
+		nboot  = as.integer(nboot),#
+		r	   = as.integer(der),#
+		T	   = as.double(rep(-1.0,1)),#
+		pvalor = as.double(rep(-1.0,1))#
+		)	#
+		res	<-	list(pvalue=globaltest$pvalor,#
+					 T=globaltest$T)#
+#
+	class(res) <- "globaltest"#
+	return(res)#
+}
+library(NPRegfast)
+setwd("~/Dropbox/Compartidas/Nora-Marta/Trabajo/PAQUETE R/NPRegfast_12/NPRegfast/src")
+d=read.table("children.txt",header=T)
+head(d)
+?frfast
+?kernsmooth
+library(kernsmooth)
+library(KernSmooth)
+?KernSmooth
+KernSmooth
+?locpoly
+?locpoly
+?locpoly
+?locpoly
+jo=frfast(height~age:sex,data=d,nboot=2)
+globaltest <-#
+function(formula,data=data,der=NULL,weights=NULL,nboot=200,h=-1.0,nh=30,kernel="epanech",p=3,kbin=100){#
+	if(missing(der)){#
+ 		 stop("Argument \"der\" is missing, with no default")#
+ 	 }#
+#
+	if(missing(formula)){#
+ 		 stop("Argument \"formula\" is missing, with no default")#
+ 	 }#
+ 	 if(missing(data)){#
+ 		 stop("Argument \"data\" is missing, with no default")#
+ 	 }#
+	if(kernel=="gaussian")  kernel=3#
+	if(kernel=="epanech")   kernel=1#
+	if(kernel=="triang")    kernel=2#
+	ffr <- interpret.frfastformula(formula, method = "frfast")#
+	varnames <- ffr$II[2,]#
+	aux<-unlist(strsplit(varnames,split=":"))#
+	varnames<-aux[1]#
+	namef<-aux[2]#
+	if(length(aux)==1){f=NULL}else{f<-data[,namef]}#
+	newdata <- data#
+	data <- na.omit(data[,c(ffr$response, varnames)])#
+	newdata <- na.omit(newdata[,varnames])#
+	n=nrow(data)#
+	if(is.null(f)) f <- rep(1.0,n)#
+	etiquetas<-unique(f)#
+ 	nf<-length(etiquetas)#
+	if(is.null(h)){h <- rep(-1.0,nf)#
+ 		}else{ h<-rep(h,nf)}#1 h para cada localidad. #
+ 							#Interesaria meter !=h para las != localidades, y para las derivadas?#
+	if(is.null(weights)) {#
+ 		weights <- rep(1.0, n)#
+ 	}else{#
+ 		if(sum(weights)<=0 || any(weights)<0 || length(weights)!= n) #
+ 			stop("The specified weights are not correct")}#
+	globaltest	<-.Fortran("globaltest",#
+		f      = as.integer(f),#
+		x      = as.double(data[,varnames]),#
+		y      = as.double(data[,ffr$response]),#
+		w      = as.double(weights),#
+		n      = as.integer(n),#
+		h      = as.double(h),#
+		nh	   = as.integer(nh),#
+		p      = as.integer(p),#
+		kbin   = as.integer(kbin),#
+		fact   = as.integer(c(1:nf)), #fact   =as.integer(c(1:nf))#
+		nf     = as.integer(nf),#
+		kernel = as.integer(kernel),#
+		nboot  = as.integer(nboot),#
+		r	   = as.integer(der),#
+		T	   = as.double(rep(-1.0,1)),#
+		pvalor = as.double(rep(-1.0,1))#
+		)	#
+		#res	<-	list(pvalue=globaltest$pvalor,#
+		#			 T=globaltest$T)#
+if(globaltest$pvalor<0.05){ decision="Rejected"}else{decision="Acepted"}#
+		res=data.frame(cbind(Statistic=globaltest$T,pvalue=round(globaltest$pvalor,6)),Decision=I(decision))#
+		#res=cbind(Statistic=round(globaltest$T,digits=4),pvalue=round(globaltest$pvalor,digits=4),Decision=I(decision))		#
+		#res=as.numeric(res)#
+		#res=as.data.frame(res)#
+		#class(res) <- "globaltest"#
+	return(res)#
+}
+globaltest(height~age:sex,data=d,der=1)
+?floor
+?floor
+?frfast
+jo
+names(jo)
+attach(d)
+jo=frfast(d$height~d$age:sex,data=d,nboot=2)
+jo=frfast(d$height~d$age:sex,nboot=2)
+jo=frfast(d$height~d$age,nboot=2)
+?mgcv
+?gam
+gam(heigth~age)
+library(mgcv)
+gam(heigth~age)
+gam(height~age)
+jfrfast(d$height~d$age,nboot=2)
+frfast(height~age)
+data
+jo
+jo$modelo
+names(jo)
+jo$etiquetas
+jo$kernel
+jo$formula
+jo$a
+jo$a_inf
+jo$b
+jo$name
+plot(jo)
+plot(jo,der=1)
+plot(jo,der=1,fac="female")
+plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1],ylim = NULL, main=NULL, col = "black",CIcol = "black",ablinecol="red", abline=TRUE,type = "l", CItype = "l", lwd = 2, CIlwd=1,lty=1, CIlty=2,...){ #CIcol = "grey50"		#
+	nf = model$nf#
+    fi = length(fac)#
+    co = length(der)#
+    facini=fac#
+## Argumentos control	#
+if((nf==1)&(fi>=1)) stop("Argument \"fac\" not suported. There is not factor in the model.") #
+if(nf<fi) stop("The specified factor is not correct.")#
+if(sum(der >2)>=1) stop("Argument \"der\" not suported.")#
+if(missing(model)) stop("Argument \"model\" is missing, with no default. Must be a frfast object.")#
+if(fi==0&nf>1|fi>1|co==0&nf>1|co>1|co==0&nf==1){#
+    if (fi == 0) fi = nf #
+    if (co == 0) co = 3#
+    jnf = c()#
+    par(mfrow = c(fi, co))#
+    if (length(fac) == 0){jnf = c(1:nf);fac = model$etiquetas#
+    }else{for (i in 1:length(fac)) {jnf[i] = which(model$etiquetas == fac[i])}} #
+    if (length(der) == 0) {jder = c(1:3)#
+    }else{jder = der + 1}#
+    for (j in jnf) {#
+        for (i in jder) {#
+            if (i == 1) {ylab2 = ylab;ylim2 = c(min(model$ydata[model$fmod == j], na.rm = T), #
+                  max(model$ydata[model$fmod == j], na.rm = T))#
+            }else{ylim2=c(min(model$p[,der = i,fac = j],na.rm=T),max(model$p[,der = i,fac = j],na.rm = T))}#
+            if (i == 2) ylab2 = "First derivative"#
+            if (i == 3) ylab2 = "Second derivative"#
+            if(length(main)==0){title=main}else{title=main[j]}     #
+            if(length(fac)!=0&is.null(main) ){ #
+            	if(fi==nf){title=""}else{title = paste("Level", model$etiquetas[jnf])}}#
+            if(length(facini)==0&is.null(main)){title=" "}#
+            if(is.null(ylim)) ylim=ylim2  #### ver esto!!!!!#
+            plot(model$x, model$p[, der = i, fac = j], type = type, #
+                xlab = xlab, ylab = ylab2, col = col, main = title, ylim = ylim,lwd = lwd,lty = lty,...)#
+          		  if ((points == TRUE) & (i == 1)) {#
+                  points(model$xdata[model$fmod==j],model$ydata[model$fmod==j],col="grey80",cex = 0.6,...)#
+                  lines(model$x, model$p[, der = i, fac = j], type = type, #
+                  xlab = xlab, ylab = ylab2, col = col, main = title,ylim = ylim2,lwd=lwd, lty=lty, ...)}#
+            lines(model$x, model$pl[, der = i, fac = j], lty = CIlty, col = CIcol, type = CItype,lwd=CIlwd,...)#
+            lines(model$x, model$pu[, der = i, fac = j], lty = CIlty, col = CIcol, type = CItype,lwd=CIlwd,...)#
+            ylim=NULL#
+            if (i == 3) {if(abline==TRUE) abline(h = 0, col = ablinecol)}}}#
+}else{	 #
+		#der=co+1  # esto estaba asi, pero no funcionaba plot(fit,der=1) #cuando formula=DW~RC#
+    	if (length(der) == 0) {jder = c(1:3)#
+  		}else{der = der + 1}#
+    	jnf = c()#
+    	title=main #
+    	if(length(fac)!=0){ for (i in 1:length(fac)) {jnf[i] = which(model$etiquetas == fac[i])}}else{jnf=1}#
+        if(length(fac)==0&is.null(main)){title=""}#
+        if(length(fac)!=0&is.null(main) ) title = paste("Level", model$etiquetas[jnf])  #
+    	if(der==1) ylab2=ylab#
+    	if(der==2) ylab2="First derivative"#
+    	if(der==3) ylab2="Second derivative"#
+    	if((points == TRUE) & (der == 1)) {#
+    		ylim2=c(min(model$ydata[model$fmod==jnf],na.rm=T),max(model$ydata[model$fmod==jnf],na.rm=T))#
+    	}else{ylim2=c(min(model$p[,der,jnf],na.rm=T),max(model$p[,der,jnf],na.rm=T))}#
+           if(is.null(ylim)) ylim=ylim2#
+    	plot(model$x, model$p[, der, jnf], type = type, xlab = xlab, ylab = ylab2, col = col, main = title,#
+    	     ylim = ylim,lwd=lwd,lty=lty,...)#
+            if ((points == TRUE) & (der == 1)) {#
+                points(model$xdata[model$fmod==jnf],model$ydata[model$fmod==jnf], col = "grey80", cex = 0.6,...)#
+                lines(model$x,model$p[,der,jnf],type=type,xlab = xlab, ylab = ylab2, col = col, main = title,lwd=lwd,lty=lty,...)}#
+        lines(model$x, model$pl[, der , jnf], lty = CIlty, col = CIcol, type = CItype,lwd=CIlwd,...)#
+        lines(model$x, model$pu[, der , jnf], lty = CIlty, col = CIcol, type = CItype,lwd=CIlwd,...)#
+             if (der == 3) {if(abline==TRUE) abline(h = 0, col = ablinecol)}#
+}}
+plot(jo,der=1,fac="female")
+plot(jo,der=0,fac="female")
+plot(jo,der=0)
+jfrfast(d$height~d$age,nboot=200)
+jo=frfast(d$height~d$age,nboot=200)
+jo=frfast(d$height~d$age,data=d,nboot=200)
+jo=frfast(d$heigth~d$age,data=d,nboot=200)
+jo=frfast(heigth~age,data=d,nboot=200)
+head(d)
+jo=frfast(height~age,data=d,nboot=200)
+plot(jo)
+?par

@@ -1,55 +1,65 @@
 #' @export summary.frfast
-summary.frfast <-function(model)
+
+summary.frfast <-
+function(model)
 {
 	if (missing(model)) 
         stop("Argument 'model' is missing with no default")
         
-	 if(model$modelo==1){
+	 if(model$nmodel==1){
 	 
     		cat("\nCall:\n")
 	 		print(model$call)
 	 		cat("", "\n")
-     		if(model$modelo==1){m="Nonparametric"}else{m="Alometric"}
-     		cat("*********************************************", "\n")
-  		   cat(m,"Model","\n")
-  		  cat("*********************************************", "\n")
-  		  if (model$kernel==1) cat("Kernel: Epanechnikov \n")
-			if (model$kernel==2) cat("Kernel: Triangular \n")
-			if (model$kernel==2) cat("Kernel: Gaussian \n")
+     		if(model$nmodel==1){m="Nonparametric"}else{m="Alometric"}
+     	cat("*********************************************", "\n")
+  		cat(m,"Model","\n")
+  		cat("*********************************************", "\n")
+  		 if (model$kernel==1) cat("Kernel: Epanechnikov \n")
+		 if (model$kernel==2) cat("Kernel: Triangular \n")
+		 if (model$kernel==3) cat("Kernel: Gaussian \n")
    		 cat("Bandwidth:", model$h,"\n")
    		 cat("Degree of polinomium:", model$dp,"\n") 
    		 cat("Number of bootstrap repeats:", model$nboot,"\n")
-    	cat("Number of binning nodes", model$grid,"\n")   
+    	 cat("Number of binning nodes", model$kbin,"\n")   
    		 cat("", "\n")
    		 cat("", "\n")
    		 cat("The number of data is: ",model$n, "\n")
-    	cat("The factor's levels are: ",etiquetas<-model$etiquetas, "\n")
-    
-   		 nf<-length(etiquetas)
-   		 if (nf != 1){  	
-    		for (factor in c(1:nf)){
-    			  cat("The number of data for the level", etiquetas[factor], "is:",length(model$xdata[model$fmod==factor]), "\n")}  
-    	  }
-    	    
-    	 cat("", "\n") 
-    	 cat("Summaries for the variable y (for each level): ")  
-    	  
-    for (factor in c(1:nf)){
-    	cat("", "\n")
-    	cat("Level", etiquetas[factor],":", "\n")
     	
-    	print(summary(model$ydata[model$fmod==factor]))} 	  
+    	 #cat("The factor's levels are: ",etiquetas<-model$etiquetas, "\n")
+    
+   		 nf<-length(model$label)
+   		 if (nf != 1){
+   		 	cat("The factor's levels are: ",etiquetas<-model$label, "\n")  	
+    		for (factor in c(1:nf)){
+    			  cat("The number of data for the level", etiquetas[factor], "is:",length(model$xdata[model$fmod==factor]), "\n")
+    		}
+    		cat("", "\n") 
+    	    cat("Summaries for the response variable (for each level): ")
+    	    for (factor in c(1:nf)){
+    			cat("", "\n")
+    			cat("Level", etiquetas[factor],":", "\n")
+		    	print(summary(model$ydata[model$fmod==factor]))
+		    } 
+    	    	     
+    	  }else{
+    	  cat("", "\n") 
+    	  cat("Summaries for the response variable: \n")  
+     	  print(summary(model$ydata))}
+    	    
+    	 	  
   }
         
         
-if(model$modelo==2){
-	etiquetas<-model$etiquetas
+if(model$nmodel==2){
+	etiquetas<-model$label
 	   nf<-length(etiquetas)
+
 
   	cat("\nCall:\n")
 	 print(model$call)
 	 cat("", "\n")
-     if(model$modelo==1){m="Nonparametric"}else{m="Allometric"}
+     if(model$nmodel==1){m="Nonparametric"}else{m="Allometric"}
      cat("*********************************************", "\n")
      cat(m,"Model","\n")
     cat("*********************************************", "\n")
@@ -70,6 +80,8 @@ if(model$modelo==2){
     	print(tabla)
     	cat("", "\n")
     	}
+    	cat("Adjusted R-squared: ",model$r2, "\n")
+    	cat("", "\n")
     cat("*********************************************", "\n")
     
     
@@ -77,11 +89,11 @@ if(model$modelo==2){
     cat("", "\n")
     cat("Degree of polinomium:", model$dp,"\n") 
     cat("Number of bootstrap repeats:", model$nboot,"\n")
-    cat("Number of binning nodes", model$grid,"\n")   
+    cat("Number of binning nodes", model$kbin,"\n")   
     cat("", "\n")
     cat("", "\n")
     cat("The number of data is: ",model$n, "\n")
-    cat("The factor's levels are: ",etiquetas<-model$etiquetas, "\n")
+    cat("The factor's levels are: ",etiquetas<-model$label, "\n")
     
 
     if (nf != 1){	

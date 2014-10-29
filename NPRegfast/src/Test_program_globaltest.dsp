@@ -1,24 +1,24 @@
-# Microsoft Developer Studio Project File - Name="Test_program" - Package Owner=<4>
+# Microsoft Developer Studio Project File - Name="Test_program_globaltest" - Package Owner=<4>
 # Microsoft Developer Studio Generated Build File, Format Version 6.00
 # ** DO NOT EDIT **
 
 # TARGTYPE "Win32 (x86) Console Application" 0x0103
 
-CFG=Test_program - Win32 Debug
+CFG=Test_program_globaltest - Win32 Debug
 !MESSAGE This is not a valid makefile. To build this project using NMAKE,
 !MESSAGE use the Export Makefile command and run
 !MESSAGE 
-!MESSAGE NMAKE /f "Test_program.mak".
+!MESSAGE NMAKE /f "Test_program_globaltest.mak".
 !MESSAGE 
 !MESSAGE You can specify a configuration when running NMAKE
 !MESSAGE by defining the macro CFG on the command line. For example:
 !MESSAGE 
-!MESSAGE NMAKE /f "Test_program.mak" CFG="Test_program - Win32 Debug"
+!MESSAGE NMAKE /f "Test_program_globaltest.mak" CFG="Test_program_globaltest - Win32 Debug"
 !MESSAGE 
 !MESSAGE Possible choices for configuration are:
 !MESSAGE 
-!MESSAGE "Test_program - Win32 Release" (based on "Win32 (x86) Console Application")
-!MESSAGE "Test_program - Win32 Debug" (based on "Win32 (x86) Console Application")
+!MESSAGE "Test_program_globaltest - Win32 Release" (based on "Win32 (x86) Console Application")
+!MESSAGE "Test_program_globaltest - Win32 Debug" (based on "Win32 (x86) Console Application")
 !MESSAGE 
 
 # Begin Project
@@ -29,7 +29,7 @@ CPP=cl.exe
 F90=df.exe
 RSC=rc.exe
 
-!IF  "$(CFG)" == "Test_program - Win32 Release"
+!IF  "$(CFG)" == "Test_program_globaltest - Win32 Release"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 0
@@ -54,7 +54,7 @@ LINK32=link.exe
 # ADD BASE LINK32 kernel32.lib /nologo /subsystem:console /machine:I386
 # ADD LINK32 kernel32.lib /nologo /subsystem:console /machine:I386
 
-!ELSEIF  "$(CFG)" == "Test_program - Win32 Debug"
+!ELSEIF  "$(CFG)" == "Test_program_globaltest - Win32 Debug"
 
 # PROP BASE Use_MFC 0
 # PROP BASE Use_Debug_Libraries 1
@@ -83,15 +83,15 @@ LINK32=link.exe
 
 # Begin Target
 
-# Name "Test_program - Win32 Release"
-# Name "Test_program - Win32 Debug"
+# Name "Test_program_globaltest - Win32 Release"
+# Name "Test_program_globaltest - Win32 Debug"
 # Begin Source File
 
 SOURCE=.\program2.f90
 # End Source File
 # Begin Source File
 
-SOURCE=.\Test_program.f90
+SOURCE=.\Test_program_globaltest.f90
 # End Source File
 # End Target
 # End Project

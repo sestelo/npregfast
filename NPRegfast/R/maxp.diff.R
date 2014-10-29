@@ -13,7 +13,7 @@ if(is.null(der)& is.null(factor2)&is.null(factor1)){
 
 		for(i in 1:nrow(a)){	
 			res[i]=list(matrix(ncol=5,nrow=3))
-			colnames(res[[i]])=c("Factor2","Factor1","Max point","Lower IC","Upper IC")
+			colnames(res[[i]])=c("Factor2","Factor1","Max point","Lwr","Upr")
 			rownames(res[[i]])=c("Estimation","First_der","Second_der")	
 						for(k in 1:3){
 								res[[i]][k,1]=a[i,2]
@@ -40,7 +40,7 @@ if(is.null(der)& is.null(factor2)&is.null(factor1)){
 								if(fac2<fac1){factor2=fac2;factor1=fac1}
 								}			
 		
-		colnames(res)=c("Factor2","Factor1","Max points Diff.","95% IC_lower Diff.","95% IC_upper Diff.")
+		colnames(res)=c("Factor2","Factor1","Max points Diff.","Lwr","Upr")
 		rownames(res)=c("Estimation","First_der","Second_der")
 		return(res)
 		
@@ -51,7 +51,7 @@ if(is.null(der)& is.null(factor2)&is.null(factor1)){
 	for(i in 1:nrow(a)){	
 		res[i]=list(matrix(ncol=5,nrow=1))
 		
-		colnames(res[[i]])=c("Factor2","Factor1","Max points Diff.","95% IC_lower Diff.","95% IC_upper Diff.")
+		colnames(res[[i]])=c("Factor2","Factor1","Max points Diff.","Lwr","Upr")
 		if(der==1)		rownames(res[[i]])= c("Estimation")
 		if(der==2)		rownames(res[[i]])=c("First_der")
 		if(der==3)		rownames(res[[i]])=c("Second_der")
@@ -74,7 +74,7 @@ if(is.null(der)& is.null(factor2)&is.null(factor1)){
 			res[1,5]= if(fac2<fac1){-1*round(c(model$diffmaxu[der,factor1,factor2]),3)}else{round(c(model$diffmaxu[der,factor1,factor2]),3)}
 			
 								
-			colnames(res)=c("Factor2","Factor1","Max points Diff.","95% IC_lower Diff.","95% IC_upper Diff.")
+			colnames(res)=c("Factor2","Factor1","Max points Diff.","Lwr","Upr")
 			if(der==1)		rownames(res)= c("Estimation")
 			if(der==2)		rownames(res)=c("First_der")
 			if(der==3)		rownames(res)=c("Second_der")

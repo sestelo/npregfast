@@ -2,38 +2,79 @@
 #' @export frfast
 
 
-frfast <- function(x,y,f=NULL,model="np",h=-1,w=NULL,p=3,kbin=100,nc=NULL,
-ncmax=5,ikernel=1,iopt=1,nboot=500,c2=NULL,rankl=NULL,ranku=NULL,kernel=1,nh=30)
 
-{
-	n    <- length(x)
-	if(is.null(f)) f <- rep(1.0,n) 
+frfast <-
+function(formula,data=data,model="np",h=-1.0,nh=30,weights=NULL,kernel="epanech",p=3,kbin=100,nboot=500,rankl=NULL,ranku=NULL){	
+	
+	if(kernel=="gaussian")  kernel=3
+	if(kernel=="epanech")   kernel=1
+	if(kernel=="triang")    kernel=2
+	##for (i in 1:nf){
+ 	##		if(is.null(pcmin))  pcmin<-rep(min(x[f==i]),nf) ## 
+ 	##		if(is.null(pcmax)) pcmax <-rep(60,nf)}  ## ver esto... 
+ 		
+ 	 if(missing(formula)){
+ 		 stop("Argument \"formula\" is missing, with no default")
+ 	 }
+ 	 if(missing(data)){
+ 		 stop("Argument \"data\" is missing, with no default")
+ 	 }
+ 	 if(!(kernel %in% 1:3)){
+ 		 stop("Kernel not suported")
+ 	}
+		
+	ikernel=1
+	nc=NULL
+	ncmax=5
+	iopt=1
+	c2=NULL
+
+	
+	ffr <- interpret.frfastformula(formula, method = "frfast")
+	varnames <- ffr$II[2,]
+	aux<-unlist(strsplit(varnames,split=":"))
+	varnames<-aux[1]
+	namef<-aux[2]
+	if(length(aux)==1){f=NULL}else{f<-data[,namef]}
+	newdata <- data
+	data <- na.omit(data[,c(ffr$response, varnames)])
+	newdata <- na.omit(newdata[,varnames])
+	n=nrow(data)
+	
+	if(is.null(f)) f <- rep(1.0,n)
 	etiquetas<-unique(f)
  	nf<-length(etiquetas)
- 	asfactorf<-as.factor(f)
- 	f<-as.numeric(asfactorf)
- 	
- 	
-	if(model=="np") model=1
-	if(model=="allo") model=2
- 	if(is.null(h)) h <- rep(-1.0,nf)
- 	else h<-rep(h,nf)  # meto un mismo h para cada localidad. Igual interesa meter distintos h para las distintas localidades, y para las derivadas... etc. VER QUE SE HACE
+ #	asfactorf<-as.factor(f)
+ #	factorf<-factor(asfactorf,levels=etiquetas)
+ #	f<-as.numeric(factorf)
+ 		 	
+	if(model=="np") tmodel=1
+	if(model=="allo") tmodel=2
+	if(model==0) tmodel=0
+	
+ 	if(is.null(h)){h <- rep(-1.0,nf)
+ 		}else{ h<-rep(h,nf)}#1 h para cada localidad. 
+ 							#Interesaria meter !=h para las != localidades, y para las derivadas?
  	if(is.null(nc)) nc <- rep(-1.0,nf)
- 	if(is.null(w)) w <- rep(1.0, n)  
+ 	if(is.null(weights)) {
+ 		weights <- rep(1.0, n)
+ 	}else{
+ 		if(sum(weights)<=0 || any(weights<0) || length(weights)!= n) 
+ 			stop("The specified weights are not correct")
+ 	}   			
  	if(is.null(c2)) c2<-matrix(as.double(-1.0),ncmax,nf) 
- 	if(is.null(rankl)) rankl<-as.vector(tapply(x,f,min))# si rankl o rank son dos factores y meto un numero solo casca!!! corregir con repeat. 
- 	if(is.null(ranku)) ranku<-as.vector(tapply(x,f,max))
- 	#for (i in 1:nf){
- 	#		if(is.null(pcmin))  pcmin<-rep(min(x[f==i]),nf) ### VER ESTO ...
- 	#		if(is.null(pcmax)) pcmax <-rep(60,nf)}  ## ver esto... 
+ 	if(is.null(rankl)) rankl<-as.vector(tapply(data[,varnames],f,min))# si rank son2fact y meto1num casca!!! corregir con repeat. 
+ 	if(is.null(ranku)) ranku<-as.vector(tapply(data[,varnames],f,max))
  
+ 	ipredict2=0
 
-
+ 	
+ 		
  frfast  <- .Fortran("frfast",
        f      = as.integer(f),
-       x      = as.double(x),
-       y      = as.double(y),
-       w      = as.double(w),
+       x      = as.double(data[,varnames]),
+       y      = as.double(data[,ffr$response]),
+       w      = as.double(weights),
        n      = as.integer(n),
        h      = as.double(h),
        c2     = as.integer(c2),
@@ -53,7 +94,7 @@ ncmax=5,ikernel=1,iopt=1,nboot=500,c2=NULL,rankl=NULL,ranku=NULL,kernel=1,nh=30)
        dif     = array(as.double(-1.0),c(kbin,3,nf,nf)),
        difi    = array(as.double(-1.0),c(kbin,3,nf,nf)),
        difs	= array(as.double(-1.0),c(kbin,3,nf,nf)),
-       model	= as.integer(model), 
+       tmodel	= as.integer(tmodel), 
        pvalor	= as.double(rep(-1.0,1)),
        c 		= array(as.double(-1.0),c(3,nf)),
        cs		= array(as.double(-1.0),c(3,nf)),
@@ -74,18 +115,32 @@ ncmax=5,ikernel=1,iopt=1,nboot=500,c2=NULL,rankl=NULL,ranku=NULL,kernel=1,nh=30)
 		b     =as.double(rep(-1,nf)),
 		binf     =as.double(rep(-1,nf)),
 		bsup     =as.double(rep(-1,nf)),
-    PACKAGE="NPRegfast"
+		ipredict=as.integer(ipredict2),
+		predict=array(rep(-1.0),c(kbin,3,nf)),
+		predictl=array(as.double(-1.0),c(kbin,3,nf)),
+		predictu=array(as.double(-1.0),c(kbin,3,nf))
 		)
 
-if(model!=2){
+if(tmodel!=2){
 	frfast$a=NULL
 	frfast$ainf=NULL
 	frfast$asup=NULL
 	frfast$b=NULL
 	frfast$binf=NULL
 	frfast$bsup=NULL
-	
+	r2=NULL
+	}
+
+#R-squared
+if(tmodel==2){
+	yhat=frfast$a*(frfast$x^frfast$b)
+	rss=sum( (frfast$y-yhat)**2 ) / (frfast$n-2)
+	tss=sum(  (frfast$y-mean(frfast$y))**2 ) / (frfast$n-1)
+	r2=1-(rss/tss)
 }
+
+
+
 
 frfast$pb[frfast$pb==-1]=NA
 frfast$li[frfast$li==-1]=NA
@@ -106,6 +161,8 @@ frfast$pboot[frfast$pboot==-1]=NA
 #colnames(model$p)=c("Estimation","FirstDer","SecondDer")
 #	}
 	
+	
+	
 	res<- list(x=frfast$xb, 
 		p=frfast$pb, 
 		pl=frfast$li,
@@ -117,23 +174,22 @@ frfast$pboot[frfast$pboot==-1]=NA
 		n=frfast$n,
 		dp=frfast$p,
 		h=frfast$h,
-		grid=frfast$kbin,
+		#grid=frfast$kbin, #lo comente pq estaba repetido
 		fmod=frfast$f,
 		xdata=as.vector(frfast$x),
 		ydata=frfast$y,
 		w=frfast$w,
 		#fact=fact,  # Lo tuve que comentar pq me daba error
-		c2=frfast$c2,
-		ncmax=frfast$ncmax,
-		nc=frfast$nc,
+		#c2=frfast$c2, #no hace falta sacarlo
+		#ncmax=frfast$ncmax, #no hace falta sacarlo
+		#nc=frfast$nc,   #no hace falta sacarlo
 		kbin=frfast$kbin,
 		nf=frfast$nf,
-		ikernel=frfast$ikernel,
-		pvalue=frfast$pvalor,
+		#ikernel=frfast$ikernel,
 		max=frfast$c, #maximo rep boot
 		maxu=frfast$cs, 
 		maxl=frfast$ci,
-		maxboot=frfast$cboot,
+		#maxboot=frfast$cboot,  #no hace falta sacarlo
 		diffmax=frfast$difc,
 		diffmaxu=frfast$difcs,
 		diffmaxl=frfast$difci,
@@ -141,18 +197,24 @@ frfast$pboot[frfast$pboot==-1]=NA
 		repboot=frfast$pboot,	
 		rankl=frfast$pcmin,
 		ranku=frfast$pcmax,
-        modelo=frfast$model,
-        etiquetas=as.character(etiquetas),
-        etiquetasnum=unique(frfast$f),
-        kernel=frfast$kernel,
+        nmodel=frfast$tmodel, #no hace falta sacarlo
+        label=as.character(etiquetas),
+        numlabel=unique(frfast$f),
+        kernel=frfast$kernel, 
         a=frfast$a,
         a_inf=frfast$ainf,
         a_sup=frfast$asup,
         b=frfast$b,
         b_inf=frfast$binf,
         b_sup=frfast$bsup,
+        name=c(ffr$response,varnames),
+        formula=formula,
+        nh=frfast$nh,
+        r2=r2,
+        pvalue=frfast$pvalor,
         call=match.call())
 		
+		if(tmodel==0) res=res[-(length(res)-2)]
 		
 		class(res) <- "frfast"
 		return(res)

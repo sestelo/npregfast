@@ -45,14 +45,20 @@ Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 library(NPRegfast)
 data(barnacle)
 
-fit<-frfast(x=barnacle$RC,y=barnacle$DW)
+################################################
+# Nonparametric regression without interactions
+################################################
+fit<-frfast(DW~RC,data=barnacle)
 maxp(fit)
 maxp(fit,der=0)
 maxp(fit,der=1)
 maxp(fit,der=2)
 maxp(fit,der=c(0,1))
 
-fit2<-frfast(x=barnacle$RC,y=barnacle$DW,f=barnacle$F)
+##############################################
+# Nonparametric regression with interactions
+##############################################
+fit2<-frfast(DW~RC:F,data=barnacle)
 maxp(fit2)
 maxp(fit2,der=0)
 maxp(fit2,der=1)
@@ -61,5 +67,8 @@ maxp(fit2,der=c(0,1))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ ~kwd1 }
-\keyword{ ~kwd2 }% __ONLY ONE__ keyword per line
+\keyword{ ~maximum }
+\keyword{ ~points }% __ONLY ONE__ keyword per line
+\keyword{ ~estimation }
+\keyword{ ~firstderivative }
+\keyword{ ~secondderivative}

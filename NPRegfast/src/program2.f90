@@ -1,7 +1,866 @@
+subroutine test_allo(X,Y,W,n,kbin,nboot,T,pvalor)
+implicit none
+
+!!DEC$ ATTRIBUTES DLLEXPORT::test_allo
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'test_allo_' :: test_allo
+
+integer n,kbin,p,iboot,nboot,j,k,i
+double precision X(n),X2(n),Y(n),Y2(n),W(n),&
+errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor
+real u,T1,T2,rand
+real,external::rnnof
+integer,external::which_min,which_max2
+
+
+call srand(1)
+h=-1.0
+
+do i=1,n
+X2(i)=max(X(i),0.001)
+Y2(i)=max(Y(i),0.001)
+end do
+
+
+X=log(X2)
+Y=log(Y2)
+
+! Estimación Piloto 
+	
+p=1
+call Reglineal_pred(X,Y,W,n,p,muhatg)
+do i=1,n
+	errg(i)=Y(i)-muhatg(i)
+end do	
+
+call RfastC3(X,Y,W,n,p,kbin,h,T)
+
+
+pvalor=0
+do iboot=1,nboot
+	do i=1,n
+		u=RAND()
+		if (u.le.(5.0+sqrt(5.0))/10) then
+			Yboot(i)=muhatg(i)+errg(i)*(1-sqrt(5.0))/2
+		else
+			Yboot(i)=muhatg(i)+errg(i)*(1+sqrt(5.0))/2	
+		end if
+	end do
+	call RfastC3(X,Yboot,W,n,p,kbin,h,Tboot)
+	if(Tboot.gt.T) pvalor=pvalor+1
+end do
+	
+pvalor=pvalor/nboot
+
+end subroutine
+
+
+
+
+
+
+subroutine RfastC3(X,Y,W,n,p,kbin,h,T)
+implicit none
+
+integer,parameter::kernel=1,nh=20
+integer n,kbin,p,i,j,ii
+double precision X(n),Y(n),W(n),Xb(kbin),pred1(n),pred2(n),h,sigma0,sigma1,&
+Pb(kbin),residuo(n),Pred(n),predg(n),T,sumw,sum2,xmin,xmax,rango
+integer,external::which_min
+
+
+! Ajustamos el modelo lineal primero
+
+p=1
+ call Reglineal_pred(X,Y,W,n,p,predg)
+do i=1,n
+	Residuo(i)=Y(i)-predg(i)
+end do
+! -----------------------------------------
+
+p=3
+
+call rfast_h_alo(X,Residuo,W,n,h,p,Xb,Pb,kbin,kernel,nh)
+
+call Interpola_alo (Xb,Pb,kbin,X,pred1,pred2,n)
+
+
+
+!Centro las pred1
+sumw=0
+sum2=0
+do i=1,n
+	sumw=sumw+W(i)
+   sum2=sum2+pred1(i)
+end do
+
+do i=1,n
+	Pred1(i)=pred1(i)-sum2/sumw
+end do
+
+xmin=9999
+xmax=-xmin
+do i=1,n
+   if(x(i).le.xmin) xmin=x(i)
+   if(x(i).ge.xmax) xmax=x(i)
+end do
+
+rango=xmax-xmin
+
+T=0
+do i=1,n
+	!if (abs(X(i)).le.xmax-(0.10*rango)) 
+	T=T+abs(pred1(i))
+end do
+
+
+
+end subroutine
+
+
+
+subroutine Reglineal_pred(X,Y,W,n,p,Pred)
+implicit none
+integer i,n,j,p,iopt,ier
+double precision X(n),Y(n),W(n),Pred(n),beta(p+1),&
+sterr(p+1),se,r2,X2(n,p+1)
+do i=1,n
+	do j=1,p
+		X2(i,j)=X(i)**j
+	end do
+end do
+iopt=0
+call WRegresion(X2,Y,W,n,p,beta,sterr,se,r2,iopt)
+!do i=1,n
+!	Pred(i)= Beta(1)+Beta(2)*X(i)
+!end do 
+
+
+pred=Beta(1)
+do i=1,n
+	do j=1,p
+		pred(i)=pred(i)+Beta(j+1)*X2(i,j)
+	end do
+end do
+
+end
+
+
+
+
+
+!*********************************************************
+!		
+!Subroutine RFAST_H_alo MODIFICADA PARA EL CONTRASTE ALOMETRICO !PB AHORA ES UN VECTOR!
+!
+!* h: ventana, seleccivÄ±n por cv (h=-1). Valores de 0 a 1.
+!* kernel: tipo de nucleo (1=epanech, 2=triang, 3=gaussian)
+!* nh: grid de busqueda de ventanas, de 0 a 1.
+!* p: grado del polinomio
+!
+!*********************************************************
+subroutine rfast_h_alo(X,Y,W,n,h,p,Xb,Pb,kbin,kernel,nh)
+
+!!DEC$ ATTRIBUTES DLLEXPORT::rfast
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'rfast_' :: RFAST 
+
+implicit none
+integer n,i,j,kbin,p,ifcv,icont,ih,ih0,i0,nh,kernel
+
+double precision x(n),Y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
+Pb(kbin),h,ErrCV,erropt,sumw,med,&
+meany,vary,dif,rango,hmin,hmax,beta(p+1),xbb(kbin),pred(3)	
+
+
+call GRID1D(X,W,n,Xb,kbin)
+
+xbb(1:kbin)=xb(1:kbin)
+
+
+
+
+call Binning(X,Y,n,W,Xb,Yb,Wb,kbin)
+rango=Xb(kbin)-Xb(1)
+hmin=0
+hmax=1
+
+
+
+if (h.eq.-1)  then ! ventana por cv
+	call Ventana1D(Xb,Yb,Wb,kbin,h,p,hmin,hmax,nh,rango,kernel)
+
+elseif(h.eq.0) then ! lineal
+	call Reglineal (Xb,Yb,Wb,kbin,p,Beta)
+
+  pb=0
+	do i=1,kbin
+		Pb(i)=beta(1)
+	!	Pb(i,2)=0
+		do j=1,p
+			pb(i)=pb(i)+beta(j+1)*Xbb(i)**j
+		!	pb(i,2)=pb(i,2)+p*beta(j+1)*Xbb(i)**(j-1)
+		end do
+	end do
+
+	goto 1
+
+
+
+elseif (h.eq.-2) then
+	Pb=0
+	goto 1
+end if
+
+
+
+
+
+ifcv=0
+do i=1,kbin
+	call Reg1D(Xb,Yb,Wb,kbin,h,p,xbb(i),pred,rango,kernel,ifcv)
+	pb(i)=pred(1)
+	!pb(i,2)=pred(2)
+	!pb(i,3)=pred(3)
+
+end do
+
+1	continue
+
+
+
+xb(1:kbin)=xbb(1:kbin)
+end subroutine
+
+
+
+
+
+
+
+
+
+
+
+
+!********************************************
+!********************************************
+
+
+
+
+
+
+ subroutine localtest(F,X,Y,W,n,h,nh,p,kbin,fact,nf,kernel,nboot,pcmax,pcmin,r,D,Ci,Cs)
+
+
+!!DEC$ ATTRIBUTES DLLEXPORT::localtest
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'localtest_' :: localtest
+
+implicit none
+integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,&
+iopt,nh,nboot,kernel,model,r,index,aa,kfino,posmin,posmax
+double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),nc(nf),xb(kbin),pb(kbin,3,nf),&
+h(nf),h0(nf),h1(nf),pred1(kbin,nf),pred0(kbin),&
+u,Tboot,T,pvalor,C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
+Dboot(nboot),D,pmax,minC,maxC,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc
+REAL(4) rand 
+double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
+muhatgboot(:),Xfino(:),Pfino(:),p0(:,:),pred(:),pboot(:,:,:,:),cboot(:,:,:),&
+media(:,:,:),sesgo(:,:,:)
+
+kfino=1000
+
+allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),&
+Xfino(kfino),Pfino(kfino),pred(n),pboot(kbin,3,nf,nboot),Cboot(3,nf,nboot),&
+sesgo(kbin,3,nf),media(kbin,3,nf))
+
+
+
+
+Xb=-1
+Pb=-1
+pasox=0
+!nc=-1
+call GRID(X,W,n,Xb,kbin)
+call GRID(X,W,n,Xfino,kfino)
+
+pasox=Xb(2)-Xb(1)
+pasoxfino=Xfino(2)-Xfino(1)
+
+! calculo min y max por niveles
+xmin=999999
+xmax=-xmin
+do i=1,n
+	do j=1,nf
+		if (W(i).gt.0) then
+			if (X(i).le.xmin(j).and.F(i).eq.fact(j)) xmin(j)=X(i)
+			if (X(i).ge.xmax(j).and.F(i).eq.fact(j)) xmax(j)=X(i)
+		end if
+	end do
+end do
+
+
+h1=h
+do j=1,nf
+	Waux=0
+	do i=1,n
+		if (F(i).eq.fact(j)) Waux(i)=W(i)
+	end do
+    call rfast_h(X,Y,Waux,n,h1(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+	do i=1,kbin
+		if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
+	end do
+end do
+
+
+
+
+
+! Modelo general
+C=-1
+do j=1,nf	
+	do k=1,2
+		pmax=-999
+		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)		
+		do i=1,kfino
+			if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
+				if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
+					pmax=pfino(i)
+					C(k,j)=Xfino(i)
+					index=i		
+				end if
+			end if
+		end do
+	
+     	if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el m·ximo, escribe valor  muy grande
+					C(k,j)=9999 
+		end if
+
+		if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
+					C(k,j)=9999
+		end if
+	end do
+	
+	!revisar
+	
+	do k=3,3
+		C(k,j)=9999
+		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
+		do i=2,kfino
+			if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
+				if (Pfino(i)*Pfino(i-1).lt.0) then
+					C(k,j)=0.5*(Xfino(i)+Xfino(i-1))
+					goto 1
+				end if
+			end if
+		end do
+1      continue
+	end do
+
+end do
+
+
+
+
+
+
+
+!para hacer diferencias, donde hay 9999 pongo el máximo de la localidad
+
+do k=1,3
+	do j=1,nf
+		if(C(k,j).eq.9999) C(k,j)=xmax(j)
+	end do
+end do
+
+
+!print *, C(r+1,1),C(r+1,2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+xminc=99999.999
+xmaxc=-xminc
+	do j=1,nf
+			if (C(r+1,j).le.xminc) then
+				xminc=C(r+1,j)
+				posmin=j
+			end if
+			
+			if (C(r+1,j).ge.xmaxc) then
+				xmaxc=C(r+1,j)
+			posmax=j
+		end if
+	end do
+	
+	if(posmin.lt.posmax) then
+		D=(C(r+1,posmin)-C(r+1,posmax))
+	else
+		D=(C(r+1,posmax)-C(r+1,posmin))
+	end if
+
+
+	
+
+
+
+!minC=9e9
+!maxC=-minC
+!do j=1,nf
+!		minC=min(C(r+1,j),minC)
+!		maxC=max(C(r+1,j),maxC)
+!end do
+
+!D=(minC-maxC)
+
+
+
+
+
+
+!Estimaciones piloto para bootstrap
+
+allocate(p0(n,nf))
+do j=1,nf
+	call Interpola (Xb,Pb(1,1,j),kbin,X,P0(1,j),n)
+	do i=1,n
+		if (X(i).lt.xmin(j).or.X(i).gt.xmax(j)) P0(i,j)=-1
+	end do
+end do
+
+
+do i=1,n
+	do j=1,nf
+		if (F(i).eq.fact(j)) pred(i)=p0(i,j)
+	end do
+    Errg(i)=Y(i)-pred(i)
+end do
+deallocate (p0)
+
+cboot=-1
+
+
+
+do iboot=1,nboot
+	do i=1,n
+		u=RAND()
+		ir=0
+		IF (u.le.(5+sqrt(5.0))/10) ir=1
+		if (ir.eq.1) then
+			Yboot(i)=Pred(i)+errg(i)*(1-sqrt(5.0))/2
+		else
+			Yboot(i)=pred(i)+errg(i)*(1+sqrt(5.0))/2	
+		end if
+   	end do
+
+	
+
+	C2=-1
+	do j=1,nf
+		Waux=0
+		do i=1,n
+			if (F(i).eq.fact(j)) Waux(i)=W(i)
+		end do
+
+		call rfast_h(X,Yboot,Waux,n,h(j),p,Xb,Pboot(1,1,j,iboot),kbin,kernel,nh)
+
+		do i=1,kbin
+			if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(Xb(2)-Xb(1))) Pboot(i,1:3,j,iboot)=-1
+		end do
+	end do
+
+
+	do j=1,nf
+		do k=1,2
+			pmax=-999
+			call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
+			do i=1,kfino
+				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
+					if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then	
+						pmax=pfino(i)
+						Cboot(k,j,iboot)=Xfino(i)
+						index=i !lo meto yo para saber en que punto se queda
+					end if
+				end if
+			end do
+		end do
+
+			
+
+		do k=3,3
+			Cboot(k,j,iboot)=9999
+			if (C(k,j).ne.-1.0) then
+				call Interpola (Xb,Pboot(1,k,j,iboot),kbin,&
+				Xfino,Pfino,kfino)
+				do i=2,kfino
+					if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
+						if (Pfino(i)*Pfino(i-1).lt.0) then
+							Cboot(k,j,iboot)=0.5*(Xfino(i)+Xfino(i-1))
+							goto 2
+						end if
+					end if
+				end do
+2				continue
+			end if
+		end do
+
+
+	end do
+
+
+end do
+
+
+
+
+!recentrar las bootstrpa aqui*******************
+
+
+
+media=0
+icont=0
+sesgo=0
+do i=1,kbin
+	do k=1,3
+		do j=1,nf
+			do l=1,nboot
+				if(pboot(i,k,j,l).ne.-1) then 
+				media(i,k,j)=media(i,k,j)+pboot(i,k,j,l) 
+				else 
+				media(i,k,j)=media(i,k,j)
+				icont(i,k,j)=icont(i,k,j)+1
+				end if
+			end do
+			media(i,k,j)=media(i,k,j)/nboot-icont(i,k,j)
+			if(pb(i,k,j).ne.-1) sesgo(i,k,j)=pb(i,k,j)-media(i,k,j)
+		end do
+	end do
+end do
+
+
+
+
+
+do i=1,kbin
+	do k=1,3
+		do j=1,nf
+			do l=1,nboot
+				if(pboot(i,k,j,l).ne.-1) pboot(i,k,j,l)=pboot(i,k,j,l)+sesgo(i,k,j)
+			end do
+		end do
+	end do
+end do
+
+
+
+
+
+
+
+
+
+
+!***********************************
+
+
+!!! calculo cboot de nuevo
+
+
+
+cboot=-1
+
+! punto de corte
+	do iboot=1,nboot
+	do j=1,nf
+		do k=1,2
+			pmax=-999
+		
+			call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
+			do i=1,kfino
+				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
+					if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then	
+						pmax=pfino(i)
+						Cboot(k,j,iboot)=Xfino(i)
+						index=i !lo meto yo para saber en que punto se queda
+					end if
+				end if
+			end do
+		end do
+end do
+end do
+
+
+
+
+
+
+
+
+do k=1,2
+	do j=1,nf
+		do iboot=1,nboot
+			if (Cboot(k,j,iboot).ge.xmax(j)) then ! esto lo meti yo, si se sale el m·ximo, fuera valor  muy grande
+					Cboot(k,j,iboot)=9999 
+			end if
+
+
+			if (Cboot(k,j,iboot)+(Xfino(2)-Xfino(1)).ge.xmax(j)) then
+					Cboot(k,j,iboot)=9999
+			end if		
+
+		end do
+	end do
+end do
+
+
+
+
+
+
+
+
+
+
+
+
+
+		!para hacer diferencias, donde hay 9999 pongo el máximo de la localidad
+	
+
+do k=1,2
+	do j=1,nf
+		do iboot=1,nboot
+			if (Cboot(k,j,iboot).eq.9999) then ! esto lo meti yo, si se sale el m·ximo, fuera valor  muy grande
+				Cboot(k,j,iboot)=xmax(j) 
+			end if
+		end do
+	end do
+end do
+
+
+
+
+do iboot=1,nboot
+xminc=99999.999
+xmaxc=-xminc
+	do j=1,nf
+			if (Cboot(r+1,j,iboot).le.xminc) then
+				xminc=Cboot(r+1,j,iboot)
+				posmin=j
+			end if
+			
+			if (Cboot(r+1,j,iboot).ge.xmaxc) then
+				xmaxc=Cboot(r+1,j,iboot)
+			posmax=j
+		end if
+	end do
+	
+	if(posmin.lt.posmax) then
+		Dboot(iboot)=(Cboot(r+1,posmin,iboot)-Cboot(r+1,posmax,iboot))
+	else
+		Dboot(iboot)=(Cboot(r+1,posmax,iboot)-Cboot(r+1,posmin,iboot))
+	end if
+end do
+
+	
+
+
+
+Ci=-1
+Cs=-1
+
+
+call ICbootstrap(D,Dboot,nboot,Ci,Cs) 
+
+
+
+
+
+!print *, Ci,Cs
+
+
+end 
+
+
+
+
+
+
+
+
+
+
+!*************************************************
+!*************************************************
+
+
+
+subroutine globaltest(F,X,Y,W,n,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor)
+
+!!DEC$ ATTRIBUTES DLLEXPORT::globaltest
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
+
+implicit none
+integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,&
+iopt,nh,nboot,kernel,model,r
+double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),nc(nf),xb(kbin),pb(kbin,3,nf),&
+h(nf),h0(nf),h1(nf),pred1(kbin,nf),pred0(kbin),&
+u,Tboot,T,pvalor
+REAL(4) rand 
+double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:)
+
+
+allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n))
+
+!write(*,*) h
+
+
+
+
+h0=h
+call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+
+call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
+
+do i=1,n
+	errg(i)=Y(i)-muhatg(i)
+end do
+
+
+do i=1,kbin
+	pred0(i)=Pb(i,r+1,1)
+end do
+
+
+
+h1=h
+
+do j=1,nf
+	Waux=0
+	do i=1,n
+		if (F(i).eq.fact(j)) Waux(i)=W(i)
+	end do
+	call rfast_h(X,errg,Waux,n,h1(j),p,Xb,Pb,kbin,kernel,nh)
+
+	do i=1,kbin
+		pred1(i,j)=Pb(i,r+1,1)
+	end do
+end do
+
+
+
+
+!Estadistico
+
+T=0
+do j=1,nf
+	do i=1,kbin
+	!	T=T+abs(pred0(i)-pred1(i,j))
+	T=T+abs(pred1(i,j))
+	end do
+end do
+
+
+
+
+
+
+! Bootstrap
+
+pvalor=0
+	do iboot=1,nboot
+		do z=1,n
+			u=RAND()
+			if (u.le.(5.0+sqrt(5.0))/10) then
+				Yboot(z)=muhatg(z)+errg(z)*(1-sqrt(5.0))/2
+			else
+				Yboot(z)=muhatg(z)+errg(z)*(1+sqrt(5.0))/2	
+			end if
+   		end do
+
+	
+		call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+
+
+
+		call Interpola (Xb,Pb(1,1,1),kbin,X,muhatgboot,n)
+		do i=1,n
+			errgboot(i)=Yboot(i)-muhatgboot(i)
+		end do
+
+
+		do i=1,kbin
+			pred0(i)=Pb(i,r+1,1)
+		end do
+
+
+		
+		do j=1,nf
+			Waux=0
+			do i=1,n
+				if (F(i).eq.fact(j)) Waux(i)=W(i)
+			end do
+			call rfast_h(X,errgboot,Waux,n,h1(j),p,Xb,Pb,kbin,kernel,nh)
+
+			do i=1,kbin
+				pred1(i,j)=Pb(i,r+1,1)
+			end do
+		end do
+
+
+
+		Tboot=0
+		do k=1,nf
+			do z=1,kbin
+			!	Tboot=Tboot+abs(pred0(z)-pred1(z,k))
+				Tboot=Tboot+abs(pred1(z,k))
+			end do
+		end do
+
+		if(Tboot.gt.T) pvalor=pvalor+1
+
+	end do
+
+pvalor=pvalor/nboot
+
+
+!print *,pvalor
+
+
+
+end 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+!**********************************************
+!**********************************************
+
+
+
+
 
 subroutine frfast(F,X,Y,W,n,h,C2,nc,ncmax,p,kbin,fact,&
 nf,ikernel,iopt,nboot,xb,pb,li,ls,dif,difi,difs,model,&
-pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,b,binf,bsup)
+pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::frfast
@@ -10,21 +869,23 @@ pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,
 implicit none
 integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,idim,nc(nf),kernel,&
-ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,icont(kbin,3,nf),nh
-double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),C2(ncmax,nf),&
+
+ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,C2(ncmax,nf),&
+icont(kbin,3,nf),nh,ipredict
+double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),&
 Pb(kbin,3,nf),h(nf),min(n),max(n),Xb(kbin),xmin(nf),&
 xmax(nf),Err(n),Dif(kbin,3,nf,nf),Difi(kbin,3,nf,nf),Difs(kbin,3,nf,nf),&
 C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
 DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,Pba(kbin,3,nf),&
-Err2(n),alfa(3),Q(3),Tb(n,nf),&
+alfa(3),Q(3),&
 u,sumerr,sumerra,ii,pcmax(nf),pcmin(nf),Cboot(3,nf,nboot),a(nf),b(nf),aboot(nf,nboot),bboot(nf,nboot),&
-asup(nf),ainf(nf),bsup(nf),binf(nf)
+asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf)
 double precision,allocatable::Pred(:),P0(:,:),P0a(:,:),Yboot(:),&
 bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),Preda(:),pboota(:,:,:,:),P0boot(:,:,:),P0boota(:,:,:),&
 predboot(:,:),predboota(:,:),Tboot(:),sumErrboot(:),&
 sumErrboota(:),Errboot(:,:),Errboota(:,:),Errboot2(:,:),Errboota2(:,:),&
-Erra(:),Erra2(:),sesgo(:,:,:),media(:,:,:)
+Erra(:),Erra2(:),sesgo(:,:,:),media(:,:,:),err2(:)
 
 REAL(4) rand 
 
@@ -40,8 +901,7 @@ REAL(4) rand
 !*********************************
 
 
-
-allocate (Pred(n),Yboot(n),pboota(kbin,3,nf,nboot))
+allocate (Pred(n),Yboot(n),pboota(kbin,3,nf,nboot),err2(n))
 
 allocate (bi(kbin,3,nf),bs(kbin,3,nf),Vb(kbin,nboot),&
 Difbi(kbin,3,nf,nf),Difbs(kbin,3,nf,nf),sesgo(kbin,3,nf),media(kbin,3,nf))
@@ -51,7 +911,7 @@ if (kbin.le.nboot) then
 allocate (V(nboot))
 else
 allocate(V(kbin))
-end if
+end if	
 
 
 
@@ -73,23 +933,23 @@ pasoxfino=Xfino(2)-Xfino(1)
 xmin=999999
 xmax=-xmin
 do i=1,n
+	do j=1,nf
+		if (W(i).gt.0) then
+			if (X(i).le.xmin(j).and.F(i).eq.fact(j)) xmin(j)=X(i)
+			if (X(i).ge.xmax(j).and.F(i).eq.fact(j)) xmax(j)=X(i)
+		end if
+	end do
+end do
+
+
+
+
+
 do j=1,nf
-if (W(i).gt.0) then
-if (X(i).le.xmin(j).and.F(i).eq.fact(j)) xmin(j)=X(i)
-if (X(i).ge.xmax(j).and.F(i).eq.fact(j)) xmax(j)=X(i)
-end if
-end do
-end do
-
-
-
-
-
-do j=1,nf
-Waux=0
-do i=1,n
-if (F(i).eq.fact(j)) Waux(i)=W(i)
-end do
+	Waux=0
+	do i=1,n
+		if (F(i).eq.fact(j)) Waux(i)=W(i)
+	end do
     
 	
 
@@ -100,36 +960,42 @@ end do
 !aqui hace no parametrico solo
 
 if (model.eq.1) then
-if (ikernel.eq.1) then
-call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
-else
-call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
-end if
+
+		if (ikernel.eq.1) then
+
+		call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+	else
+		call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
+
+		end if
+
 end if
 
 
 
 !aqui el alometrico solo
 if (model.eq.2) then
-call Rfast0 (X,Y,n,Waux,h(j),Xb,Pb(1,1,j),kbin,a(j),b(j))
+
+	call Rfast0_sinbinning(X,Y,n,Waux,h(j),Xb,Pb(1,1,j),kbin,a(j),b(j))
+		
 end if
 
 
 
 
 
-!aqu? calcula no param?trico y alometrico
+!aquí calcula no paramétrico y alometrico
 if (model.eq.0) then
 
-if (ikernel.eq.1) then
+		if (ikernel.eq.1) then
 
-call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+		call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
 
-call Rfast0 (X,Y,n,Waux,h(j),Xb,Pba(1,1,j),kbin,a(j),b(j))
-else
-call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
+		call Rfast0 (X,Y,n,Waux,h(j),Xb,Pba(1,1,j),kbin,a(j),b(j))
+	else
+		call RfastS(X,Y,Waux,n,C2(1,j),nc(j),ncmax,p,iopt,xb,pb(1,1,j),kbin) 
 
-end if
+		end if
 end if
 
 
@@ -141,24 +1007,22 @@ end if
 
 !  EVITAMOS PREDICCIONES FUERA DEL RANGO DE LOS DATOS
 
-do i=1,kbin
-if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
-if (model.eq.0.and.Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pba(i,1:3,j)=-1
+	do i=1,kbin
+		if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
+		if (model.eq.0.and.Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pba(i,1:3,j)=-1
+	end do
 end do
-end do
 
 
 
-
+!! Lo comente para el paquete
 ! MUESTRA
-
-open (1,file='xy.dat')
-write (1,'(100(a10,1x))') 'f','x','y'
-
-do i=1,n
-write (1,'(100(f10.4,1x))') 1.0*f(i),x(i),y(i)
-end do
-close(1)
+!open (1,file='xy.dat')
+!write (1,'(100(a10,1x))') 'f','x','y'
+!do i=1,n
+!	write (1,'(100(f10.4,1x))') 1.0*f(i),x(i),y(i)
+!end do
+!close(1)
 
 
 !return
@@ -168,44 +1032,44 @@ close(1)
 
 
 
-! punto de corte, calcula el m?ximo de la estimacion y primera derivada 
+! punto de corte, calcula el máximo de la estimacion y primera derivada 
 ! para todos los niveles del factor
 
 C=-1
 
-do j=1,nf
+do j=1,nf	
 	
-do k=1,2
-pmax=-999
-call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
+	do k=1,2
+		pmax=-999
+		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
 		
 		
 		
 		
-do i=1,kfino
-if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j)) then
-if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
-pmax=pfino(i)
-C(k,j)=Xfino(i)
-index=i
+		do i=1,kfino
+			if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
+				if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
+					pmax=pfino(i)
+					C(k,j)=Xfino(i)
+					index=i
 					
 
 			
 
-end if
-end if
-end do
+				end if
+			end if
+		end do
 	
 		
 
-if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el m?ximo, escribe valor  muy grande
-C(k,j)=9999 
-end if
+     	if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el máximo, escribe valor  muy grande
+					C(k,j)=9999 
+		end if
 
 
-if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
-C(k,j)=9999
-end if
+		if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
+					C(k,j)=9999
+		end if
 
 
 
@@ -213,26 +1077,26 @@ end if
 
 
 
-end do
+	end do
 	
 
 
 
 	!revisar
 	
-do k=3,3
-C(k,j)=9999
-call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
-do i=2,kfino
-if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
-if (Pfino(i)*Pfino(i-1).lt.0) then
-C(k,j)=0.5*(Xfino(i)+Xfino(i-1))
-goto 1
-end if
-end if
-end do
+	do k=3,3
+		C(k,j)=9999
+		call Interpola (Xb,Pb(1,k,j),kbin,Xfino,Pfino,kfino)
+		do i=2,kfino
+			if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
+				if (Pfino(i)*Pfino(i-1).lt.0) then
+					C(k,j)=0.5*(Xfino(i)+Xfino(i-1))
+					goto 1
+				end if
+			end if
+		end do
 1      continue
-end do
+	end do
 
 
 
@@ -264,7 +1128,7 @@ end do
 
 !**********************
 !vuelvo a eliminar los 9999 para que en el intervalo de confianza para la dif de maximos
-!no aparezca el valor de -9982... pongo el m?x de la localidad en cada caso
+!no aparezca el valor de -9982... pongo el máx de la localidad en cada caso
 
 
 
@@ -458,7 +1322,7 @@ end if
 !aqui el alometrico solo
 if (model.eq.2) then
 
-	call Rfast0 (X,Yboot,n,Waux,h(j),Xb,Pboot(1,1,j,iboot),kbin,aboot(j,iboot),bboot(j,iboot))
+	call Rfast0_sinbinning (X,Yboot,n,Waux,h(j),Xb,Pboot(1,1,j,iboot),kbin,aboot(j,iboot),bboot(j,iboot))
 		
 end if
 
@@ -466,7 +1330,7 @@ end if
 
 
 
-!aqu? calcula no param?trico y alometrico
+!aquí calcula no paramétrico y alometrico
 if (model.eq.0) then
 
 		if (ikernel.eq.1) then
@@ -514,7 +1378,7 @@ end if
 			pmax=-999
 			call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
 			do i=1,kfino
-				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j)) then
+				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
 					if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then	
 						pmax=pfino(i)
 						Cboot(k,j,iboot)=Xfino(i)
@@ -572,17 +1436,23 @@ end do  ! cierra bucle iboot
 
 
 
-!Intervalos de confianza par?metros modelo alom?trico
+
+
+
+!Intervalos de confianza par‡metros modelo alomŽtrico
 !******************************************************
 
 
 if (model.eq.2) then
 
+
 do k=1,nf
 	do l=1,nboot
-		V(l)=aboot(k,l)
+		
+	V(l)=aboot(k,l)
 		 if (V(l).eq.-1) goto 100
 	end do
+	
 	call ICbootstrap(a(k),V,nboot,ainf(k),asup(k))
 100			continue
 end do 
@@ -590,9 +1460,11 @@ end do
 
 do k=1,nf
 	do l=1,nboot
-		V(l)=bboot(k,l)
+		
+	V(l)=bboot(k,l)
 		 if (V(l).eq.-1) goto 13
 	end do
+	
 	call ICbootstrap(b(k),V,nboot,binf(k),bsup(k))
 13			continue
 end do 
@@ -601,21 +1473,23 @@ end do
 
 
 
-open (1,file='parametros_alo.dat')
-write (1,'(100(a15,1x))') 'f','a','ic_inf','ic_sup','b','ic_inf','ic_sup'
+! lo comente para el paquete
+!open (1,file='parametros_alo.dat')
+!write (1,'(100(a15,1x))') 'f','a','ic_inf','ic_sup','b','ic_inf','ic_sup'
 
-do j=1,nf
 
-write (1,'(100(f15.7,1x))') &
-		1.0*j, a(j),ainf(j),asup(j),b(j),binf(j),bsup(j)
+!do j=1,nf
+!write (1,'(100(f15.7,1x))') &
+!		1.0*j, a(j),ainf(j),asup(j),b(j),binf(j),bsup(j)
+!end do
+!close(1)
 
-end do
-close(1)
 
 
 
 
 end if
+
 
 !*****************************************************
 
@@ -626,7 +1500,7 @@ end if
 
 !recentrar las bootstrpa aqui*******************
 
-if (model.eq.1) then
+if (model.eq.1.or.model.eq.2) then
 
 media=0
 icont=0
@@ -698,7 +1572,7 @@ cboot=-1
 		
 			call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
 			do i=1,kfino
-				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j)) then
+				if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
 					if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then	
 						pmax=pfino(i)
 						Cboot(k,j,iboot)=Xfino(i)
@@ -734,12 +1608,12 @@ end if
 !if(model.ne.0) then
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-!Incluyo c?digo para que me ponga el 9999
+!Incluyo código para que me ponga el 9999
 
 do k=1,2
 	do j=1,nf
 		do iboot=1,nboot
-			if (Cboot(k,j,iboot).ge.xmax(j)) then ! esto lo meti yo, si se sale el m?ximo, fuera valor  muy grande
+			if (Cboot(k,j,iboot).ge.xmax(j)) then ! esto lo meti yo, si se sale el máximo, fuera valor  muy grande
 					Cboot(k,j,iboot)=9999 
 			end if
 
@@ -820,18 +1694,51 @@ end do
 
 
 
-open (1,file='p.dat')
-write (1,'(100(a15,1x))') 'f','x','p','lip','lsp','bip','bsp',&
-'p1','lip1','lsp1','bip1','bsp1',&
-'p2','lip2','lsp2','bip2','bsp2'
 
-do j=1,nf
-	do i=1,kbin
-		write (1,'(100(f15.7,1x))') &
-		1.0*j, xb(i),(pb(i,l,j),li(i,l,j),ls(i,l,j),bi(i,l,j),bs(i,l,j),l=1,3)
+!********************************
+if(ipredict.eq.1) then
+	do j=1,3
+		do k=1,nf
+			call Interpola (Xb,Pb(1,j,k),kbin,X,Predict(1,j,k),n)
+			call Interpola (Xb,li(1,j,k),kbin,X,Predictl(1,j,k),n)
+			call Interpola (Xb,ls(1,j,k),kbin,X,Predictu(1,j,k),n)
+		end do
 	end do
-end do
-close(1)
+
+
+
+!lo comente para el paquete
+!open (3,file='ppred.dat')
+!write (1,'(100(a15,1x))') 'f','x','predict'
+!
+!do j=1,nf
+!	do i=1,n
+!		write (1,'(100(f15.7,1x))') &
+!		1.0*j, x(i),(predict(i,l,j),l=1,3)
+!	end do
+!end do
+!close(3)
+
+end if
+
+
+!*******************************
+
+
+!lo comente para el paquete
+!open (1,file='p.dat')
+!write (1,'(100(a15,1x))') 'f','x','p','lip','lsp','bip','bsp',&
+!'p1','lip1','lsp1','bip1','bsp1',&
+!'p2','lip2','lsp2','bip2','bsp2'
+!do j=1,nf
+!	do i=1,kbin
+!		write (1,'(100(f15.7,1x))') &
+!		1.0*j, xb(i),(pb(i,l,j),li(i,l,j),ls(i,l,j),bi(i,l,j),bs(i,l,j),l=1,3)
+!	end do
+!end do
+!close(1)
+
+
 
 
 
@@ -889,21 +1796,22 @@ do j=1,3
 end do
 
 
-open (1,file='Dif.dat')
-write (1,'(100(a10,1x))') 'f1','f2','x','dif','li','ls','bi','bs',&
-'dif1','li1','ls1','bi1','bs1','dif2','li2','ls2','bi2','bs2'
-
-do j=1,nf
-	do k=j+1,nf
-		do i=1,kbin
-			write (1,'(100(f10.4,1x))') &
-			1.0*j,1.0*k, xb(i),(Dif(i,l,j,k),&
-			Difi(i,l,j,k),Difs(i,l,j,k),&
-			Difbi(i,l,j,k),Difbs(i,l,j,k),l=1,3) 
-		end do
-	end do
-end do
-close(1)
+!lo comente para el paquete
+!open (1,file='Dif.dat')
+!write (1,'(100(a10,1x))') 'f1','f2','x','dif','li','ls','bi','bs',&
+!'dif1','li1','ls1','bi1','bs1','dif2','li2','ls2','bi2','bs2'
+!
+!do j=1,nf
+!	do k=j+1,nf
+!		do i=1,kbin
+!			write (1,'(100(f10.4,1x))') &
+!			1.0*j,1.0*k, xb(i),(Dif(i,l,j,k),&
+!			Difi(i,l,j,k),Difs(i,l,j,k),&
+!			Difbi(i,l,j,k),Difbs(i,l,j,k),l=1,3) 
+!		end do
+!	end do
+!end do
+!close(1)
 
 
 
@@ -934,7 +1842,7 @@ end do
 ! *************************************
 
 ! elimino de nuevo los 9999 de las bootstrap para poder hacer las diferencias con los intervalos bien
-! para la estimacion y primera derivada,le pongo el m?ximo de la localidad
+! para la estimacion y primera derivada,le pongo el m‡ximo de la localidad
 
 
 
@@ -942,7 +1850,7 @@ end do
 do k=1,2
 	do j=1,nf
 		do iboot=1,nboot
-			if (Cboot(k,j,iboot).eq.9999) then ! esto lo meti yo, si se sale el m?ximo, fuera valor  muy grande
+			if (Cboot(k,j,iboot).eq.9999) then ! esto lo meti yo, si se sale el máximo, fuera valor  muy grande
 				Cboot(k,j,iboot)=xmax(j) 
 			end if
 		end do
@@ -982,33 +1890,32 @@ end do
 
 
 
-
-open (1,file='c.dat')
-write (1,'(100(a15,1x))') 'f','c','lic','lsc','c1','lic1',&
-'lsc1'!,'c2','lic2','lsc2'
-
-do j=1,nf
-	write (1,'(100(f15.7,1x))') &
-	1.0*j,(c(l,j),ci(l,j),cs(l,j),l=1,2) 
-end do
-close(1)
-
-
+!lo comente para el paquete
+!open (1,file='c.dat')
+!write (1,'(100(a15,1x))') 'f','c','lic','lsc','c1','lic1',&
+!'lsc1'!,'c2','lic2','lsc2'
+!
+!do j=1,nf
+!	write (1,'(100(f15.7,1x))') &
+!	1.0*j,(c(l,j),ci(l,j),cs(l,j),l=1,2) 
+!end do
+!close(1)
 
 
 
 
-open (1,file='Difc.dat')
-write (1,'(100(a10,1x))') 'f1','f2','c2-c1','lic','lsc',&
-'c2-c1(1)','lic1','lsc1','c2-c1(2)','lic2','lsc2'
 
-do j=1,nf
-	do k=j+1,nf
-		write (1,'(100(f10.4,1x))') 1.0*j,1.0*k,&
-		(difc(l,j,k),difci(l,j,k),difcs(l,j,k),l=1,3) 
-	end do
-end do
-close(1)
+!Lo comente para el paquete
+!open (1,file='Difc.dat')
+!write (1,'(100(a10,1x))') 'f1','f2','c2-c1','lic','lsc',&
+!'c2-c1(1)','lic1','lsc1','c2-c1(2)','lic2','lsc2'
+!do j=1,nf
+!	do k=j+1,nf
+!		write (1,'(100(f10.4,1x))') 1.0*j,1.0*k,&
+!		(difc(l,j,k),difci(l,j,k),difcs(l,j,k),l=1,3) 
+!	end do
+!end do
+!close(1)
 
 
 
@@ -1129,21 +2036,20 @@ if (model.eq.0) then
 
 
 
-
-	open (1,file='contrast.dat')
-	write (1,'(100(a10,1x))') 'Tboot'
-
-	do iboot=1,nboot
-		write (1,'(100(f10.4,1x))') Tboot(iboot)
-	end do
-	close(1)
-
+!lo comente para el paquete
+!	open (1,file='contrast.dat')
+!	write (1,'(100(a10,1x))') 'Tboot'
+!	do iboot=1,nboot
+!		write (1,'(100(f10.4,1x))') Tboot(iboot)
+!	end do
+!	close(1)
 
 
-	open (1,file='contrast2.dat')
-	write (1,'(100(a10,1x))') 'Estadistico(T)','Q90','Q95','Q99','pvalor'
-	write (1,'(100(f10.6,1x))') T,Q(1),Q(2),Q(3),pvalor
-	close(1)
+!Lo comente para el paquete
+!	open (1,file='contrast2.dat')
+!	write (1,'(100(a10,1x))') 'Estadistico(T)','Q90','Q95','Q99','pvalor'
+!	write (1,'(100(f10.6,1x))') T,Q(1),Q(2),Q(3),pvalor
+!	close(1)
 
 	deallocate(Tboot)
 end if
@@ -1152,20 +2058,19 @@ end if
 
 
 
+!Lo comente para el paquete
+!open (1,file='pboot.dat')
+!write (1,'(100(a10,1x))') 'pboot'
 
-open (1,file='pboot.dat')
-write (1,'(100(a10,1x))') 'pboot'
 
-
-do k=1,nf
-	do i=1,kbin
-		do m=1,nboot
-	write (1,'(100(f10.6,1x))') (pboot(i,j,k,m),j=1,3)
-end do
-end do
-end do
-
-close(1)
+!do k=1,nf
+!	do i=1,kbin
+!		do m=1,nboot
+!	write (1,'(100(f10.6,1x))') (pboot(i,j,k,m),j=1,3)
+!       end do
+!   end do
+!end do
+!close(1)
 
 
 
@@ -1187,7 +2092,7 @@ end
 !		
 !Subroutine RFAST_H
 !
-!* h: ventana, selecci?n por cv (h=-1). Valores de 0 a 1.
+!* h: ventana, selección por cv (h=-1). Valores de 0 a 1.
 !* kernel: tipo de nucleo (1=epanech, 2=triang, 3=gaussian)
 !* nh: grid de busqueda de ventanas, de 0 a 1.
 !* p: grado del polinomio
@@ -1224,7 +2129,7 @@ hmin=0
 hmax=1
 !nh=15 !100
 
-! Selecci?n de las ventanas por CV
+! Selección de las ventanas por CV
 
 if (h.eq.-1)  then
 	call Ventana1D(Xb,Yb,Wb,kbin,h,p,hmin,hmax,nh,rango,kernel)
@@ -1275,7 +2180,7 @@ end subroutine
 !		
 !		VENTANA1D
 !
-!* h: ventana, selecci?n por cv (h=-1). Valores de 0 a 1.
+!* h: ventana, selección por cv (h=-1). Valores de 0 a 1.
 !* kernel: tipo de nucleo (1=epanech, 2=triang, 3=gaussian)
 !* nh: grid de busqueda de ventanas, de 0 a 1.
 !***************************************************
@@ -1292,13 +2197,13 @@ double precision,allocatable::ErrCV(:,:),Predh(:,:)
 integer,external::which_min
 allocate(ErrCV(n,nh),Predh(n,nh))
 
-! Establ?cense o grid de ventanas de b?squeda
+! Establécense o grid de ventanas de búsqueda
 do ih=1,nh
 	hgrid(ih)=hmin+(ih-1)*(hmax-hmin)/(nh-1)
 end do
 
 
-! Para cada punto fanse as estimaci?ns por CV para cada unha das ventanas
+! Para cada punto fanse as estimacións por CV para cada unha das ventanas
 icont=1000
 
 Err=0
@@ -1321,8 +2226,8 @@ end do
 
 3333 continue
 
-! Calc?lanse os erros (globais) obtidos para cada ventana. Para elo calc?lase
-! o erro cadr?tico medio ponderado polos pesos W iniciais
+! Calcúlanse os erros (globais) obtidos para cada ventana. Para elo calcúlase
+! o erro cadrático medio ponderado polos pesos W iniciais
 
 ErrH=9e9
 
@@ -1339,19 +2244,21 @@ do ih=1,nh
 	end if
 end do
 
-! Xa calculados os erros para cada ventana selecci?nase a ventana ?ptima
+! Xa calculados os erros para cada ventana selecciónase a ventana óptima
 ih=which_min(ErrH,nh)
 h= hgrid(ih)
 
-open (1,file='errores.dat')
-do i=1,nh
-	write (1,'(100(f20.7,1x))')hgrid(i),ErrH(i),Errh(ih)-Errh(i)
-end do
-close(1)
+!lo comente para el paquete
+!open (1,file='errores.dat')
+!do i=1,nh
+!	write (1,'(100(f20.7,1x))')hgrid(i),ErrH(i),Errh(ih)-Errh(i)
+!end do
+!
+!close(1)
 
-! A continuaci?n escr?bese un resume dos erros obtidos. O ficheiro ten 3 columnas:
-! Ventana; error absoluto: % de incremento de erro en relaci?n ? ventana ?ptima
-! (l?xicamente, na ?ltima columna a ventana ?ptima ter? un valor de 0) 
+! A continuación escríbese un resume dos erros obtidos. O ficheiro ten 3 columnas:
+! Ventana; error absoluto: % de incremento de erro en relación á ventana óptima
+! (lóxicamente, na última columna a ventana óptima terá un valor de 0) 
 
 
 sumy=0
@@ -1387,12 +2294,13 @@ end do
 
 
 !goto 11
-open (1,file='ventanas2.dat')
-do i=1,nh
-	write (1,'(100(f20.7,1x))') hgrid(i),ErrH(i),Errh(ih)-Errh(i)
-end do
-close(1)
-11 continue
+!lo comente para el paquete
+!open (1,file='ventanas2.dat')
+!do i=1,nh
+!	write (1,'(100(f20.7,1x))') hgrid(i),ErrH(i),Errh(ih)-Errh(i)
+!end do
+!close(1)
+!11 continue
 
 
 
@@ -1418,7 +2326,7 @@ end
 
 
 !***************************************************
-!  Subroutine  REG1D  (estimaci?n en un unico punto)
+!  Subroutine  REG1D  (estimación en un unico punto)
 !
 ! kernel: nucleo (1=epa, 2=triang, 3=gaussian)
 !
@@ -1428,7 +2336,7 @@ end
 subroutine Reg1D(X,Y,W,n,h,p,x0,pred,rango,kernel,ifcv)
 implicit none 
 integer i,j,k,icont,p,iopt,ier,n,kernel,ifcv
-double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se,r2,&
+double precision x(n),Y(n),Z(n),h,tanh,waux,Beta(10),Sterr(20),se(20),r2,&
 pred(8),B(3),W(n),x0,rango,h2,u,pred2
 double precision,allocatable::Vx(:),Vy(:),WW(:),XX(:,:)
 real :: pi=3.1415927
@@ -2474,7 +3382,7 @@ ifault = 0
 IF (nreq < 1 .OR. nreq > ncol) ifault = ifault + 4
 IF (nobs <= nreq) ifault = ifault + 8
 IF (ifault /= 0) THEN
-  WRITE(*, '(1x, a, i4)') 'Error in function VARPRD: ifault =', ifault
+  !WRITE(*, '(1x, a, i4)') 'Error in function VARPRD: ifault =', ifault
   RETURN
 END IF
 
@@ -2536,6 +3444,11 @@ END MODULE lsq
 
 
 
+
+
+
+
+
 subroutine WRegresion_Javier(X,Y,W,n,nvar,beta,sterr,se,r2,iopt,ier)
 
 
@@ -2565,8 +3478,8 @@ if (iopt.gt.0) then
 CALL sing(lindep, ier)
 IF (ier /= 0) THEN
   DO i = 0, m
-    IF (lindep(i)) WRITE(*, '(a, i3)') ' Singularity detected for power: ', i 
-    IF (lindep(i)) WRITE(9, '(a, i3)') ' Singularity detected for power: ', i
+    !IF (lindep(i)) WRITE(*, '(a, i3)') ' Singularity detected for power: ', i 
+    !IF (lindep(i)) WRITE(9, '(a, i3)') ' Singularity detected for power: ', i
   END DO
 END IF
 end if
@@ -2797,7 +3710,7 @@ allocate (Base0(n,nc+p),Base1(n,nc+p),Base2(n,nc+p))
 
       
 
-!      ESTIMACI?N FINAL
+!      ESTIMACIÓN FINAL
 
 	
 	if (nc.ge.0) then
@@ -2850,7 +3763,7 @@ Pb(kbin,3),h,h2,Xb2(kbin),Yb2(kbin),a,b
 
 
 
-		!CONSTRUCCI?N DE LA MUESTRA BINNING
+		!CONSTRUCCIÓN DE LA MUESTRA BINNING
 	Wb=0
 	Yb=0
 	do i=1,n	
@@ -2908,6 +3821,57 @@ Pb(i,3)=Beta(1)*Beta(2)*(Beta(2)-1)*(Xb(i)**(Beta(2)-2))
 end do
 
 end
+
+
+
+
+subroutine Rfast0_sinbinning(X,Y,n,W,h,Xb,Pb,kbin,a,b)
+implicit none
+integer n,i,j,kbin,p,icont,l
+double precision x(n),y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
+Area(2),dis1,dis2,W2(kbin),Beta(5),&
+Pb(kbin,3),h,h2,X2(n),Y2(n),a,b
+
+
+X2=max(X,0.001)
+Y2=max(Y,0.001)
+
+X2=log(X2)
+Y2=log(Y2)
+
+p=1
+call  Reglineal (X2,Y2,W,n,p,Beta)
+
+
+Beta(1)=exp(Beta(1))
+
+a=Beta(1)
+b=Beta(2)
+
+
+do i=1,kbin
+Pb(i,1)=Beta(1)*(Xb(i)**Beta(2))
+Pb(i,2)=Beta(1)*Beta(2)*(Xb(i)**(Beta(2)-1))
+Pb(i,3)=Beta(1)*Beta(2)*(Beta(2)-1)*(Xb(i)**(Beta(2)-2))
+end do
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -3017,8 +3981,8 @@ if (iopt.gt.0) then
 CALL sing(lindep, ier)
 IF (ier /= 0) THEN
   DO i = 0, m
-    IF (lindep(i)) WRITE(*, '(a, i3)') ' Singularity detected for power: ', i
-    IF (lindep(i)) WRITE(9, '(a, i3)') ' Singularity detected for power: ', i
+  !  IF (lindep(i)) WRITE(*, '(a, i3)') ' Singularity detected for power: ', i
+   ! IF (lindep(i)) WRITE(9, '(a, i3)') ' Singularity detected for power: ', i
   END DO
 END IF
 end if
@@ -3034,15 +3998,15 @@ if (iopt.gt.0) then
 ! Calculate covariance matrix, and hence std. errors of coeffs.
 CALL cov(m+1, var, covmat, 231, sterr, ier)
 
-WRITE(*, *) 'Least-squares coefficients & std. errors'
-WRITE(9, *) 'Least-squares coefficients & std. errors'
-WRITE(*, *) 'Power  Coefficient          Std.error      Resid.sum of sq.'
-WRITE(9, *) 'Power  Coefficient          Std.error      Resid.sum of sq.'
+!WRITE(*, *) 'Least-squares coefficients & std. errors'
+!WRITE(9, *) 'Least-squares coefficients & std. errors'
+!WRITE(*, *) 'Power  Coefficient          Std.error      Resid.sum of sq.'
+!WRITE(9, *) 'Power  Coefficient          Std.error      Resid.sum of sq.'
 DO i = 0, m
-  WRITE(*, '(i4, g20.12, "   ", g14.6, "   ", g14.6)')  &
-        i, beta(i), sterr(i), rss(i+1)
-  WRITE(9, '(i4, g20.12, "   ", g14.6, "   ", g14.6)')  &
-        i, beta(i), sterr(i), rss(i+1)
+ ! WRITE(*, '(i4, g20.12, "   ", g14.6, "   ", g14.6)')  &
+  !      i, beta(i), sterr(i), rss(i+1)
+ ! WRITE(9, '(i4, g20.12, "   ", g14.6, "   ", g14.6)')  &
+  !      i, beta(i), sterr(i), rss(i+1)
 END DO
 
 WRITE(*, *)
@@ -3051,7 +4015,7 @@ WRITE(*, '(a, g20.12)') ' Residual standard deviation = ', SQRT(var)
 
 se=SQRT(var)
 totalSS = rss(1)
-WRITE(*, '(a, g20.12)') ' R^2 = ', (totalSS - rss(m+1))/totalSS
+!WRITE(*, '(a, g20.12)') ' R^2 = ', (totalSS - rss(m+1))/totalSS
 
 r2=(totalSS - rss(m+1))/totalSS
 
@@ -3142,7 +4106,7 @@ if (Q(2).eq.9999) then
 		sesgo=Q(2)-X0
 end if
 
-li=Q(1)!-sesgo
+li=Q(1)!-sesgo  ! ver si comentar el sesgo o no
 
 
 if (Q(3).eq.9999) then
@@ -3558,6 +4522,151 @@ end
 
 
 
+subroutine Interpola_alo (Xgrid,Pgrid,kbin,X0,P0,P1,n)
+! Fit a quintic spline with user control of knot positions.
+! If the knots are at tk1, tk2,..., then the fitted spline is
+! b0 + b1.t + b2.t^2 + b3.t^3 + b4.t^4 + b5.t^5    for t <= tk1
+! b0 + ... + b5.t^5 + b6.(t-tk1)^5                 for tk1 < t <= tk2
+! b0 + ... + b5.t^5 + b6.(t-tk1)^5 + b7.(t-tk2)^5  for tk2 < t <= tk3
+! b0 + ... + b5.t^5 + b6.(t-tk1)^5 + b7.(t-tk2)^5 + b8.(t-tk3)^5
+!                                                  for tk3 < t <= tk4, etc.
+
+! In this version, the knots are evenly spaced.
+! Also calculates first & 2nd derivatives of the spline.
+
+! Uses the author's least-squares package in file lsq.f90
+! Latest revision - 2 November 2003
+! Alan Miller (amiller @ bigpond.net.au)
+
+	USE lsq
+	IMPLICIT NONE
+
+	INTEGER*4                 :: i, ier, iostatus, j, n, nk,next_knot,pos,kbin,icont
+	double precision               :: t, t1, y, dist,Xgrid(kbin),Pgrid(kbin),X0(n),P0(n),P1(n),P2(n)
+	double precision, PARAMETER    :: one = 1.0_dp,cero=0.0_dp
+	double precision, ALLOCATABLE  :: knot(:), xrow(:), b(:)
+
+
+
+	icont=0
+	do i=1,kbin
+	if (pgrid(i).ne.-1.0) icont=icont+1
+	end do
+
+	if (icont.gt.5) then
+	nk=icont/5
+
+
+  !numero de nodos
+	!if (nk>kbin/5) stop ! '** Too many knots requested - TRY AGAIN'
+
+	ALLOCATE ( knot(nk),xrow(0:5+nk), b(0:5+nk) )
+
+
+! Calculate knot positions, evenly spaced.
+
+	dist = (Xgrid(kbin) - Xgrid(1)) / (nk + 1)
+	t1=Xgrid(1)
+	DO i = 1, nk
+	knot(i) = t1 + dist * i
+	END DO
+
+! WRITE(9, '(a, i4)') 'Number of knots = ', nk
+
+
+	next_knot = 1
+
+! Initialize the least-squares calculations
+	CALL startup(6+nk, .FALSE.)
+
+	DO i=1,kbin
+		t=Xgrid(i)
+		y=Pgrid(i)
+		xrow(0) = one
+		xrow(1) = (t - t1)
+		xrow(2) = (t - t1) * xrow(1)
+		xrow(3) = (t - t1) * xrow(2)
+		xrow(4) = (t - t1) * xrow(3)
+		xrow(5) = (t - t1) * xrow(4)
+		IF (t > knot(next_knot)) next_knot = MIN(nk, next_knot + 1)
+		DO j = 1, next_knot-1
+			xrow(5+j) = (t - knot(j))**5
+		END DO
+		xrow(5+next_knot:5+nk) = 0.0_dp
+	if (y.ne.-1.0_dp) CALL includ(one, xrow, y)
+
+	END DO
+
+	CALL regcf(b, 6+nk, ier)
+
+!WRITE(*, *) ' Coefficient   Value'
+!WRITE(*, '(a, g13.5)') ' Constant   ', b(0)
+!WRITE(*, '(a, g13.5)') ' Linear     ', b(1)
+!WRITE(*, '(a, g13.5)') ' Quadratic  ', b(2)
+!WRITE(*, '(a, g13.5)') ' Cubic      ', b(3)
+!WRITE(*, '(a, g13.5)') ' Quartic    ', b(4)
+!WRITE(*, '(a, g13.5)') ' Quintic    ', b(5)
+!WRITE(*, *) ' Knot position   Quintic Coefficient'
+!DO j = 1, nk
+!  WRITE(*, '(g13.5, t17, g13.5)') knot(j), b(5+j)
+!END DO
+
+! Calculate fitted values and derivatives
+
+
+!call Ordena(X0,n,II)
+	next_knot = 1
+	DO i = 1, n
+	next_knot = 1
+	t=X0(i)
+	xrow(0) = one
+	xrow(1) = (t - t1)
+	xrow(2) = (t - t1) * xrow(1)
+	xrow(3) = (t - t1) * xrow(2)
+	xrow(4) = (t - t1) * xrow(3)
+	xrow(5) = (t - t1) * xrow(4)
+	if (i.eq.45) then
+	continue
+	end if
+55	continue  
+	IF (t > knot(next_knot)) THEN
+	next_knot = next_knot + 1
+	IF (next_knot <= nk) THEN
+!      WRITE(9, '(a, g13.5)') 'New knot at t = ', knot(next_knot-1)
+       goto 55
+	ELSE
+      next_knot = nk + 1 
+	  goto 56
+	END IF
+	END IF
+
+56	continue
+	DO j = 1, next_knot-1
+	xrow(5+j) = (t - knot(j))**5
+	END DO
+	p0(i) = DOT_PRODUCT( b(0:5+next_knot-1), xrow(0:5+next_knot-1) )
+	p2(i) = ((20*b(5)*(t-t1) + 12*b(4))*(t-t1) + 6*b(3))*(t-t1) +2*b(2)
+	p1(i) = (((5*b(5)*(t-t1) + 4*b(4))*(t-t1) + 3*b(3))*(t-t1) +2*b(2))*(t-t1) + b(1)
+	DO j = 1, next_knot-1
+	p1(i) = p1(i) + 5*b(j+5)*(t - knot(j))**4
+	p2(i) = p2(i) + 20*b(j+5)*(t - knot(j))**3
+	END DO
+!  WRITE(9, '(f8.3, 4g13.4)') t, d1, d2, fitted, y
+
+!  write (*,*) i
+	END DO
+	deallocate ( knot,xrow, b )
+	else
+	p0=-1
+	p1=-1
+	p2=-1
+	end if
+
+
+end	subroutine
+
+
+
 
 
 !******************************************
@@ -3754,11 +4863,8 @@ end
 !********************************
 ! GRID
 !*********************************
-
-
-
-
 subroutine GRID(X,W,n,Xb,nb)
+
 implicit none
 integer i,nb,n
 double precision X(n),W(n),xmin,xmax,Xb(nb)
@@ -3777,6 +4883,10 @@ end do
 end
 
 
+
+
+
+
 !***************************************************
 !		
 !			BINNING LINEAL
@@ -3791,7 +4901,7 @@ double precision x(n),y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
 d1,Area(2),dis1,dis2
 
 
-		!CONSTRUCCI?N DE LA MUESTRA BINNING
+		!CONSTRUCCIÓN DE LA MUESTRA BINNING
 	Wb=0
 	Yb=0
 	do i=1,n	

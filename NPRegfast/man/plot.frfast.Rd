@@ -7,11 +7,9 @@
 \description{
 Useful for drawing the estimation, first and second derivative  (for each factor)
 }
-\usage{
-plot.frfast(model, fac = NULL, der = NULL, points=TRUE, xlab = "x",
- ylab = "y", col = "black", ICcol = "grey", main = "title", type = "l", ICtype = "l", ...)
+\method{plot}{frfast}{
+plot(model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL, col = "black", CIcol = "black", ablinecol = "red", abline = TRUE,type = "l", CItype = "l", lwd = 2, CIlwd = 1,lty = 1, CIlty = 2, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{model}{\code{frfast} object.
 }
@@ -21,27 +19,39 @@ plot.frfast(model, fac = NULL, der = NULL, points=TRUE, xlab = "x",
 }
   \item{points}{draw the original data into the plot. By default it is \code{TRUE}. 
 }
-
-  \item{xlab}{a title for the x axis. 
+  \item{xlab}{
+  	a title for the x axis. 
 }
   \item{ylab}{
 a title for the y axis.
 }
+  \item{ylim}{the \code{y} limits of the plot.
+}
+  \item{main}{an overall title for the plot.
+}
   \item{col}{
 a specification for the default plotting color.
 }
-  \item{ICcol}{
+  \item{CIcol}{
 a specification for the default confidence intervals plotting color.
 }
-  \item{main}{
-an overall title for the plot.
+  \item{ablinecol}{the color to be used for \code{abline}.
+}
+  \item{abline}{draw an horizontal line into the plot of the second derivative of the model.
 }
   \item{type}{
-what type of plot should be drawn. Possible types are, \code{p} for points, \code{l} for lines, \code{o} for overplotted, etc. See details in ?\code{par}.
-
+what type of plot should be drawn. Possible types are, \code{p} for points, \code{l} for lines, \code{o} for overplotted, etc. See details in \code{\link{par}}.
 }
-  \item{ICtype}{
-what type of plot should be drawn for confidence intervals. Possible types are, \code{p} for points, \code{l} for lines, \code{o} for overplotted. See details in ?\code{par}.
+  \item{CItype}{
+what type of plot should be drawn for confidence intervals. Possible types are, \code{p} for points, \code{l} for lines, \code{o} for overplotted.
+}
+  \item{lwd}{the line width, a positive number, defaulting to 1.  See details in \code{\link{par}}.
+}
+  \item{CIlwd}{the line width for confidence intervals, a positive number, defaulting to 1. 
+}
+\item{lty}{the line type. Line types can either be specified as an integer (0=blank, 1=solid (default), 2=dashed, 3=dotted, 4=dotdash, 5=longdash, 6=twodash).  See details in \code{\link{par}}.
+}
+\item{CIlty}{the line type for confidence intervals. Line types can either be specified as an integer (0=blank, 1=solid (default), 2=dashed, 3=dotted, 4=dotdash, 5=longdash, 6=twodash). 
 }
   \item{\dots}{
 other options.
@@ -72,15 +82,22 @@ Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 
 library(NPRegfast)
 data(barnacle)
-fit<-frfast(x=barnacle$RC,y=barnacle$DW)
-plot.frfast(fit,der=0)
-plot.frfast(fit,der=1,col="red",ICcol="blue",points=FALSE)
 
-fit2<-frfast(x=barnacle$RC,y=barnacle$DW,f=barnacle$F)
-plot.frfast(fit2)
-plot.frfast(fit2,der=0,fac=2)
-plot.frfast(fit2,der=1,col="red",ICcol="green")
-plot.frfast(fit2,der=c(0,1),fac=c(1,2))
+################################################
+# Nonparametric regression without interactions
+################################################
+fit<-frfast(DW~RC,data=barnacle)
+plot(fit,der=0)
+plot(fit,der=1,col="red",CIcol="blue",points=FALSE)
+
+##############################################
+# Nonparametric regression with interactions
+##############################################
+fit2<-frfast(DW~RC:F,data=barnacle)
+plot(fit2)
+plot(fit2,der=0,fac=2)
+plot(fit2,der=1,col="red",CIcol="green")
+plot(fit2,der=c(0,1),fac=c(1,2))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

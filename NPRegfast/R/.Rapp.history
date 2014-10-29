@@ -1,0 +1,2 @@
+if(tmodel==0) res=res[-(lenght(res)-2)]
+?length

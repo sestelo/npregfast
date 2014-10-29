@@ -5,7 +5,7 @@
 Differences between the estimation of maximum points  for two factor's levels
 }
 \description{
-Differences between the estimation of \code{maxp} for two  factor's levels. \code{maxp}, a returned element  of class \code{\link{frfast}}, is the value of covariate \code{x} which maximizes the  estimate, first or second derivative.
+Differences between the estimation of \code{\link{maxp}} for two  factor's levels. \code{maxp}, a returned element  of class \code{\link{frfast}}, is the value of covariate \code{x} which maximizes the  estimate, first or second derivative.
 }
 \usage{
 maxp.diff(model, factor2 = NULL, factor1 = NULL, der = NULL)
@@ -46,11 +46,12 @@ Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 library(NPRegfast)
 data(barnacle)
 
-fit2<-frfast(x=barnacle$RC,y=barnacle$DW,f=barnacle$F)
-maxp.diff(fit2,factor2=2,factor1=1)
-maxp.diff(fit2,factor2=2,factor1=1,der=0)
-maxp.diff(fit2,factor2=2,factor1=1,der=1)
-maxp.diff(fit2,factor2=2,factor1=1,der=2)
+##############################################
+# Nonparametric regression with interactions
+##############################################
+fit2<-frfast(DW~RC:F,data=barnacle)
+maxp.diff(fit2)
+maxp.diff(fit2,der=1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
