@@ -1,3 +1,6 @@
+#' @export allotest
+
+
 #li### opcion cambiar bootstrap y argumentos... ver
 allotest <-
 function(formula,data=data,nboot=100){

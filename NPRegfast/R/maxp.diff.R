@@ -1,3 +1,5 @@
+#' @export maxp.diff
+
 maxp.diff <-
 function(model,factor1=NULL,factor2=NULL,der=NULL){
 	nf<-length(unique(model$fmod))

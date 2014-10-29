@@ -66,10 +66,6 @@ Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 library(NPRegfast)
 data(barnacle)
 
-################################################
-# Nonparametric regression without interactions
-################################################
-glocaltest(DW~RC,data=barnacle, der=0)
 
 ##############################################
 # Nonparametric regression with interactions
