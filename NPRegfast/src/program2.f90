@@ -857,14 +857,15 @@ subroutine frfast(F,X,Y,W,n,h,C2,nc,ncmax,p,kbin,fact,&
 nf,ikernel,iopt,nboot,xb,pb,li,ls,dif,difi,difs,model,&
 pvalor,c,cs,ci,difc,difcs,difci,T,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu)
 
-
+!!DEC$ ATTRIBUTES DLLEXPORT::frfast
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'frfast_' :: frfast
 
 implicit none
 integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,idim,nc(nf),kernel,&
 ncmax,ikernel,iopt,nboot,index,aa,pasox,pasoxfino,model,nalfa,&
 icont(kbin,3,nf),nh,ipredict
-double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),&
+double precision x(n),y(n),pvalor,T,W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),C2(ncmax,nf),&
 Pb(kbin,3,nf),h(nf),min(n),max(n),Xb(kbin),xmin(nf),&
 xmax(nf),Err(n),Dif(kbin,3,nf,nf),Difi(kbin,3,nf,nf),Difs(kbin,3,nf,nf),&
 C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
@@ -880,7 +881,7 @@ sumErrboota(:),Errboot(:,:),Errboota(:,:),Errboot2(:,:),Errboota2(:,:),&
 Erra(:),Erra2(:),sesgo(:,:,:),media(:,:,:),err2(:)
 
 REAL(4) rand 
-REAL(8) C2(ncmax,nf)
+
 
 !REAL(4) u,sumerr,sumerra
 !double precision,external::rand
