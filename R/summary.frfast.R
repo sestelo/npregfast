@@ -70,7 +70,7 @@ if(model$nmodel==2){
     cat("", "\n")
      for (factor in c(1:nf)){
     	if(nf>1)	cat("Level", etiquetas[factor],":", "\n")
-    	aux=c(model$a[factor],model$a_inf[factor],model$a_sup[factor],model$b[factor],model$b_inf[factor],model$b_sup[factor])
+    	aux=c(model$a[factor],model$al[factor],model$au[factor],model$b[factor],model$bl[factor],model$bu[factor])
     	aux=round(aux,6)
     	tabla=matrix(aux,ncol=3,nrow=2,byrow=T)
     	colnames(tabla)=c("","2.5 %","97.5 %")
