@@ -1,5 +1,3 @@
-#' @export maxp
-
 maxp <-
 function(model,der=NULL){
 	nf<-model$nf;jnf=c()

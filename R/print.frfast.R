@@ -1,5 +1,3 @@
-#' @export print.frfast
-
 print.frfast <-
 function(model, ...){ #  print.frfast2(model) es igual escribir model
 	cat("\nCall:\n")

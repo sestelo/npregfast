@@ -7,8 +7,8 @@
 \description{
 Useful for drawing the estimation, first and second derivative  (for each factor)
 }
-\usage{
-\method{plot}{frfast}(model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL, col = "black", CIcol = "black", ablinecol = "red", abline = TRUE,type = "l", CItype = "l", lwd = 2, CIlwd = 1,lty = 1, CIlty = 2, ...)
+\method{plot}{frfast}{
+plot(model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL, col = "black", CIcol = "black", ablinecol = "red", abline = TRUE,type = "l", CItype = "l", lwd = 2, CIlwd = 1,lty = 1, CIlty = 2, ...)
 }
 \arguments{
   \item{model}{\code{frfast} object.

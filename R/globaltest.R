@@ -1,5 +1,3 @@
-#' @export globaltest
-
 globaltest <-
 function(formula,data=data,der=NULL,weights=NULL,nboot=200,h=-1.0,nh=30,kernel="epanech",p=3,kbin=100){
 	if(missing(der)){

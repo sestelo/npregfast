@@ -1,0 +1,8 @@
+exportPattern("^[^\\.]")
+importFrom("graphics", plot, lines, legend, par, layout, image, contour, plot.new, title)
+S3method("print", "frfast")
+S3method("plot", "frfast")
+S3method("summary", "frfast")
+S3method("predict", "frfast")
+S3method("plot", "diff")
+useDynLib(NPRegfast)

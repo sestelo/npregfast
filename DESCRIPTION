@@ -2,10 +2,9 @@ Package: NPRegfast
 Type: Package
 Title: Nonparametric estimation for analyzing interactions factor-by-curve
 Version: 1.0
-Date: 2014-10-01
+Date: 2011-11-13
 Author: Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
 Maintainer: Marta Sestelo <sestelo@uvigo.es>
-Description: A method for obtain nonparametric estimates using local linear
-    kernel smoothers.
+Description: A method for obtain nonparametric estimates using local linear kernel smoothers.
 License: GPL
 LazyLoad: yes

@@ -1,5 +1,3 @@
-#' @export plot.diff
-
 plot.diff <-
 function(model,factor2,factor1,der=NULL,est.include=FALSE,xlab=model$name[2],ylab=model$name[1],ylim=NULL, main=NULL,col="black",CIcol="grey50",ablinecol="red",abline=TRUE,type="l",CItype="l",lwd=1, CIlwd=1.5,lty=1, CIlty=2,...){
 	nf=model$nf

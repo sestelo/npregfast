@@ -7,8 +7,8 @@ Prediction from fitted \code{frfast} model
 }
 \description{
 Takes a fitted \code{frfast} object  and produces predictions (and optionally estimates standard errors of those predictions) from a fitted model with interactions or without interactions.} 
-\usage{
-\method{predict}{frfast}(model,newdata,fac=NULL,der=NULL,...)
+\method{predict}{frfast}{
+predict.frfast(model,newdata,fac=NULL,der=NULL,...)
 }
 \arguments{
 \item{model}{a fitted \code{frfast} object as produced by \code{frfast()}.

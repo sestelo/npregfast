@@ -1,7 +1,6 @@
-#' @export plot.frfast
-
 plot.frfast<-function (model, fac = NULL, der = NULL, points = TRUE, xlab = model$name[2], ylab = model$name[1],ylim = NULL, main=NULL, col = "black",CIcol = "black",ablinecol="red", abline=TRUE,type = "l", CItype = "l", lwd = 2, CIlwd=1,lty=1, CIlty=2,...){ #CIcol = "grey50"		
-	nf = model$nf
+  
+	  nf = model$nf
     fi = length(fac)
     co = length(der)
     facini=fac

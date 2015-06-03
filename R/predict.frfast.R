@@ -1,5 +1,3 @@
-#' @export predict.frfast
-
 predict.frfast<-function (model, newdata, fac = NULL, der = NULL,...){
 	### tiene que meter a huevo el newdata!!! asi que meter un warning
 	newdata<-newdata[,1]

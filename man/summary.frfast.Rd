@@ -8,8 +8,8 @@ Summarizing fits of frfast class
 \description{
 Takes a fitted \code{frfast} object produced by \code{frfast()} and produces various useful
 summaries from it.} 
-\usage{
-\method{summary}{frfast}(model)
+\method{summary}{frfast}{
+summary.frfast(model)
 }
 \arguments{
 	\item{model}{a fitted \code{frfast} object as produced by \code{frfast()}.

@@ -1,5 +1,3 @@
-#' @export summary.frfast
-
 summary.frfast <-
 function(model)
 {
