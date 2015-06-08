@@ -11,10 +11,11 @@
 #' @param model Type model used: \code{model = "np"}  nonparametric
 #' regression model with local linear kernel smoothers, 
 #' \code{model = "allo"} the  allometric model.
-#' @param h The kernel bandwidth smoothing parameter. Large values of
-#' bandwidth make smoother estimates, smaller values of bandwidth make
-#' less smooth estimates. The default is a bandwidth compute by 
+#' @param h0 The kernel bandwidth smoothing parameter for the global effect. 
+#' Large values of bandwidth make smoother estimates, smaller values of 
+#' bandwidth make less smooth estimates. The default is a bandwidth compute by 
 #' cross validation.
+#' @param h The kernel bandwidth smoothing parameter for the partial effects. 
 #' @param nh Integer number of equally-spaced bandwidth on which the
 #' \code{h} is discretised, to speed up computation.
 #' @param weights Prior weights on the data.
@@ -156,6 +157,7 @@ frfast <- function(formula, data = data, model = "np", h = -1.0, nh = 30,
   
   if(is.null(h)){
     h <- rep(-1.0, nf)
+    h0 <- -1.0 
   }else{
     h <- rep(h, nf)
   }#1 h para cada localidad. 
@@ -182,6 +184,7 @@ frfast <- function(formula, data = data, model = "np", h = -1.0, nh = 30,
                       y = as.double(data[ ,ffr$response]),
                       w = as.double(weights),
                       n = as.integer(n),
+                      h0 = as.double(h0),
                       h = as.double(h),
                       c2 = as.integer(c2),
                       ncmax = as.integer(ncmax),
@@ -267,6 +270,7 @@ frfast <- function(formula, data = data, model = "np", h = -1.0, nh = 30,
               n = frfast$n,
               dp = frfast$p,
               h = frfast$h,
+              h0 = frfast$h0,
               #grid=frfast$kbin, #lo comente pq estaba repetido
               fmod = frfast$f,
               xdata = as.vector(frfast$x),
