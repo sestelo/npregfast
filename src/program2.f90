@@ -844,9 +844,10 @@ end
 
 
 
-subroutine frfast(F,X,Y,W,n,h,C2,ncmax,p,kbin,fact,&
+subroutine frfast(F,X,Y,W,n,h0,h,C2,ncmax,p,kbin,fact,&
 nf,nboot,xb,pb,li,ls,dif,difi,difs,model,&
-c,cs,ci,difc,difcs,difci,pboot,pcmin,pcmax,cboot,kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu)
+c,cs,ci,difc,difcs,difci,pboot,pcmin,pcmax,cboot,&
+kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::frfast
@@ -857,13 +858,14 @@ integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,kernel,&
 ncmax,nboot,index,pasox,pasoxfino,model,C2(ncmax,nf),&
 icont(kbin,3,nf),nh,ipredict
-double precision x(n),y(n),W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),&
-Pb(kbin,3,nf),h(nf),Xb(kbin),xmin(nf),&
+double precision x(n),y(n),W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),P_0(n),&
+Pb(kbin,3,nf),h(nf),Xb(kbin),xmin(nf),Pb_0(kbin,3),&
 xmax(nf),Err(n),Dif(kbin,3,nf,nf),Difi(kbin,3,nf,nf),Difs(kbin,3,nf,nf),&
 C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
 DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,Pba(kbin,3,nf),&
 u,pcmax(nf),pcmin(nf),Cboot(3,nf,nboot),a(nf),b(nf),aboot(nf,nboot),bboot(nf,nboot),&
-asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf)
+asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf),&
+res(n),Pb_0boot(kbin,3,nboot),h0
 double precision,allocatable::Pred(:),P0(:,:),Yboot(:),&
 bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),pboota(:,:,:,:),&
@@ -871,8 +873,6 @@ sesgo(:,:,:),media(:,:,:)
 
 REAL(4) rand 
 
-!REAL(4) u,sumerr,sumerra
-!double precision,external::rand
 
 
 !***************************
@@ -886,7 +886,8 @@ REAL(4) rand
 allocate (Pred(n),Yboot(n),pboota(kbin,3,nf,nboot))
 
 allocate (bi(kbin,3,nf),bs(kbin,3,nf),Vb(kbin,nboot),&
-Difbi(kbin,3,nf,nf),Difbs(kbin,3,nf,nf),sesgo(kbin,3,nf),media(kbin,3,nf))
+Difbi(kbin,3,nf,nf),Difbs(kbin,3,nf,nf),sesgo(kbin,3,nf),&
+media(kbin,3,nf))
 
 
 if (kbin.le.nboot) then
@@ -924,57 +925,70 @@ end do
 
 
 
+h0=h
 
+if (model.eq.1.and.nf.neq.1) then
+ call rfast_h (X,Y,W,n,h0,p,Xb,Pb_0(1,1),kbin,kernel,nh)  !efecto global
+ call Interpola (Xb,Pb_0(1,1),kbin,X,P_0,n)
+ res(1:n)=Y(1:n)-P_0(1:n)
 
+ do j=1,nf !efectos parciales
+  Waux=0
+  do i=1,n
+   if (F(i).eq.fact(j)) Waux(i)=W(i)
+  end do
+  call rfast_h (X,res,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
+  
+  do l=1,3
+   do i=1,kbin
+    Pb(i,l,j)=Pb_0(i,l)+Pb(i,l,j) !sumo efecto global y parcial
+   end do
+  end do
 
-
-do j=1,nf
-
- Waux=0
- do i=1,n
-  if (F(i).eq.fact(j)) Waux(i)=W(i)
+  !evitamos predicciones fuera del rango de los datos
+  do i=1,kbin
+   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
+  end do
  end do
+end if
 
-!aqui hace no parametrico solo
- if (model.eq.1) then
-  call rfast_h (X,Y,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
- end if
 
- !aqui el alometrico solo
- if (model.eq.2) then
-  call Rfast0_sinbinning(X,Y,n,Waux,Xb,Pb(1,1,j),kbin,a(j),b(j))
- end if
 
-!  evitamos predicciones fuera del rango de los datos
+if (model.eq.1.and.nf.eq.1) then
+ call rfast_h (X,Y,W,n,h0,p,Xb,Pb(1,1,1),kbin,kernel,nh) 
+ 
+ !evitamos predicciones fuera del rango de los datos 
  do i=1,kbin
   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
  end do
- 
-end do
+end if
+
+
+
+
+
+if (model.eq.2) then
+ do j=1,nf
+
+  Waux=0
+  do i=1,n
+   if (F(i).eq.fact(j)) Waux(i)=W(i)
+  end do
+  call Rfast0_sinbinning(X,Y,n,Waux,Xb,Pb(1,1,j),kbin,a(j),b(j))
+  !evitamos predicciones fuera del rango de los datos
+  do i=1,kbin
+   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,j)=-1
+  end do
+ end do
+end if
 
 
 
 
 
 
-!! Lo comente para el paquete
-! MUESTRA
-!open (1,file='xy.dat')
-!write (1,'(100(a10,1x))') 'f','x','y'
-!do i=1,n
-!	write (1,'(100(f10.4,1x))') 1.0*f(i),x(i),y(i)
-!end do
-!close(1)
-
-
-
-
-
-
-
-
-!!!! punto de corte, calcula el máximo de la estimacion y primera derivada 
-! para todos los niveles del factor
+!*****************************************
+! Max de estimación, max de primera derivada
 
 C=-1
 
@@ -993,7 +1007,7 @@ do j=1,nf
    end if
   end do
 
-  if (C(k,j).ge.xmax(j)) then ! esto lo meti yo, si se sale el máximo, escribe valor  muy grande
+  if (C(k,j).ge.xmax(j)) then ! si se sale el máximo, escribe valor  muy grande
    C(k,j)=9999 
   end if
 
@@ -1022,25 +1036,22 @@ do j=1,nf
  end do
 
 
-
 end do
 
 
-!!!! 
-
-
-
+!*************************************
+!diferencias estimaciones
 
 Dif=-1
 do i=1,kbin
-do j=1,3
-do k=1,nf
-do l=k+1,nf               
-if (pb(i,j,k).ne.-1.and.pb(i,j,l).ne.-1.0) &
-Dif(i,j,k,l)=pb(i,j,k)-pb(i,j,l)
-end do
-end do 
-end do
+ do j=1,3
+  do k=1,nf
+   do l=k+1,nf               
+    if (pb(i,j,k).ne.-1.and.pb(i,j,l).ne.-1.0) &
+    Dif(i,j,k,l)=pb(i,j,k)-pb(i,j,l)
+   end do
+  end do 
+ end do
 end do
 
 
@@ -1062,18 +1073,23 @@ end do
 end do
 
 
-!*****************************
 
+
+
+
+
+!*****************************
+!diferencias entre c
 
 DifC=-1
 do j=1,3
-do k=1,nf
-do l=k+1,nf               
-if (C(j,k).ne.-1.and.C(j,l).ne.-1.0) &
-DifC(j,k,l)=C(j,l)-C(j,k)
+ do k=1,nf
+  do l=k+1,nf               
+   if (C(j,k).ne.-1.and.C(j,l).ne.-1.0) &
+   DifC(j,k,l)=C(j,l)-C(j,k)
+  end do
+ end do 
 end do
-end do 
-end do
 
 
 
@@ -1081,285 +1097,242 @@ end do
 
 
 
-!   ESTIMACIONES PILOTO
+! *************
+!  BOOTSTRAP
+! *************
+
+
+
+! ESTIMACIONES PILOTO
 
 allocate(p0(n,nf))
 
-
-
 do j=1,nf
-call Interpola (Xb,Pb(1,1,j),kbin,X,P0(1,j),n)
-
+ call Interpola (Xb,Pb(1,1,j),kbin,X,P0(1,j),n)
+ do i=1,n
+  if (X(i).lt.xmin(j).or.X(i).gt.xmax(j)) P0(i,j)=-1
+ end do
+end do
 
 do i=1,n
-if (X(i).lt.xmin(j).or.X(i).gt.xmax(j)) P0(i,j)=-1
+ do j=1,nf
+  if (F(i).eq.fact(j)) pred(i)=p0(i,j)
+ end do
+ Err(i)=Y(i)-pred(i)
 end do
-end do
-
-
-
-
-do i=1,n
-do j=1,nf
-if (F(i).eq.fact(j)) pred(i)=p0(i,j)
-end do
-Err(i)=Y(i)-pred(i)
-end do
-
 
 deallocate (p0)
 
 
 
-
-
-
 Cboot=-1.0
 
-!  HACEMOS LA PARTE DE BOOTSTRAP
 
 
-!write (*,*) c(2,1)
+! **********
+! BOOTSTRAP
 
 if (nboot.gt.0) then
 do iboot=1,nboot
 
 do i=1,n
-u=RAND()
-ir=0
-IF (u.le.(5+sqrt(5.0))/10) ir=1
-if (ir.eq.1) then
-Yboot(i)=Pred(i)+err(i)*(1-sqrt(5.0))/2
-else
-Yboot(i)=pred(i)+err(i)*(1+sqrt(5.0))/2
+ u=RAND()
+ ir=0
+ IF (u.le.(5+sqrt(5.0))/10) ir=1
+ if (ir.eq.1) then
+  Yboot(i)=Pred(i)+err(i)*(1-sqrt(5.0))/2
+ else
+  Yboot(i)=pred(i)+err(i)*(1+sqrt(5.0))/2
+ end if
+end do
+
+
+
+
+if (model.eq.1.and.nf.neq.1) then
+ call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb_0boot(1,1,iboot),kbin,kernel,nh)
+ 
+ call Interpola (Xb,Pb_0boot(1,1,iboot),kbin,X,P_0,n)
+ res(1:n)=Yboot(1:n)-P_0(1:n)
+
+ do j=1,nf !efectos parciales
+  Waux=0
+  do i=1,n
+   if (F(i).eq.fact(j)) Waux(i)=W(i)
+  end do
+  call rfast_h (X,res,Waux,n,h(j),p,Xb,Pboot(1,1,j,iboot),kbin,kernel,nh)
+  
+  do l=1,3
+   do i=1,kbin
+    Pboot(i,l,j,iboot)=Pb_0boot(i,l,iboot)+Pboot(i,l,j,iboot) !sumo efecto global y parcial
+   end do
+  end do
+
+  !evitamos predicciones fuera del rango de los datos
+  do i=1,kbin
+   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pboot(i,1:3,j,iboot)=-1
+  end do
+ end do
 end if
-end do
 
 
 
-
-C2=-1
-do j=1,nf
-Waux=0
-do i=1,n
-if (F(i).eq.fact(j)) Waux(i)=W(i)
-end do
-
-
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-!aqui hace no parametrico solo
-
-if (model.eq.1) then
- call rfast_h(X,Yboot,Waux,n,h(j),p,Xb,Pboot(1,1,j,iboot),kbin,kernel,nh)
+if (model.eq.1.and.nf.eq.1) then
+ call rfast_h (X,Yboot,W,n,h0,p,Xb,Pboot(1,1,1,iboot),kbin,kernel,nh) 
+ 
+ !evitamos predicciones fuera del rango de los datos 
+ do i=1,kbin
+  if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pboot(i,1:3,j,iboot)=-1
+ end do
 end if
 
-
-
-!aqui el alometrico solo
-if (model.eq.2) then
- call Rfast0_sinbinning (X,Yboot,n,Waux,Xb,Pboot(1,1,j,iboot),kbin,aboot(j,iboot),bboot(j,iboot))
-end if
-
-
-
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-
-
-
-
-
-
-
-!  EVITAMOS PREDICCIONES FUERA DEL RANGO DE LOS DATOS
-
-do i=1,kbin
-if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(Xb(2)-Xb(1))) Pboot(i,1:3,j,iboot)=-1
-end do
-
-end do
-
-
-
-
-
-
-! punto de corte
-
-do j=1,nf
-do k=1,2
-pmax=-999
-call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
-do i=1,kfino
-if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
-if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
-pmax=pfino(i)
-Cboot(k,j,iboot)=Xfino(i)
-index=i !lo meto yo para saber en que punto se queda
-end if
-end if
-end do
-end do
-
-
-
-
-
-
-
-
-
-
-
-
-do k=3,3
-Cboot(k,j,iboot)=9999
-if (C(k,j).ne.-1.0) then
-call Interpola (Xb,Pboot(1,k,j,iboot),kbin,&
-Xfino,Pfino,kfino)
-do i=2,kfino
-if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
-if (Pfino(i)*Pfino(i-1).lt.0) then
-Cboot(k,j,iboot)=0.5*(Xfino(i)+Xfino(i-1))
-goto 2
-end if
-end if
-end do
-2 continue
-end if
-end do
-
-
-end do
-
-
-
-
-
-
-
-
-
-!write (*,*) iboot,cboot(2,1,iboot)
-
-
-
-end do  ! cierra bucle iboot
-
-
-
-
-
-
-
-!Intervalos de confianza par‡metros modelo alomŽtrico
-!******************************************************
 
 
 if (model.eq.2) then
+ do j=1,nf
 
-
-do k=1,nf
-do l=1,nboot
-
-V(l)=aboot(k,l)
-if (V(l).eq.-1) goto 100
-end do
-
-call ICbootstrap(a(k),V,nboot,ainf(k),asup(k))
-100 continue
-end do 
-
-
-do k=1,nf
-do l=1,nboot
-
-V(l)=bboot(k,l)
-if (V(l).eq.-1) goto 13
-end do
-
-call ICbootstrap(b(k),V,nboot,binf(k),bsup(k))
-13 continue
-end do 
-
-
-
-
-
-! lo comente para el paquete
-!open (1,file='parametros_alo.dat')
-!write (1,'(100(a15,1x))') 'f','a','ic_inf','ic_sup','b','ic_inf','ic_sup'
-
-
-!do j=1,nf
-!write (1,'(100(f15.7,1x))') &
-!		1.0*j, a(j),ainf(j),asup(j),b(j),binf(j),bsup(j)
-!end do
-!close(1)
-
-
-
-
-
+  Waux=0
+  do i=1,n
+   if (F(i).eq.fact(j)) Waux(i)=W(i)
+  end do
+  call Rfast0_sinbinning(X,Yboot,n,Waux,Xb,Pboot(1,1,j,iboot),kbin,aboot(j,iboot),bboot(j,iboot))
+  !evitamos predicciones fuera del rango de los datos
+  do i=1,kbin
+   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pboot(i,1:3,j,iboot)=-1
+  end do
+ end do
 end if
 
 
-!*****************************************************
+
+
+
+
+
+! Estimo C
+
+do j=1,nf
+ 
+ do k=1,2
+  pmax=-999
+  call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
+  do i=1,kfino
+   if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
+    if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
+     pmax=pfino(i)
+     Cboot(k,j,iboot)=Xfino(i)
+     index=i !lo meto yo para saber en que punto se queda
+    end if
+   end if
+  end do
+ end do
+
+ do k=3,3
+  Cboot(k,j,iboot)=9999
+  if (C(k,j).ne.-1.0) then
+   call Interpola (Xb,Pboot(1,k,j,iboot),kbin,&
+   Xfino,Pfino,kfino)
+   do i=2,kfino
+   if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
+    if (Pfino(i)*Pfino(i-1).lt.0) then
+     Cboot(k,j,iboot)=0.5*(Xfino(i)+Xfino(i-1))
+     goto 2
+    end if
+   end if
+   end do
+   2 continue
+  end if
+ end do
+
+
+end do
+
+
+end do  ! cierra iboot
 
 
 
 
 
 
-!recentrar las bootstrpa aqui*******************
 
-if (model.eq.1.or.model.eq.2) then
+
+
+
+! *************************************
+! Recentro Bootstraps
 
 media=0
 icont=0
 sesgo=0
 do i=1,kbin
-do k=1,3
-do j=1,nf
-do l=1,nboot
-if(pboot(i,k,j,l).ne.-1) then 
-media(i,k,j)=media(i,k,j)+pboot(i,k,j,l) 
-else 
-media(i,k,j)=media(i,k,j)
-icont(i,k,j)=icont(i,k,j)+1
-end if
+ do k=1,3
+  do j=1,nf
+   do l=1,nboot
+    if(pboot(i,k,j,l).ne.-1) then 
+     media(i,k,j)=media(i,k,j)+pboot(i,k,j,l) 
+    else 
+     media(i,k,j)=media(i,k,j)
+     icont(i,k,j)=icont(i,k,j)+1
+    end if
+   end do
+   media(i,k,j)=media(i,k,j)/nboot-icont(i,k,j)
+   if(pb(i,k,j).ne.-1) sesgo(i,k,j)=pb(i,k,j)-media(i,k,j)
+  end do
+ end do
 end do
-media(i,k,j)=media(i,k,j)/nboot-icont(i,k,j)
-if(pb(i,k,j).ne.-1) sesgo(i,k,j)=pb(i,k,j)-media(i,k,j)
-end do
-end do
-end do
-
-
-
-
 
 do i=1,kbin
-do k=1,3
-do j=1,nf
-do l=1,nboot
-if(pboot(i,k,j,l).ne.-1) pboot(i,k,j,l)=pboot(i,k,j,l)+sesgo(i,k,j)
+ do k=1,3
+  do j=1,nf
+   do l=1,nboot
+    if(pboot(i,k,j,l).ne.-1) pboot(i,k,j,l)=pboot(i,k,j,l)+sesgo(i,k,j)
+   end do
+  end do
+ end do
 end do
-end do
-end do
-end do
+
+! ************************************
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+!********************************
+! Intervalos de confianza 
+! parametros modelo alometrico
+
+if (model.eq.2) then
+
+ do k=1,nf
+  do l=1,nboot
+   V(l)=aboot(k,l)
+   if (V(l).eq.-1) goto 100
+  end do
+  call ICbootstrap(a(k),V,nboot,ainf(k),asup(k))
+  100 continue
+ end do 
+
+
+ do k=1,nf
+  do l=1,nboot
+   V(l)=bboot(k,l)
+   if (V(l).eq.-1) goto 13
+  end do
+  call ICbootstrap(b(k),V,nboot,binf(k),bsup(k))
+  13 continue
+ end do 
 end if
-
-
-
+!************************************
 
 
 
@@ -1404,17 +1377,6 @@ end do
 
 
 end if
-
-
-
-
-
-!open (4,file='cboot.dat')
-
-!do j=1,nboot
-!		write (4,"(f15.7)") cboot(2,2,j)
-!end do
-!close(4)
 
 
 
@@ -1523,36 +1485,12 @@ end do
 
 
 
-!lo comente para el paquete
-!open (3,file='ppred.dat')
-!write (1,'(100(a15,1x))') 'f','x','predict'
-!
-!do j=1,nf
-!	do i=1,n
-!		write (1,'(100(f15.7,1x))') &
-!		1.0*j, x(i),(predict(i,l,j),l=1,3)
-!	end do
-!end do
-!close(3)
 
 end if
 
 
 !*******************************
 
-
-!lo comente para el paquete
-!open (1,file='p.dat')
-!write (1,'(100(a15,1x))') 'f','x','p','lip','lsp','bip','bsp',&
-!'p1','lip1','lsp1','bip1','bsp1',&
-!'p2','lip2','lsp2','bip2','bsp2'
-!do j=1,nf
-!	do i=1,kbin
-!		write (1,'(100(f15.7,1x))') &
-!		1.0*j, xb(i),(pb(i,l,j),li(i,l,j),ls(i,l,j),bi(i,l,j),bs(i,l,j),l=1,3)
-!	end do
-!end do
-!close(1)
 
 
 
@@ -1618,14 +1556,14 @@ end do
 !'dif1','li1','ls1','bi1','bs1','dif2','li2','ls2','bi2','bs2'
 !
 !do j=1,nf
-!	do k=j+1,nf
-!		do i=1,kbin
-!			write (1,'(100(f10.4,1x))') &
-!			1.0*j,1.0*k, xb(i),(Dif(i,l,j,k),&
-!			Difi(i,l,j,k),Difs(i,l,j,k),&
-!			Difbi(i,l,j,k),Difbs(i,l,j,k),l=1,3) 
-!		end do
-!	end do
+! do k=j+1,nf
+!   do i=1,kbin
+!     write (1,'(100(f10.4,1x))') &
+!     1.0*j,1.0*k, xb(i),(Dif(i,l,j,k),&
+!     Difi(i,l,j,k),Difs(i,l,j,k),&
+!     Difbi(i,l,j,k),Difbs(i,l,j,k),l=1,3) 
+!   end do
+! end do
 !end do
 !close(1)
 
@@ -1708,198 +1646,10 @@ end do
 
 
 
-!lo comente para el paquete
-!open (1,file='c.dat')
-!write (1,'(100(a15,1x))') 'f','c','lic','lsc','c1','lic1',&
-!'lsc1'!,'c2','lic2','lsc2'
-!
-!do j=1,nf
-!	write (1,'(100(f15.7,1x))') &
-!	1.0*j,(c(l,j),ci(l,j),cs(l,j),l=1,2) 
-!end do
-!close(1)
 
 
 
-
-
-!Lo comente para el paquete
-!open (1,file='Difc.dat')
-!write (1,'(100(a10,1x))') 'f1','f2','c2-c1','lic','lsc',&
-!'c2-c1(1)','lic1','lsc1','c2-c1(2)','lic2','lsc2'
-!do j=1,nf
-!	do k=j+1,nf
-!		write (1,'(100(f10.4,1x))') 1.0*j,1.0*k,&
-!		(difc(l,j,k),difci(l,j,k),difcs(l,j,k),l=1,3) 
-!	end do
-!end do
-!close(1)
-
-
-
-!end if ! cierra el de si es contraste no hagas nada
-
-
-
-
-
-
-
-!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-!
-!!	 PARA CONTRASTE!!
-!
-!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
-
-!   ESTIMACIONES PILOTO
-
-
-!if (model.eq.0) then
-
-
-!allocate(p0boot(n,nf,nboot),p0boota(n,nf,nboot),predboot(n,nboot),predboota(n,nboot))
-
-!do j=1,nf
-!do iboot=1,nboot
-!call Interpola (Xb,Pboot(1,1,j,iboot),kbin,X,P0boot(1,j,iboot),n)
-!call Interpola (Xb,Pboota(1,1,j,iboot),kbin,X,P0boota(1,j,iboot),n)
-!do i=1,n
-!if (X(i).lt.xmin(j).or.X(i).gt.xmax(j)) P0boot(i,j,iboot)=-1
-!if (X(i).lt.xmin(j).or.X(i).gt.xmax(j)) P0boota(i,j,iboot)=-1
-!end do
-!end do
-!end do
-
-
-!do i=1,n
-!do j=1,nf
-!do iboot=1,nboot
-!predboot(i,iboot)=p0boot(i,j,iboot)
-!!if (F(i).eq.fact(j)) 
-!predboota(i,iboot)=p0boota(i,j,iboot)
-!end do
-!end do
-!end do
-
-
-
-
-!deallocate(p0boot,p0boota)
-
-
-
-!allocate (Errboot(n,nboot),Errboota(n,nboot))
-!do i=1,n
-!do iboot=1,nboot
-!Errboot(i,iboot)=Y(i)-predboot(i,iboot)
-!Errboota(i,iboot)=Y(i)-predboota(i,iboot)
-!end do
-!end do
-!deallocate(predboot,predboota)
-
-
-!allocate (Errboot2(n,nboot),Errboota2(n,nboot),&
-!sumErrboot(nboot),sumErrboota(nboot))
-
-!do i=1,n
-!do iboot=1,nboot
-!errboot2(i,iboot)=errboot(i,iboot)**2
-!errboota2(i,iboot)=errboota(i,iboot)**2
-!end do
-!end do
-
-!deallocate(Errboot,Errboota)
-
-!do iboot=1,nboot
-
-!sumErrboot(iboot)=0
-!sumErrboota(iboot)=0
-
-!do i=1,n
-!sumErrboot(iboot)=sumErrboot(iboot)+Errboot2(i,iboot)
-!sumErrboota(iboot)=sumErrboota(iboot)+Errboota2(i,iboot)
-!end do
-!end do
-
-!deallocate(Errboot2,Errboota2)
-
-!allocate(Tboot(nboot))
-
-!Tboot=0
-!do iboot=1,nboot
-!Tboot(iboot)=(sumErrboota(iboot)/n)-(sumErrboot(iboot)/n)
-!end do
-
-
-
-!deallocate(sumErrboota,sumErrboot)
-
-
-!alfa(1)=0.9
-!alfa(2)=0.95
-!alfa(3)=0.975
-!nalfa=3
-
-
-!call quantile (Tboot,nboot,alfa,nalfa,Q)
-
-!ii=0
-
-!do i=1,nboot
-!if(Tboot(i).gt.T) ii=ii+1
-!end do
-!pvalor=ii/nboot
-
-
-
-!lo comente para el paquete
-!	open (1,file='contrast.dat')
-!	write (1,'(100(a10,1x))') 'Tboot'
-!	do iboot=1,nboot
-!		write (1,'(100(f10.4,1x))') Tboot(iboot)
-!	end do
-!	close(1)
-
-
-!Lo comente para el paquete
-!	open (1,file='contrast2.dat')
-!	write (1,'(100(a10,1x))') 'Estadistico(T)','Q90','Q95','Q99','pvalor'
-!	write (1,'(100(f10.6,1x))') T,Q(1),Q(2),Q(3),pvalor
-!	close(1)
-
-!deallocate(Tboot)
-!end if
-
-
-
-
-
-!Lo comente para el paquete
-!open (1,file='pboot.dat')
-!write (1,'(100(a10,1x))') 'pboot'
-
-
-!do k=1,nf
-!	do i=1,kbin
-!		do m=1,nboot
-!	write (1,'(100(f10.6,1x))') (pboot(i,j,k,m),j=1,3)
-!       end do
-!   end do
-!end do
-!close(1)
-
-
-
-
-!deallocate (pred,P0,Yboot,Pboot)
-
-
-
-
-
-end    
+end    subroutine
 
 
 
@@ -3638,13 +3388,13 @@ else
 sesgo=Q(2)-X0
 end if
 
-li=Q(1)!-sesgo  ! ver si comentar el sesgo o no
+li=Q(1)-sesgo  ! ver si comentar el sesgo o no
 
 
 if (Q(3).eq.9999) then
 ls=Q(3)
 else
-ls=Q(3)!-sesgo
+ls=Q(3)-sesgo
 end if
 
 
