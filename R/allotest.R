@@ -13,8 +13,10 @@
 #' to the data while at the same time endeavouring to minimise the 
 #' loss of information,  a bootstrap-based procedure, that test whether the 
 #' data can be modelled by an allometric model, was developed.  Therefore,
-#' \code{allotest} tests the null hypothesis of an allometric model taking into account
-#' the logarithm of the original variable (\eqn{X^* = log(X)}{} and \eqn{Y^* =log (Y)}{}). 
+#' \code{allotest} tests the null hypothesis of an allometric model taking 
+#' into account the logarithm of the original variable
+#'  (\eqn{X^* = log(X)}{} and \eqn{Y^* =log (Y)}{}). 
+#'  
 #' Based on a general model of the type 
 #' \deqn{Y^*=m(X^*)+\varepsilon}{} 
 #' the aim here is to test the null hypothesis of an allometric model 
@@ -25,14 +27,17 @@
 #' \deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}{}
 #' with \eqn{g(x^*)}{} being an unknown function not equal to zero. 
 #' To implement this test we have used the wild bootstrap.
+#' 
+#' 
 #'@return An object is returned with the following elements:
-#' \item{value}{the p-value of the test.}
 #' \item{statistic}{the value of the test statistic.}
+#' \item{value}{the p-value of the test.}
+#' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'@examples
 #' library(NPRegfast)
 #' data(barnacle)
-#' allotest(DW ~ RC, data = barnacle)
+#' allotest(DW ~ RC, data = barnacle, nboot = 1000)
 #' allotest(DW ~ RC : F, data = barnacle)
 
 
