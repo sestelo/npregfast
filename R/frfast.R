@@ -114,9 +114,10 @@
 #' \code{h} is discretised.}
 #' \item{r2}{Coefficient of determination.}
 
-frfast <- function(formula, data = data, model = "np", h = -1.0, nh = 30, 
-                   weights = NULL, kernel = "epanech", p = 3, kbin = 100, 
-                   nboot = 500, rankl = NULL, ranku = NULL, seed = NULL){
+frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0, 
+                   nh = 30, weights = NULL, kernel = "epanech", p = 3, 
+                   kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, 
+                   seed = NULL){
   
   if(kernel == "gaussian")  kernel <- 3
   if(kernel == "epanech")   kernel <- 1
