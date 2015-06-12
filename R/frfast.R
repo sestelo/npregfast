@@ -180,8 +180,16 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
   
   
   if(is.null(c2)) c2 <- matrix(as.double(-1.0), ncmax, nf) 
-  if(is.null(rankl)) rankl <- as.vector(tapply(data[ ,varnames], f, min))# si rank son2fact y meto1num casca!!! corregir con repeat. 
-  if(is.null(ranku)) ranku <- as.vector(tapply(data[ ,varnames], f, max))
+  if(is.null(rankl)){
+    rankl <- as.vector(tapply(data[ ,varnames], f, min))
+  }else{
+    if(length(rankl) == 1) rankl <- rep(rankl, nf)
+    }
+  if(is.null(ranku)){
+    ranku <- as.vector(tapply(data[ ,varnames], f, max))
+  }else{
+    if(length(ranku) == 1) ranku <- rep(ranku, nf)
+  } 
   
   ipredict2 <- 0
   
