@@ -223,9 +223,9 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
                       difcs = array(as.double(-1.0), c(3, nf, nf)),
                       difci = array(as.double(-1.0), c(3, nf, nf)),
                       pboot = array(as.double(-1.0), c(kbin, 3, nf, nboot)),
-                      pcmin = as.double(rankl), # rango de busqueda minimo
-                      pcmax = as.double(ranku), # rango de busqueda maximo
-                      cboot = array(as.double(-1.0), c(3, nf, nboot)), ## max de las bootstrap
+                      pcmin = as.double(rankl),
+                      pcmax = as.double(ranku), 
+                      cboot = array(as.double(-1.0), c(3, nf, nboot)), 
                       kernel = as.integer(kernel),
                       nh = as.integer(nh),
                       a = as.double(rep(-1, nf)),
@@ -284,28 +284,23 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
               dp = frfast$p,
               h = frfast$h,
               h0 = frfast$h0,
-              #grid=frfast$kbin, #lo comente pq estaba repetido
               fmod = frfast$f,
               xdata = as.vector(frfast$x),
               ydata = frfast$y,
               w = frfast$w,
               #fact=fact,  # Lo tuve que comentar pq me daba error
-              #c2=frfast$c2, #no hace falta sacarlo
-              #ncmax=frfast$ncmax, #no hace falta sacarlo
-              #nc=frfast$nc,   #no hace falta sacarlo
               kbin = frfast$kbin,
               nf = frfast$nf,
-              max = frfast$c, #maximo rep boot
+              max = frfast$c, #
               maxu = frfast$cs, 
               maxl = frfast$ci,
-              #maxboot=frfast$cboot,  #no hace falta sacarlo
               diffmax = frfast$difc,
               diffmaxu = frfast$difcs,
               diffmaxl = frfast$difci,
               repboot = frfast$pboot,  
               rankl = frfast$pcmin,
               ranku = frfast$pcmax,
-              nmodel = frfast$tmodel, #no hace falta sacarlo
+              nmodel = frfast$tmodel, 
               label = as.character(etiquetas),
               numlabel = unique(frfast$f),
               kernel = frfast$kernel, 
@@ -321,8 +316,6 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
               r2 = r2,
               call = match.call()
   )
-  
-  #	if(tmodel==0) res=res[-(length(res)-2)]
   
   class(res) <- "frfast"
   return(res)
