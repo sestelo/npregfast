@@ -29,7 +29,9 @@
 #' returns the estimation, first and second derivative.
 #' @param kbin Number of binning nodes over which the function 
 #' is to be estimated.
-#' @param nboot Number of bootstrap repeats.
+#' @param nboot Number of bootstrap repeats. Default 500. The wild bootstrap
+#' is used when \code{model = "np"} and the simple bootstrap when
+#' \code{model = "allo"}.
 #' @param rankl Number or vector specifying the minimum value for the
 #' interval at which to search the \code{x} value which maximizes the
 #' estimate, first or second derivative  (for each level). The default
@@ -68,7 +70,8 @@
 #' \item{nboot}{Number of bootstrap repeats.}
 #' \item{n}{Total number of data}
 #' \item{dp}{Degree of polynomial used.}
-#' \item{h}{The kernel bandwidth smoothing parameter.}
+#' \item{h0}{The kernel bandwidth smoothing parameter for the global effect.}
+#' \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 #' \item{fmod}{Factor's level for each data.}
 #' \item{xdata}{Original x values.}
 #' \item{ydata}{Original y values.}
@@ -133,6 +136,7 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
     stop("Kernel not suported")
   }
   
+  
   ncmax <- 5
   c2 <- NULL
   
@@ -154,15 +158,18 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
   
   if(model == "np") tmodel <- 1
   if(model == "allo") tmodel <- 2
-  #if(model==0) tmodel=0
   
+  
+  
+  if(is.null(h0)){
+    h0 <- -1.0
+  }
   if(is.null(h)){
     h <- rep(-1.0, nf)
-    h0 <- -1.0 
   }else{
-    h <- rep(h, nf)
-  }#1 h para cada localidad. 
-  #Interesaria meter !=h para las != localidades, y para las derivadas?
+    if(length(h) == 1) h <- rep(h, nf)
+  }
+  
   
   if(is.null(weights)) {
     weights <- rep(1.0, n)
@@ -171,13 +178,12 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
       stop("The specified weights are not correct")
   }  
   
+  
   if(is.null(c2)) c2 <- matrix(as.double(-1.0), ncmax, nf) 
   if(is.null(rankl)) rankl <- as.vector(tapply(data[ ,varnames], f, min))# si rank son2fact y meto1num casca!!! corregir con repeat. 
   if(is.null(ranku)) ranku <- as.vector(tapply(data[ ,varnames], f, max))
   
   ipredict2 <- 0
-  
-  
   
   frfast  <- .Fortran("frfast",
                       f = as.integer(f),
@@ -243,8 +249,6 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
     tss <- sum(  (frfast$y-mean(frfast$y))**2 ) / (frfast$n-1)
     r2 <- 1-(rss/tss)
   }
-  
-  
   
   frfast$pb[frfast$pb == -1] <- NA
   frfast$li[frfast$li == -1] <- NA
