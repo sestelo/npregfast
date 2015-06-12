@@ -1,14 +1,21 @@
+
+# allotest listo
+# frfast listo
+
+
 library(NPRegfast)
 data(barnacle)
-fit <- frfast(DW~RC:F, data = barnacle, model = "np")
+fit <- frfast(DW~RC:F, data = barnacle, model = "np", h=c(0.3))
 fit
 plot(fit, der = c(0))
 summary(fit)
 
+
+
 quartz()
-plot(fit$x,fit$p[,1,1],xlim=c(2,7),ylim=c(0,0.2))
+plot(fit$x,fit$p[,1,1])
 matplot(fit$x,fit$repboot[,1,1,],type="l")
-lines(fit$x,fit$p[,1,1],lwd=2.5)
+lines(fit$x,fit$p[,1,1],lwd=4.5)
 
 maxp(fit)
 

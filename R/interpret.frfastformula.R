@@ -19,8 +19,6 @@ function(formula, method = "frfast") {
     }
     
     II <- list()
-    #h  <- list()
-   # partial = vector()
     k <- 0
     if(nt) {
         for (i in 1:nt) {
