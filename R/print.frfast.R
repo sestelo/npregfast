@@ -1,11 +1,8 @@
 print.frfast <-
-function(model, ...){ #  print.frfast2(model) es igual escribir model
+function(model, ...){ 
 	cat("\nCall:\n")
 	print(model$call)
 	cat("", "\n")
-	#   cat("\nFormula:\n")
-	#   print(model$formula)
-	#   cat("","\n")
 	 
      if(model$nmodel==1){m="Nonparametric"}else{m="Allometric"}
      cat("*********************************************", "\n")
@@ -28,7 +25,7 @@ function(model, ...){ #  print.frfast2(model) es igual escribir model
 		cat("\n")
 		
 		if(model$nmodel==1){cat("\nBandwidth: ")
-		cat(format(model$h))
+		cat(format(c(model$h0,model$h), digits = 2)) 
 		cat("\n")
 		
 		cat("\nKernel Function: ")
