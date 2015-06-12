@@ -932,7 +932,7 @@ if (model.eq.1.) then
   call rfast_h (X,Y,W,n,h0,p,Xb,Pb(1,1,1),kbin,kernel,nh)
   !evitamos predicciones fuera del rango de los datos
   do i=1,kbin
-   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pb(i,1:3,1)=-1
+   if (Xb(i).lt.xmin(1).or.Xb(i).gt.xmax(1)+(xb(2)-xb(1))) Pb(i,1:3,1)=-1
   end do
  else
   call rfast_h (X,Y,W,n,h0,p,Xb,Pb_0(1,1),kbin,kernel,nh)  !efecto global
@@ -976,7 +976,6 @@ if (model.eq.2) then
   end do
  end do
 end if
-
 
 
 
@@ -1132,8 +1131,7 @@ end do
 !centro errores
 meanerr=sum(Err(1:n))/n
 do i=1,n
- if(model.eq.1) Err(i)=Err(i)-meanerr
- if(model.eq.2) Err(i)=Err(i)-meanerr
+ Err(i)=Err(i)-meanerr
 end do
 
 deallocate (p0)
@@ -1146,9 +1144,10 @@ Cboot=-1.0
 
 if (nboot.gt.0) then
 
+
 do iboot=1,nboot
 
-call Sample_Int(n,n,II)
+ if (model.eq.2) call Sample_Int(n,n,II)
 
 do i=1,n
  if(model.eq.1) then
@@ -1174,7 +1173,7 @@ if (model.eq.1) then
   call rfast_h (X,Yboot,W,n,h0,p,Xb,Pboot(1,1,1,iboot),kbin,kernel,nh) 
   !evitamos predicciones fuera del rango de los datos
   do i=1,kbin
-   if (Xb(i).lt.xmin(j).or.Xb(i).gt.xmax(j)+(xb(2)-xb(1))) Pboot(i,1:3,1,iboot)=-1
+   if (Xb(i).lt.xmin(1).or.Xb(i).gt.xmax(1)+(xb(2)-xb(1))) Pboot(i,1:3,1,iboot)=-1
   end do
  else
   call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb_0boot(1,1,iboot),kbin,kernel,nh)
@@ -1220,50 +1219,6 @@ if (model.eq.2) then
 end if
 
 
-
-
-
-
-
-! Estimo Cboot
-
-!do j=1,nf
- 
-! do k=1,2
-!  pmax=-999
-!  call Interpola (Xb,Pboot(1,k,j,iboot),kbin,Xfino,Pfino,kfino)
-!  do i=1,kfino
-!   if(xmin(j).le.xfino(i).and.xfino(i).le.xmax(j).and.Xfino(i).le.pcmax(j).and.Xfino(i).ge.pcmin(j)) then
-!    if (pfino(i).ne.-1.0.and.pfino(i).ge.pmax) then
-!     pmax=pfino(i)
-!     Cboot(k,j,iboot)=Xfino(i)
-!     index=i !lo meto yo para saber en que punto se queda
-!    end if
-!   end if
-!  end do
-! end do
-
-! do k=3,3
-!  Cboot(k,j,iboot)=9999
-!  if (C(k,j).ne.-1.0) then
-!   call Interpola (Xb,Pboot(1,k,j,iboot),kbin,&
-!   Xfino,Pfino,kfino)
-!   do i=2,kfino
-!   if (Xfino(i).gt.pcmin(j).and.Pfino(i).ne.-1.0.and.Pfino(i-1).ne.-1.0) then
-!    if (Pfino(i)*Pfino(i-1).lt.0) then
-!     Cboot(k,j,iboot)=0.5*(Xfino(i)+Xfino(i-1))
-!     goto 2
-!    end if
-!   end if
-!   end do
-!   2 continue
-!  end if
-! end do
-
-
-!end do
-
-
 end do  ! cierra iboot
 
 
@@ -1276,41 +1231,41 @@ end do  ! cierra iboot
 ! *************************************
 ! Recentro Bootstraps
 
-!media=0
-!icont=0
-!sesgo=0
-!do i=1,kbin
-! do k=1,3
-!  do j=1,nf
-!   do l=1,nboot
-!    if(pboot(i,k,j,l).ne.-1) then 
-!     media(i,k,j)=media(i,k,j)+pboot(i,k,j,l) 
-!    else 
-!     media(i,k,j)=media(i,k,j)
-!     icont(i,k,j)=icont(i,k,j)+1
-!    end if
-!   end do
-!   media(i,k,j)=media(i,k,j)/nboot-icont(i,k,j)
-!   if(pb(i,k,j).ne.-1) sesgo(i,k,j)=pb(i,k,j)-media(i,k,j)
-!  end do
-! end do
-!end do
-
-!do i=1,kbin
-! do k=1,3
-!  do j=1,nf
-!   do l=1,nboot
-!    if(pboot(i,k,j,l).ne.-1) pboot(i,k,j,l)=pboot(i,k,j,l)+sesgo(i,k,j)
-!   end do
-!  end do
-! end do
-!end do
-
 ! ************************************
 
+  
+media=0
+icont=0
+sesgo=0
+do i=1,kbin
+ do k=1,3
+  do j=1,nf
+   do l=1,nboot
+    if(pboot(i,k,j,l).ne.-1) then 
+     media(i,k,j)=media(i,k,j)+pboot(i,k,j,l) 
+    else 
+     media(i,k,j)=media(i,k,j)
+     icont(i,k,j)=icont(i,k,j)+1
+    end if
+   end do
+   media(i,k,j)=media(i,k,j)/nboot-icont(i,k,j)
+   if(pb(i,k,j).ne.-1) sesgo(i,k,j)=pb(i,k,j)-media(i,k,j)
+  end do
+ end do
+end do
+
+do i=1,kbin
+ do k=1,3
+  do j=1,nf
+   do l=1,nboot
+    if(pboot(i,k,j,l).ne.-1) pboot(i,k,j,l)=pboot(i,k,j,l)+sesgo(i,k,j)
+   end do
+  end do
+ end do
+end do
 
 
-
+!************************************
 
 
 
@@ -3400,13 +3355,13 @@ else
 sesgo=Q(2)-X0
 end if
 
-li=Q(1)   !-sesgo   chapuzada
+li=Q(1)!-sesgo   !chapuzada
   
 
 if (Q(3).eq.9999) then
 ls=Q(3)
 else
-ls=Q(3)    !-sesgo  chapuzada
+ls=Q(3)!-sesgo  !chapuzada
 end if
 
 
