@@ -16,7 +16,12 @@ function(model)
   		 if (model$kernel==1) cat("Kernel: Epanechnikov \n")
 		 if (model$kernel==2) cat("Kernel: Triangular \n")
 		 if (model$kernel==3) cat("Kernel: Gaussian \n")
-   		 cat("Bandwidth:", format(c(model$h0,model$h), digits = 2), "\n")
+   		 
+  		if(model$nf !=1){
+  		  cat("Bandwidth:", format(c(model$h0,model$h), digits = 2), "\n")
+  		}else{
+  		  cat("Bandwidth:", format(c(model$h0), digits = 2), "\n")
+  		}
    		 cat("Degree of polinomium:", model$dp,"\n") 
    		 cat("Number of bootstrap repeats:", model$nboot,"\n")
     	 cat("Number of binning nodes", model$kbin,"\n")   
