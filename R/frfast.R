@@ -116,6 +116,27 @@
 #' \item{nh}{Integer number of equally-spaced bandwidth on which the
 #' \code{h} is discretised.}
 #' \item{r2}{Coefficient of determination.}
+#' 
+#' 
+#' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#' 
+#' @examples
+#' library(NPRegfast)
+#' data(barnacle)
+#' 
+#' # Nonparametric regression without interactions
+#' fit <- frfast(DW ~ RC, data = barnacle) 
+#' fit
+#' summary(fit)
+#' 
+#' # Change the number of binning nodes and bootstrap replicates
+#' fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 1000)
+#' 
+#' # Nonparametric regression with interactions
+#' fit2 <- frfast(DW ~ RC : F, data = barnacle)
+#' fit2
+#' summary(fit2)
+
 
 frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0, 
                    nh = 30, weights = NULL, kernel = "epanech", p = 3, 
