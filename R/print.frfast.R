@@ -24,11 +24,18 @@ function(model, ...){
 		cat(format(model$nboot))
 		cat("\n")
 		
-		if(model$nmodel==1){cat("\nBandwidth: ")
-		cat(format(c(model$h0,model$h), digits = 2)) 
-		cat("\n")
-		
-		cat("\nKernel Function: ")
+		if(model$nmodel == 1){
+		  if(model$nf != 1){
+		    cat("\nBandwidth: ")
+		    cat(format(c(model$h0,model$h), digits = 2)) 
+		    cat("\n")
+		  }else{
+		    cat("\nBandwidth: ")
+		    cat(format(c(model$h0), digits = 2)) 
+		    cat("\n")
+		  }
+	
+			cat("\nKernel Function: ")
 		if (model$kernel==1) cat("Epanechnikov")
 		if (model$kernel==2) cat("Triangular")
 		if (model$kernel==3) cat("Gaussian")
