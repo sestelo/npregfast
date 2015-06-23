@@ -3,13 +3,13 @@
 # frfast listo
 # interpret.frfastformula listo
 # maxp listo
-
+# maxp.diff listo
 
 
 
 # plot.frfast
 # plot.diff
-# maxp.diff
+
 # predict.frfast
 # print.frfast
 # summary.frfast
