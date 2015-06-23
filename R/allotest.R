@@ -39,6 +39,10 @@
 #' data(barnacle)
 #' allotest(DW ~ RC, data = barnacle)
 #' allotest(DW ~ RC : F, data = barnacle)
+#' 
+#' @export
+
+
 
 
 
