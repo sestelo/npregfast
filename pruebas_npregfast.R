@@ -1,13 +1,30 @@
 
 # allotest listo
 # frfast listo
+# interpret.frfastformula listo
+# maxp listo
 
+
+
+
+# plot.frfast
+# plot.diff
+# maxp.diff
+# predict.frfast
+# print.frfast
+# summary.frfast
+# localtest
+# globaltest
 
 library(NPRegfast)
 data(barnacle)
-fit <- frfast(DW~RC:F, data = barnacle, model = "np", h=c(0.3))
+barnacle2 <-barnacle
+barnacle2$F <- as.factor(barnacle2$F)
+levels(barnacle2$F) <- c("marta","nora")
+
+fit <- frfast(DW~RC:F, data = barnacle2, model = "np", kbin = 100)
 fit
-plot(fit, der = c(0))
+plot(fit, der = c(0,1,2))
 summary(fit)
 
 
