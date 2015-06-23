@@ -45,7 +45,9 @@ returns the estimation, first and second derivative.}
 \item{kbin}{Number of binning nodes over which the function
 is to be estimated.}
 
-\item{nboot}{Number of bootstrap repeats.}
+\item{nboot}{Number of bootstrap repeats. Default 500. The wild bootstrap
+is used when \code{model = "np"} and the simple bootstrap when
+\code{model = "allo"}.}
 
 \item{rankl}{Number or vector specifying the minimum value for the
 interval at which to search the \code{x} value which maximizes the
@@ -81,7 +83,8 @@ their first and second derivative.}
 \item{nboot}{Number of bootstrap repeats.}
 \item{n}{Total number of data}
 \item{dp}{Degree of polynomial used.}
-\item{h}{The kernel bandwidth smoothing parameter.}
+\item{h0}{The kernel bandwidth smoothing parameter for the global effect.}
+\item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 \item{fmod}{Factor's level for each data.}
 \item{xdata}{Original x values.}
 \item{ydata}{Original y values.}
@@ -141,5 +144,25 @@ specified symbolically by \code{model}. The possible terms consist of a
 variable name or a variable name and a factor name separated by : operator.
 Such a term is interpreted as the interaction of the continuous variable and
 the factor.
+}
+\examples{
+library(NPRegfast)
+data(barnacle)
+
+# Nonparametric regression without interactions
+fit <- frfast(DW ~ RC, data = barnacle)
+fit
+summary(fit)
+
+# Change the number of binning nodes and bootstrap replicates
+fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 1000)
+
+# Nonparametric regression with interactions
+fit2 <- frfast(DW ~ RC : F, data = barnacle)
+fit2
+summary(fit2)
+}
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 }
 
