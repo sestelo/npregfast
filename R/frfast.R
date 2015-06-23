@@ -136,6 +136,8 @@
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle)
 #' fit2
 #' summary(fit2)
+#' 
+#' @export
 
 
 frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0, 
