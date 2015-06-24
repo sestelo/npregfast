@@ -42,6 +42,10 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     stop("There are not factors in the model.")
   }
   
+  if(length(der) > 1){
+    stop("Argument \"der\" have to be a length-one vector")
+  }
+  
   if(!is.null(factor1) & !isTRUE(factor1 %in% model$label)) {
     stop("\"",paste(factor1),"\" is not a factor's level.")
   }
