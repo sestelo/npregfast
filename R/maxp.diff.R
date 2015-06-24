@@ -39,19 +39,20 @@
 maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
   
   if(model$nf == 1) {
-    stop("The number of levels of the factor is 1. There is not interaction.")
+    stop("There are not factors in the model.")
   }
   
   if(!is.null(factor1) & !isTRUE(factor1 %in% model$label)) {
-    stop("\"factor1\" is not a factor's level.")
+    stop("\"",paste(factor1),"\" is not a factor's level.")
   }
   
   if(!is.null(factor2) & !isTRUE(factor2 %in% model$label)) {
-    stop("\"factor2\" is not a factor's level.")
+    stop("\"",paste(factor2),"\" is not a factor's level.")
   }
   
   if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
-    stop("\"der\" is not a r-th derivative implemented")
+    stop("",paste(der)," is not a r-th derivative implemented, only 
+         permitted 0, 1 or 2.")
   }
   
   

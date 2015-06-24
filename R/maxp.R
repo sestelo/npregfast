@@ -42,7 +42,8 @@
 maxp <- function(model, der = NULL) {
   
   if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
-    stop("\"der\" is not a r-th derivative implemented")
+    stop("",paste(der)," is not a r-th derivative implemented, only 
+         permitted 0, 1 or 2.")
   }
   
   nf <- model$nf
