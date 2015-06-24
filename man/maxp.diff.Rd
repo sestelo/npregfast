@@ -46,7 +46,7 @@ data(barnacle)
 fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
 maxp.diff(fit2)
 maxp.diff(fit2, der = 1)
-maxp.diff(fit2, factor1="marta",factor2="nora")
+maxp.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
