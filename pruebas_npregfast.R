@@ -4,17 +4,23 @@
 # interpret.frfastformula listo
 # maxp listo
 # maxp.diff listo
+# print.frfast listo (no lleva ayuda)
+# summary.frfast listo
+# predict.frfast listo
+
+
+
 
 
 
 # plot.frfast
 # plot.diff
-
-# predict.frfast
-# print.frfast
-# summary.frfast
 # localtest
 # globaltest
+
+tidy_source("print.frfast.R",arrow = TRUE, width.cutoff = 80)
+
+
 
 library(NPRegfast)
 data(barnacle)
@@ -22,10 +28,15 @@ barnacle2 <-barnacle
 barnacle2$F <- as.factor(barnacle2$F)
 levels(barnacle2$F) <- c("marta","nora")
 
-fit <- frfast(DW~RC:F, data = barnacle2, model = "np", kbin = 100)
+fit <- frfast(DW~RC : F, data = barnacle2, model = "np", kbin = 100)
 fit
 plot(fit, der = c(0,1,2))
 summary(fit)
+
+
+#predict
+nd2 <- data.frame(RC = c(10, 15, 20))
+pred <- predict.frfast(fit, newdata = nd2, fac = c("marta","nora"))
 
 
 
