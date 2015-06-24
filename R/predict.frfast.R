@@ -45,7 +45,7 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, ...) {
   }
   
   if(length(der) > 1){
-    stop("Argument \"der\" have be a length-one vector")
+    stop("Argument \"der\" have to be a length-one vector")
   }
   
   
