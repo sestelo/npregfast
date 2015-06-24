@@ -41,7 +41,7 @@
 
 maxp <- function(model, der = NULL) {
   
-  if(!isTRUE(der %in% c(0, 1, 2))) {
+  if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
     stop("\"der\" is not a r-th derivative implemented")
   }
   
