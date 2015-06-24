@@ -40,6 +40,11 @@
 
 
 maxp <- function(model, der = NULL) {
+  
+  if(!isTRUE(der %in% c(0, 1, 2))) {
+    stop("\"der\" is not a r-th derivative implemented")
+  }
+  
   nf <- model$nf
   jnf <- c()
   model$max[model$max == 9999] <- NA
