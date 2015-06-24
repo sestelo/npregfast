@@ -42,7 +42,7 @@
 maxp <- function(model, der = NULL) {
   
   if(length(der) > 1){
-    stop("Argument \"der\" have be a length-one vector")
+    stop("Argument \"der\" have to be a length-one vector")
   }
   
   if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
