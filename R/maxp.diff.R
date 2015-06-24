@@ -50,6 +50,9 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     stop("\"factor2\" is not a factor's level.")
   }
   
+  if(!isTRUE(der %in% c(0, 1, 2))) {
+    stop("\"der\" is not a r-th derivative implemented")
+  }
   
   nf <- model$nf
   model$diffmax[model$diffmax == 9999] <- NA
