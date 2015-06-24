@@ -10,15 +10,12 @@
 
 
 
-
-
-
 # plot.frfast
 # plot.diff
 # localtest
 # globaltest
 
-tidy_source("print.frfast.R",arrow = TRUE, width.cutoff = 80)
+tidy_source("plot.frfast.R",arrow = TRUE, width.cutoff = 80)
 
 
 
