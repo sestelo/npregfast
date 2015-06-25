@@ -39,7 +39,7 @@
 maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
   
   if(model$nf == 1) {
-    stop("There are not factors in the model.")
+    stop("There is not factor in the model.")
   }
   
   if(length(der) > 1){
