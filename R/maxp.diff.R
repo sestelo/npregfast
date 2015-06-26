@@ -18,7 +18,9 @@
 #'@details Differences are calculated by subtracting a factor relative to 
 #'another (\eqn{factor2 - factor1}).  By default \code{factor2} and 
 #'\code{factor1} are \code{NULL}, so the differences calculated are for all 
-#'possible combinations between two factors.
+#'possible combinations between two factors. Additionally, it is obtained 
+#'the 95\% interval confidence for this difference which let us to make
+#'inference about them.
 #' 
 #'@return An object is returned with the following elements:
 #' \item{maxp.diff}{a table with a couple of factor's level where it is used 
@@ -29,7 +31,7 @@
 #'@examples
 #' library(NPRegfast)
 #' data(barnacle)
-#' fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
+#' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
 #' maxp.diff(fit2)
 #' maxp.diff(fit2, der = 1)
 #' maxp.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
@@ -127,6 +129,11 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
       }
     }
     
+    low <- min(res[1, 4], res[1, 5])
+    up <- max(res[1, 4], res[1, 5])
+    res[1, 4] <- low
+    res[1, 5] <- up
+    
     colnames(res) <- c("Factor2", "Factor1", "Max points Diff.", "Lwr", "Upr")
     rownames(res) <- c("Estimation", "First_der", "Second_der")
     return(data.frame(res))
@@ -188,6 +195,11 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
       round(c(model$diffmaxu[der, factor1, factor2]), 3)
     }
     
+   
+      low <- min(res[1, 4], res[1, 5])
+      up <- max(res[1, 4], res[1, 5])
+      res[1, 4] <- low
+      res[1, 5] <- up
     
     colnames(res) <- c("Factor2", "Factor1", "Max points Diff.", "Lwr", "Upr")
     if (der == 1) 
