@@ -159,7 +159,7 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
     stop("Kernel not suported")
   }
   
-  
+  if(is.null(seed)) seed <- -1
   ncmax <- 5
   c2 <- NULL
   
@@ -260,7 +260,8 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
                       ipredict = as.integer(ipredict2),
                       predict = array(rep(-1.0), c(kbin, 3, nf)),
                       predictl = array(as.double(-1.0), c(kbin, 3, nf)),
-                      predictu = array(as.double(-1.0), c(kbin, 3, nf))
+                      predictu = array(as.double(-1.0), c(kbin, 3, nf)),
+                      seed = as.integer(seed)
   )
   
   if(tmodel != 2){
