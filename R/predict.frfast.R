@@ -50,7 +50,7 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, ...) {
   
   
   if(!is.null(fac) & model$nf == 1) {
-    stop("Argument \"fac\" not suported. 
+    stop("Argument \"fac\" not supported. 
          There is not factor in the model.")
   }
   
