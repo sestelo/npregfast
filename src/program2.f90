@@ -692,76 +692,93 @@ end subroutine
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 !*************************************************
 !*************************************************
 
 
 
-subroutine globaltest(F,X,Y,W,n,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor)
+subroutine globaltest(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor,seed)
 
 !!DEC$ ATTRIBUTES DLLEXPORT::globaltest
 !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
-nh,nboot,kernel,r
+nh,nboot,kernel,r,pp,seed
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
-h(nf),h0(nf),h1(nf),pred1(kbin,nf),pred0(kbin),&
+h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
 u,Tboot,T,pvalor
 REAL(4) rand 
-double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:)
+double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:),&
+muhatg2(:)
 
 
-allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n))
+allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
 
 !write(*,*) h
 
 
 
 
-h0=h
-call rfast_h(X,Y,W,n,h0(1),p,Xb,Pb,kbin,kernel,nh)
-
+!estimo efecto global
+call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
 
 do i=1,n
-errg(i)=Y(i)-muhatg(i)
+ errg(i)=Y(i)-muhatg(i)
 end do
-
 
 do i=1,kbin
-pred0(i)=Pb(i,r+1,1)
+ pred0(i)=Pb(i,r+1,1)
 end do
 
 
 
-h1=h
+! estimo efectos parciales
+do j=1,nf
+ Waux=0
+ do i=1,n
+  if (F(i).eq.fact(j)) Waux(i)=W(i)
+ end do
+ call rfast_h(X,errg,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
+ do i=1,kbin
+  pred1(i,j)=Pb(i,r+1,1)
+ end do
+end do
+
+
+
+
+
+! estimo polinomios
+hp=0 !ventana para pol
+
+
+if(r.eq.1) pp=0 !grado pol, solo calcula medias
+if(r.eq.2) pp=1
+
 
 do j=1,nf
-Waux=0
-do i=1,n
-if (F(i).eq.fact(j)) Waux(i)=W(i)
+ Waux=0
+ do i=1,n
+  if (F(i).eq.fact(j)) Waux(i)=W(i)
+ end do
+ call rfast_h(X,errg,Waux,n,hp(j),pp,Xb,Pb,kbin,kernel,nh)
+ call Interpola (Xb,Pb(1,1,1),kbin,X,pol(1,j),n)
 end do
-call rfast_h(X,errg,Waux,n,h1(j),p,Xb,Pb,kbin,kernel,nh)
 
-do i=1,kbin
-pred1(i,j)=Pb(i,r+1,1)
+if(r.eq.0) pol=0
+
+!para las bootstraps
+!**********************************
+do i=1,n
+ do j=1,nf
+  if(F(i).eq.fact(j)) muhatg2(i)=muhatg(i)+pol(i,j)
+ end do
 end do
-end do
+
+errg(1:n)=Y(1:n)-muhatg2(1:n)
+!**********************************
 
 
 
@@ -771,7 +788,7 @@ end do
 T=0
 do j=1,nf
 do i=1,kbin
-!	T=T+abs(pred0(i)-pred1(i,j))
+! T=T+abs(pred0(i)-pred1(i,j))
 T=T+abs(pred1(i,j))
 end do
 end do
@@ -782,24 +799,24 @@ end do
 
 
 ! Bootstrap
+if(seed.ne.-1) call srand(seed)
 
 pvalor=0
 do iboot=1,nboot
 do z=1,n
 u=RAND()
 if (u.le.(5.0+sqrt(5.0))/10) then
-Yboot(z)=muhatg(z)+errg(z)*(1-sqrt(5.0))/2
+Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
 else
-Yboot(z)=muhatg(z)+errg(z)*(1+sqrt(5.0))/2
+Yboot(z)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
 end if
 end do
 
 
-call rfast_h(X,Yboot,W,n,h0(1),p,Xb,Pb,kbin,kernel,nh)
-
-
-
+call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatgboot,n)
+
+
 do i=1,n
 errgboot(i)=Yboot(i)-muhatgboot(i)
 end do
@@ -816,7 +833,7 @@ Waux=0
 do i=1,n
 if (F(i).eq.fact(j)) Waux(i)=W(i)
 end do
-call rfast_h(X,errgboot,Waux,n,h1(j),p,Xb,Pb,kbin,kernel,nh)
+call rfast_h(X,errgboot,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
 
 do i=1,kbin
 pred1(i,j)=Pb(i,r+1,1)
@@ -828,7 +845,7 @@ end do
 Tboot=0
 do k=1,nf
 do z=1,kbin
-!	Tboot=Tboot+abs(pred0(z)-pred1(z,k))
+! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
 Tboot=Tboot+abs(pred1(z,k))
 end do
 end do
@@ -844,7 +861,12 @@ pvalor=pvalor/nboot
 
 
 
-end 
+end subroutine
+
+
+
+
+
 
 
 
