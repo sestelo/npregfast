@@ -7,15 +7,15 @@
 # print.frfast listo (no lleva ayuda)
 # summary.frfast listo
 # predict.frfast listo
+# plot.frfast listo
+# plot.diff listo
+# localtest listo
 
 
 
-# plot.frfast
-# plot.diff
-# localtest
 # globaltest
-
-tidy_source("plot.frfast.R",arrow = TRUE, width.cutoff = 80)
+library(formatR)
+tidy_source("globaltest.R",arrow = TRUE, width.cutoff = 80)
 
 
 
