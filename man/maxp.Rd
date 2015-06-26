@@ -39,7 +39,7 @@ maxp(fit, der = 0)
 maxp(fit, der = 1)
 maxp(fit, der = 2)
 
-fit2 <- frfast(DW ~ RC : F,data = barnacle) # with interactions
+fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
 maxp(fit2)
 maxp(fit2, der = 0)
 maxp(fit2, der = 1)

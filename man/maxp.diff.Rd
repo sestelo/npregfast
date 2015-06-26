@@ -38,12 +38,14 @@ the  estimate, first or second derivative.
 Differences are calculated by subtracting a factor relative to
 another (\eqn{factor2 - factor1}).  By default \code{factor2} and
 \code{factor1} are \code{NULL}, so the differences calculated are for all
-possible combinations between two factors.
+possible combinations between two factors. Additionally, it is obtained
+the 95\% interval confidence for this difference which let us to make
+inference about them.
 }
 \examples{
 library(NPRegfast)
 data(barnacle)
-fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
+fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
 maxp.diff(fit2)
 maxp.diff(fit2, der = 1)
 maxp.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
