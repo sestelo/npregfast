@@ -47,6 +47,7 @@ the aim here is to test the null hypothesis of an allometric model
 being an unknown nonparametric function; or analogously,
 \deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}{}
 with \eqn{g(x^*)}{} being an unknown function not equal to zero.
+
 To implement this test we have used the wild bootstrap.
 }
 \examples{

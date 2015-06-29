@@ -20,10 +20,10 @@ variable and covariates required by the \code{formula}.}
 regression model with local linear kernel smoothers,
 \code{model = "allo"} the  allometric model.}
 
-\item{h0}{The kernel bandwidth smoothing parameter for the global effect.
-Large values of bandwidth make smoother estimates, smaller values of
-bandwidth make less smooth estimates. The default is a bandwidth compute by
-cross validation.}
+\item{h0}{The kernel bandwidth smoothing parameter for the global effect (see
+refrences for more details at the estimation). Large values of bandwidth make
+ smoother estimates, smaller values of bandwidth make less smooth estimates.
+ The default is a bandwidth compute by cross validation.}
 
 \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 
@@ -81,7 +81,7 @@ for their first and second derivative.}
 between the estimation values of a couple of levels. It is performed for
 their first and second derivative.}
 \item{nboot}{Number of bootstrap repeats.}
-\item{n}{Total number of data}
+\item{n}{Total number of data.}
 \item{dp}{Degree of polynomial used.}
 \item{h0}{The kernel bandwidth smoothing parameter for the global effect.}
 \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
@@ -113,8 +113,8 @@ the estimate, their first and second derivative for each bootstrap repeat.}
 \item{ranku}{Minimum value for the interval at which to search the
 \code{x} value which maximizes the estimate, first or second derivative
 (for each level). The default is the minimum data value.}
-\item{nmodel}{Type model used: \code{model = 1} the nonparametric model,
-\code{model = 2} the allometric model.}
+\item{nmodel}{Type model used: \code{nmodel = 1} the nonparametric model,
+\code{nmodel = 2} the allometric model.}
 \item{label}{Labels of the variables in the model.}
 \item{numlabel}{Number of labels.}
 \item{kernel}{Character which determines the smoothing kernel.}
@@ -128,15 +128,16 @@ the estimate, their first and second derivative for each bootstrap repeat.}
 \item{formula}{A sympbolic description of the model to be fitted.}
 \item{nh}{Integer number of equally-spaced bandwidth on which the
 \code{h} is discretised.}
-\item{r2}{Coefficient of determination.}
+\item{r2}{Coefficient of determination (in the case of the allometric model).}
 }
 \description{
 This function is used to fit nonparametric models by
-using local linear kernel smoothers. Additionally, a parametric
+using local linear kernel smoothers. These models can include or not
+factor-by-curve interactions. Additionally, a parametric
 model (allometric model) can be estimated.
 }
 \details{
-The models fit by \code{frfast} function are specified
+The models fitted by \code{frfast} function are specified
 in a compact symbolic form. The \~ operator is basic in the formation
 of such models. An expression of the form \code{y ~ model}  is interpreted as
 a specification that the response \code{y} is modelled by a predictor
@@ -161,8 +162,22 @@ fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 1000)
 fit2 <- frfast(DW ~ RC : F, data = barnacle)
 fit2
 summary(fit2)
+
+
+# Allometric model
+fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo")
+summary(fit3)
+
+fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo")
+summary(fit4)
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}
+\references{
+Sestelo, M. (2013). Development and computational implementation of
+estimation and inference methods in flexible regression models.
+Applications in Biology, Engineering and Environment. PhD Thesis. Department
+of Statistics and O.R. University of Vigo.
 }
 

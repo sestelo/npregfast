@@ -1,7 +1,7 @@
 #' Fitting nonparametric models
 #' 
 #' @description This function is used to fit nonparametric models by
-#' using local linear kernel smoothers. The models could be with or without 
+#' using local linear kernel smoothers. These models can include or not  
 #' factor-by-curve interactions. Additionally, a parametric 
 #' model (allometric model) can be estimated.
 #' @param formula An object of class \code{formula}: a sympbolic 
@@ -137,7 +137,7 @@
 #' summary(fit)
 #' 
 #' # Change the number of binning nodes and bootstrap replicates
-#' fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 1000)
+#' fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 100)
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle)
