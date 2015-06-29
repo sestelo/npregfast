@@ -1,7 +1,8 @@
 #' Fitting nonparametric models
 #' 
 #' @description This function is used to fit nonparametric models by
-#' using local linear kernel smoothers. Additionally, a parametric 
+#' using local linear kernel smoothers. The models could be with or without 
+#' factor-by-curve interactions. Additionally, a parametric 
 #' model (allometric model) can be estimated.
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
@@ -11,10 +12,10 @@
 #' @param model Type model used: \code{model = "np"}  nonparametric
 #' regression model with local linear kernel smoothers, 
 #' \code{model = "allo"} the  allometric model.
-#' @param h0 The kernel bandwidth smoothing parameter for the global effect. 
-#' Large values of bandwidth make smoother estimates, smaller values of 
-#' bandwidth make less smooth estimates. The default is a bandwidth compute by 
-#' cross validation.
+#' @param h0 The kernel bandwidth smoothing parameter for the global effect (see
+#' refrences for more details at the estimation). Large values of bandwidth make
+#'  smoother estimates, smaller values of bandwidth make less smooth estimates. 
+#'  The default is a bandwidth compute by cross validation.
 #' @param h The kernel bandwidth smoothing parameter for the partial effects. 
 #' @param nh Integer number of equally-spaced bandwidth on which the
 #' \code{h} is discretised, to speed up computation.
@@ -41,7 +42,7 @@
 #' estimate, first or second derivative  (for each level). The default
 #' is the maximum data value.
 #' @param seed Seed to be used in the bootstrap procedure.
-#' @details The models fit by \code{frfast} function are specified 
+#' @details The models fitted by \code{frfast} function are specified 
 #' in a compact symbolic form. The \~ operator is basic in the formation 
 #' of such models. An expression of the form \code{y ~ model}  is interpreted as 
 #' a specification that the response \code{y} is modelled by a predictor 
@@ -68,7 +69,7 @@
 #' between the estimation values of a couple of levels. It is performed for 
 #' their first and second derivative.}
 #' \item{nboot}{Number of bootstrap repeats.}
-#' \item{n}{Total number of data}
+#' \item{n}{Total number of data.}
 #' \item{dp}{Degree of polynomial used.}
 #' \item{h0}{The kernel bandwidth smoothing parameter for the global effect.}
 #' \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
@@ -100,8 +101,8 @@
 #' \item{ranku}{Minimum value for the interval at which to search the 
 #' \code{x} value which maximizes the estimate, first or second derivative  
 #' (for each level). The default is the minimum data value.}
-#' \item{nmodel}{Type model used: \code{model = 1} the nonparametric model, 
-#' \code{model = 2} the allometric model.}
+#' \item{nmodel}{Type model used: \code{nmodel = 1} the nonparametric model, 
+#' \code{nmodel = 2} the allometric model.}
 #' \item{label}{Labels of the variables in the model.}
 #' \item{numlabel}{Number of labels.}
 #' \item{kernel}{Character which determines the smoothing kernel.}
@@ -115,10 +116,16 @@
 #' \item{formula}{A sympbolic description of the model to be fitted.}
 #' \item{nh}{Integer number of equally-spaced bandwidth on which the
 #' \code{h} is discretised.}
-#' \item{r2}{Coefficient of determination.}
+#' \item{r2}{Coefficient of determination (in the case of the allometric model).}
 #' 
 #' 
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#' 
+#' @references 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis. Department
+#' of Statistics and O.R. University of Vigo.
 #' 
 #' @examples
 #' library(NPRegfast)
@@ -136,6 +143,14 @@
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle)
 #' fit2
 #' summary(fit2)
+#' 
+#' 
+#' # Allometric model
+#' fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo")
+#' summary(fit3)
+#' 
+#' fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo")
+#' summary(fit4)
 #' 
 #' @export
 

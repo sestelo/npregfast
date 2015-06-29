@@ -30,6 +30,7 @@
 #' To implement this test we have used the wild bootstrap.
 #' 
 #' 
+#' 
 #'@return An object is returned with the following elements:
 #' \item{statistic}{the value of the test statistic.}
 #' \item{value}{the p-value of the test.}
