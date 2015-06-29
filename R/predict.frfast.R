@@ -12,6 +12,7 @@
 #' \code{der} is \code{NULL}. If this term is \code{0}, 
 #' the function returns the initial estimate. If it is \code{1} or \code{2}, 
 #' it is designed for the first or second derivative, respectively.
+#' @param seed Seed to be used in the bootstrap procedure.
 #' @return \code{predict.frfast} computes and returns a list containing 
 #' predictions of the estimates, first and second derivative, 
 #' with their 95\% confidence intervals.
@@ -34,7 +35,7 @@
 #'  
 #' @export
 
-predict.frfast <- function(model, newdata, fac = NULL, der = NULL, ...) {
+predict.frfast <- function(model, newdata, fac = NULL, der = NULL, seed = NULL, ...) {
   
   if(missing(newdata)){
     stop("Argument \"newdata\" is missing, with no default")
@@ -62,6 +63,8 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, ...) {
     stop("",paste(der)," is not a r-th derivative implemented, only 
          permitted 0, 1 or 2.")
   }
+  
+  if(is.null(seed)) seed <- -1
   
   newdata <- newdata[, 1]
   len <- length(newdata)
@@ -135,7 +138,8 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, ...) {
                       ipredict = as.integer(ipredict2),
                       predict = array(as.double(-1.0), c(n, 3, nf)),
                       predictl = array(as.double(-1.0), c(n, 3, nf)),
-                      predictu = array(as.double(-1.0), c(n, 3, nf))
+                      predictu = array(as.double(-1.0), c(n, 3, nf)),
+                      seed = as.integer(seed)
   )
   
   

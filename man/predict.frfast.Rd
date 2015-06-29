@@ -4,7 +4,8 @@
 \alias{predict.frfast}
 \title{Prediction from fitted \code{frfast} model}
 \usage{
-\method{predict}{frfast}(model, newdata, fac = NULL, der = NULL, ...)
+\method{predict}{frfast}(model, newdata, fac = NULL, der = NULL,
+  seed = NULL, ...)
 }
 \arguments{
 \item{model}{A fitted \code{frfast} object as produced by \code{frfast()}.}
@@ -20,6 +21,8 @@ generated if not.}
 \code{der} is \code{NULL}. If this term is \code{0},
 the function returns the initial estimate. If it is \code{1} or \code{2},
 it is designed for the first or second derivative, respectively.}
+
+\item{seed}{Seed to be used in the bootstrap procedure.}
 }
 \value{
 \code{predict.frfast} computes and returns a list containing
