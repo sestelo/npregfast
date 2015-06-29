@@ -26,6 +26,7 @@
 #' being an unknown nonparametric function; or analogously,
 #' \deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}{}
 #' with \eqn{g(x^*)}{} being an unknown function not equal to zero. 
+#' 
 #' To implement this test we have used the wild bootstrap.
 #' 
 #' 
@@ -34,6 +35,18 @@
 #' \item{value}{the p-value of the test.}
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#'@references 
+#' Sestelo, M. and Roca-Pardinas, J. (2011). A new approach to estimation of 
+#' length-weight relationship of \eqn{Pollicipes}  \eqn{pollicipes} (Gmelin, 1789)
+#' on the Atlantic coast of Galicia (Northwest Spain): some aspects of its 
+#' biology and management. Journal of Shellfish Research, 30 (3), 939--948.
+#' 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis. Department
+#' of Statistics and O.R. University of Vigo.
+#' 
+#' 
 #'@examples
 #' library(NPRegfast)
 #' data(barnacle)
