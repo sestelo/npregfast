@@ -10,10 +10,10 @@
 # plot.frfast listo
 # plot.diff listo
 # localtest listo
+# globaltest listo
 
 
 
-# globaltest
 library(formatR)
 tidy_source("globaltest.R",arrow = TRUE, width.cutoff = 80)
 
@@ -23,17 +23,31 @@ library(NPRegfast)
 data(barnacle)
 barnacle2 <-barnacle
 barnacle2$F <- as.factor(barnacle2$F)
-levels(barnacle2$F) <- c("marta","nora")
+levels(barnacle2$F) <- c("oia","muros")
 
 fit <- frfast(DW~RC : F, data = barnacle2, model = "np", kbin = 100)
 fit
-plot(fit, der = c(0,1,2))
+plot(fit, der = c(0,1), fac = "oia")
 summary(fit)
+
+
+
+
+fit2 <- frfast(DW~RC:F, data = barnacle, model = "np")
+fit2
+plot(fit2, fac = 2, der = 0)
+
+
+
 
 
 #predict
 nd2 <- data.frame(RC = c(10, 15, 20))
-pred <- predict.frfast(fit, newdata = nd2, fac = c("marta","nora"))
+pred <- predict.frfast(fit2, newdata = nd2, fac = c("marta","nora"))
+
+
+
+
 
 
 
@@ -52,9 +66,6 @@ names(fit)
 
 
 
-fit2 <- frfast(DW~RC:F, data = barnacle, model = "np")
-fit2
-plot(fit2, fac = 2, der = 0)
 
 
 
