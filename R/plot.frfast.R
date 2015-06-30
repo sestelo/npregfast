@@ -1,8 +1,9 @@
 #' Visualization of \code{frfast} objects
-#' @description Useful for drawing the estimation, first and second derivative
-#' (for each factor's level).
-#' @param model \code{frfast} object.
-#' @param fac Number or vector which determines the level to take into account
+#' @description Useful for drawing the estimated regression function, 
+#' first and second derivative (for each factor's level).
+#' @param x \code{frfast} object.
+#' @param y NULL.
+#' @param fac Vector which determines the level to take into account
 #' in the plot. By default is \code{NULL}.
 #' @param der Number or vector which determines any inference process. 
 #' By default \code{der} is \code{NULL}. If this term is \code{0}, the plot 
@@ -42,21 +43,21 @@
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'@examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
 #' fit <- frfast(DW ~ RC, data = barnacle) 
 #' plot(fit)
 #' plot(fit, der = 0)
-#' plot(fit, der = 0, main = "")
-#' plot(fit, der = 1, col = "red", CIcol = "blue", points = FALSE)
+#' plot(fit, der = 0, points = FALSE)
+#' plot(fit, der = 1, col = "red", CIcol = "blue")
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle) 
 #' plot(fit2)
 #' plot(fit2, der = 0, fac = 2)
-#' plot(fit2, der = 1, col = "red", CIcol = "green")
+#' plot(fit2, der = 1, col = "grey", CIcol = "red")
 #' plot(fit2, der = c(0,1), fac = c(1,2))
 #' 
 #' 
@@ -65,13 +66,14 @@
 
 
 
-plot.frfast <- function(model, fac = NULL, der = NULL, points = TRUE, 
+plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE, 
                         xlab = model$name[2], ylab = model$name[1], ylim = NULL,
                         main = NULL, col = "black", CIcol = "black", 
                         ablinecol = "red", abline = TRUE, type = "l", 
                         CItype = "l", lwd = 2, CIlwd = 1, lty = 1, 
                         CIlty = 2, ...) {
   # CIcol = 'grey50'
+  model <- x
   
   nf <- model$nf
   fi <- length(fac)

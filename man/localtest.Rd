@@ -60,13 +60,13 @@ is the maximum data value.}
 \item{seed}{Seed to be used in the bootstrap procedure.}
 }
 \value{
-The estimate of \eqn{D} value is returned and its confidence interval
+The estimate of \eqn{d} value is returned and its confidence interval
 for a specific-level of confidence, i.e. 95\%. Additionally, it is shown
 the decision, accepted or rejected,  of the local test. Based on the null
 hypothesis is rejected if a zero value is not within the interval.
 }
 \description{
-\code{localtest} can be used to test the equality of the
+This function can be used to test the equality of the
 \eqn{M} critical points estimated from the respective level-specific curves.
 }
 \details{
@@ -74,32 +74,49 @@ hypothesis is rejected if a zero value is not within the interval.
 \eqn{M} critical points estimated from the respective level-specific curves.
 Note that, even if the curves and/or their derivatives are different, it is
 possible for these points to be equal.
+
 For instance, taking the maxima of the first derivatives into account,
 interest lies in testing the following null hypothesis
 
-\eqn{H_0: x_{01} = \ldots = x_{0M}}
-The above hypothesis is true if \eqn{D = x_{0j} - x_{0k} = 0} where
-\eqn{(j,k) = arg max_{1\le l < m \le M} |x_{0j} - x_{0k}|}
-otherwise \eqn{H_0} is false. It is important to highlight that, in practice,
-the true \eqn{x_{0j}} are not known, and consequently neither is \eqn{D},
-so an estimate \eqn{\hat D = \hat x_{0j} − \hat x_{0k}} is used, where,
+\deqn{H_0: x_{01} = \ldots = x_{0M}}
+
+versus the general  alternative
+
+\deqn{H_1: x_{0i} \ne x_{0j}  \quad {\rm{for}} \quad {\rm{some}} \quad
+\emph{i}, \emph{j} \in \{ 1, \ldots, M\}.}
+
+The above hypothesis is true if \eqn{d=x_{0j}-x_{0k}=0} where
+\deqn{ (j,k)= argmax \quad (l,m) \quad \{1 \leq l<m \leq M\} \quad |x_{0l}-x_{0m}|, }
+
+otherwise  \eqn{H_0} is false. It is important to highlight that, in practice,
+the true \eqn{x_{0j}} are not known, and consequently neither is \eqn{d},
+so an estimate \eqn{\hat d = \hat x_{0j}-\hat x_{0k}} is used, where,
 in general, \eqn{\hat x_{0l}} are the estimates of \eqn{x_{0l}} based on the
-estimated curves \eqn{\hat m_l} with \eqn{l = 1, \ldots , M}. Needless to say,
-since \eqn{\hat D} is only an estimate of the true D, the sampling
+estimated curves \eqn{\hat m_l} with \eqn{l = 1, \ldots , M}.
+
+Needless to say,
+since \eqn{\hat d} is only an estimate of the true \eqn{d}, the sampling
 uncertainty of these estimates needs to be acknowledged. Hence, a confidence
-interval \eqn{(a,b)} is created for \eqn{D} for a specific level of
-confidence (95\%).
+interval \eqn{(a,b)} is created for \eqn{d} for a specific level of
+confidence (95\%).  Based on this, the null hypothesis is rejected if
+zero is not contained in the interval.
 
 Note that if this hypothesis is rejected (and the factor has more than
 two levels), one option could be to use the \code{maxp.diff} function in
 order to obtain the differences between each pair of factor's levels.
 }
 \examples{
-library(NPRegfast)
+library(npregfast)
 data(barnacle)
 localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853)
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}
+\references{
+Sestelo, M. (2013). Development and computational implementation of
+estimation and inference methods in flexible regression models.
+Applications in Biology, Engineering and Environment. PhD Thesis, Department
+of Statistics and O.R. University of Vigo.
 }
 

@@ -5,21 +5,24 @@
 \alias{summary.frfast}
 \title{Summarizing fits of \code{frfast} class}
 \usage{
-\method{summary}{frfast}(model)
+\method{summary}{frfast}(object = model, ...)
 }
 \arguments{
-\item{model}{a fitted \code{frfast} object as produced by \code{frfast()}.}
+\item{object}{a fitted \code{frfast} object as produced by \code{frfast()}.}
+
+\item{\ldots}{additional arguments affecting the predictions produced.}
 }
 \value{
 \code{summary.frfast} computes and returns a list of summary
 information for a fitted \code{frfast} object.
-\item{model}{type of estimate.}
+\item{model}{type of model: nonparametric or allometric.}
 \item{h}{the kernel bandwidth smoothing parameter.}
-\item{dp}{degree of a polynomial.}
+\item{dp}{degree of the polynomial.}
 \item{nboot}{number of bootstrap repeats.}
 \item{kbin}{number of binning nodes over which the function is to be estimated.}
 \item{n}{total number of data.}
 \item{fmod}{factor's levels.}
+\item{coef}{if \code{model = "allo"}, coefficients of the model.}
 }
 \description{
 Takes a fitted \code{frfast} object produced by \code{frfast()}
@@ -29,7 +32,7 @@ and produces various useful summaries from it.
 \code{print.frfast} tries to be smart about \code{summary.frfast}.
 }
 \examples{
-library(NPRegfast)
+library(npregfast)
 data(barnacle)
 
 # Nonparametric regression without interactions
@@ -41,8 +44,19 @@ summary(fit)
 fit2 <- frfast(DW ~ RC : F, data = barnacle)
 fit2
 summary(fit2)
+
+# Allometric model
+fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo")
+fit3
+summary(fit3)
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}
+\references{
+Sestelo, M. (2013). Development and computational implementation of
+estimation and inference methods in flexible regression models.
+Applications in Biology, Engineering and Environment. PhD Thesis, Department
+of Statistics and O.R. University of Vigo.
 }
 

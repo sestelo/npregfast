@@ -1,9 +1,9 @@
-#' Visualization of the differences between the estimation of curves 
+#' Visualization of the differences between the estimated curves 
 #' for two factor's levels
 #' @description Useful for drawing the differences between the estimation of 
 #' curves (initial estimate, first or second derivative) for  two factor's levels.
 #' Missing values of factor's levels is not allowed. 
-#'@param Parametric or nonparametric regression out 
+#'@param model Parametric or nonparametric regression out 
 #' obtained by \code{\link{frfast}} function.
 #'@param factor2 Second factor's level at which to perform the 
 #'differences between curves.
@@ -11,8 +11,9 @@
 #'differences between curves.
 #' @param der Number or vector which determines any inference process. 
 #' By default \code{der} is \code{NULL}. If this term is \code{0}, the plot 
-#' shows the differences between initial estimate. If it is \code{1} or \code{2},
-#' it is designed for the first or second derivative, respectively.
+#' shows the differences between estimated regression functions. If it is 
+#' \code{1} or \code{2}, it is designed for the first or second derivative, 
+#' respectively.
 #'@param est.include Draws the estimates of the model. 
 #'By default it is \code{FALSE}.
 #' @param xlab A title for the x axis. 
@@ -45,25 +46,23 @@
 #' @return Simply produce a plot.
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #' @examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle) 
-#' plot.diff(fit2, factor2 = 1, factor1 = 2)
-#' plot.diff(fit2, factor2 = 2, factor1 = 1, der = 1, col = "blue", 
-#' CIcol = "green")
-#' plot.diff(fit2, 1, 2, der = c(0, 1), ylim = c(-0.05, 0.05))
+#' plotdiff(fit2, factor2 = 1, factor1 = 2)
+#' plotdiff(fit2, factor2 = 2, factor1 = 1, der = 1, col = "blue", CIcol = "grey")
+#' plotdiff(fit2, 1, 2, der = c(0, 1), ylim = c(-0.05, 0.05))
+#' 
+#' 
+#' 
 #' 
 #' @export
 
 
 
-
-
-
-
-plot.diff <- function(model, factor2, factor1, der = NULL, est.include = FALSE, 
+plotdiff <- function(model, factor2, factor1, der = NULL, est.include = FALSE, 
                       xlab = model$name[2], ylab = model$name[1], ylim = NULL, 
                       main = NULL, col = "black", CIcol = "grey50", ablinecol = "red", 
                       abline = TRUE, type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, 

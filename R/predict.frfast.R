@@ -1,8 +1,8 @@
 #' Prediction from fitted \code{frfast} model
 #' @description Takes a fitted \code{frfast} object  and produces predictions 
-#' (and optionally estimates standard errors of those predictions) from a 
-#' fitted model with interactions or without interactions.
-#' @param model A fitted \code{frfast} object as produced by \code{frfast()}.
+#' (with their 95\% confidence intervals) from a fitted model with 
+#' interactions or without interactions.
+#' @param object A fitted \code{frfast} object as produced by \code{frfast()}.
 #' @param newdata A data frame containing the values of the model covariates
 #' at which predictions are required.  If newdata is provided, then it should 
 #' contain all the variables needed for prediction: a warning is 
@@ -13,29 +13,35 @@
 #' the function returns the initial estimate. If it is \code{1} or \code{2}, 
 #' it is designed for the first or second derivative, respectively.
 #' @param seed Seed to be used in the bootstrap procedure.
+#' @param \ldots Seed to be used in the bootstrap procedure.
 #' @return \code{predict.frfast} computes and returns a list containing 
 #' predictions of the estimates, first and second derivative, 
 #' with their 95\% confidence intervals.
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'@examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
 #' fit <- frfast(DW ~ RC, data = barnacle)
 #' nd <- data.frame(RC = c(10, 14, 18))
-#' predict.frfast(fit, newdata = nd)
+#' predict(fit, newdata = nd)
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle)
 #' nd2 <- data.frame(RC = c(10, 15, 20))
-#' predict.frfast(fit2, newdata = nd2)
-#' predict.frfast(fit2, newdata = nd2, der = 0, fac = 2)
+#' predict(fit2, newdata = nd2)
+#' predict(fit2, newdata = nd2, der = 0, fac = 2)
 #'  
+#' @useDynLib npregfast frfast_
+#' 
 #' @export
 
-predict.frfast <- function(model, newdata, fac = NULL, der = NULL, seed = NULL, ...) {
+predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL, 
+                           seed = NULL, ...) {
+  
+  model <- object
   
   if(missing(newdata)){
     stop("Argument \"newdata\" is missing, with no default")
@@ -94,7 +100,7 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, seed = NULL, 
   ipredict2 <- 1
   
   
-  frfast  <- .Fortran("frfast",
+  frfast  <- .Fortran("frfast_",
                       f      = as.integer(f),
                       x      = as.double(x),
                       y      = as.double(y),
@@ -165,7 +171,7 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, seed = NULL, 
         res[, 3, cont] <- frfast$predictu[, , 1][ii, j]
       }
     }
-    colnames(res) <- c("Predict", "Lwr", "Upr")
+    colnames(res) <- c("Pred", "Lwr", "Upr")
     if (length(der) == 3) {
       res <- list(Estimation = res[, , 1], First_deriv = res[, , 2], 
                   Second_deriv = res[, , 3])
@@ -212,7 +218,7 @@ predict.frfast <- function(model, newdata, fac = NULL, der = NULL, seed = NULL, 
         res[, 2, cont] <- frfast$predictl[, , k][ii, j]
         res[, 3, cont] <- frfast$predictu[, , k][ii, j]
       }
-      colnames(res) <- c("Predict", "Lwr", "Upr")
+      colnames(res) <- c("Pred", "Lwr", "Upr")
       # res<-list(Estimation=res[,,1], First_deriv=res[,,2], Second_deriv=res[,,3])
       if (length(der) == 3) {
         res <- list(Estimation = res[, , 1], First_deriv = res[, , 2], 

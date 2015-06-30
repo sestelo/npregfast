@@ -4,7 +4,7 @@
 \alias{allotest}
 \title{Bootstrap based test for testing an allometric model}
 \usage{
-allotest(formula, data = data, nboot = 100, kbin = 200, seed = NULL)
+allotest(formula, data = data, nboot = 500, kbin = 200, seed = NULL)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic description
@@ -51,7 +51,7 @@ with \eqn{g(x^*)}{} being an unknown function not equal to zero.
 To implement this test we have used the wild bootstrap.
 }
 \examples{
-library(NPRegfast)
+library(npregfast)
 data(barnacle)
 allotest(DW ~ RC, data = barnacle)
 allotest(DW ~ RC : F, data = barnacle)
@@ -67,7 +67,7 @@ biology and management. Journal of Shellfish Research, 30 (3), 939--948.
 
 Sestelo, M. (2013). Development and computational implementation of
 estimation and inference methods in flexible regression models.
-Applications in Biology, Engineering and Environment. PhD Thesis. Department
+Applications in Biology, Engineering and Environment. PhD Thesis, Department
 of Statistics and O.R. University of Vigo.
 }
 

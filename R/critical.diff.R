@@ -1,18 +1,16 @@
-#' Differences between the estimation of maximum points  
+#' Differences between the critical points  
 #' for two factor's levels
-#'@description Differences between the estimation of \code{\link{maxp}} for two 
-#' factor's levels. \code{maxp}, a returned element  of class 
-#' \code{\link{frfast}}, is the value of covariate \code{x} which maximizes 
-#' the  estimate, first or second derivative.
+#'@description Differences between the estimation of \code{\link{critical}} for two 
+#' factor's levels. 
 #'@param model Parametric or nonparametric regression model 
 #' obtained by \code{\link{frfast}} function.
 #' @param factor1 First factor's level at which to perform the differences 
-#' between maximum points.
+#' between critical points.
 #' @param factor2 Second factor's level at which to perform the differences 
-#' between maximum points.
+#' between critical points.
 #' @param der Number which determines any inference process. By default 
 #' \code{der} is \code{NULL}. If this term is \code{0}, the calculate of the 
-#' differences for maximum point is for the estimate. If it is \code{1} or 
+#' differences for the critical point is for the estimate. If it is \code{1} or 
 #' \code{2}, it is designed for the first or second derivative, respectively.
 #' 
 #'@details Differences are calculated by subtracting a factor relative to 
@@ -23,22 +21,29 @@
 #'inference about them.
 #' 
 #'@return An object is returned with the following elements:
-#' \item{maxp.diff}{a table with a couple of factor's level where it is used 
-#' to calculate the differences between maximum points, and their 
+#' \item{critical.diff}{a table with a couple of factor's level where it is used 
+#' to calculate the differences between the critical points, and their 
 #' 95\% interval confidence (for the estimation, first and second derivative).}
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#'
+#' @references 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
+#' of Statistics and O.R. University of Vigo.
+#' 
 #'@examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
-#' maxp.diff(fit2)
-#' maxp.diff(fit2, der = 1)
-#' maxp.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
+#' critical.diff(fit2)
+#' critical.diff(fit2, der = 1)
+#' critical.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
 #' 
 #' @export
 
-maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
+critical.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
   
   if(model$nf == 1) {
     stop("There is not factor in the model.")
@@ -75,7 +80,7 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     
     for (i in 1:nrow(a)) {
       res[i] <- list(matrix(ncol = 5, nrow = 3))
-      colnames(res[[i]]) <- c("Factor2", "Factor1", "Max point", "Lwr", "Upr")
+      colnames(res[[i]]) <- c("Factor2", "Factor1", "Crit point Diff", "Lwr", "Upr")
       rownames(res[[i]]) <- c("Estimation", "First_der", "Second_der")
       for (k in 1:3) {
         res[[i]][k, 1] <- model$label[a[i, 2]]
@@ -134,7 +139,7 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     res[1, 4] <- low
     res[1, 5] <- up
     
-    colnames(res) <- c("Factor2", "Factor1", "Max points Diff.", "Lwr", "Upr")
+    colnames(res) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", "Upr")
     rownames(res) <- c("Estimation", "First_der", "Second_der")
     return(data.frame(res))
     
@@ -145,7 +150,7 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     for (i in 1:nrow(a)) {
       res[i] <- list(matrix(ncol = 5, nrow = 1))
       
-      colnames(res[[i]]) <- c("Factor2", "Factor1", "Max points Diff.", "Lwr", 
+      colnames(res[[i]]) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", 
                               "Upr")
       if (der == 1) 
         rownames(res[[i]]) <- c("Estimation")
@@ -201,7 +206,7 @@ maxp.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
       res[1, 4] <- low
       res[1, 5] <- up
     
-    colnames(res) <- c("Factor2", "Factor1", "Max points Diff.", "Lwr", "Upr")
+    colnames(res) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", "Upr")
     if (der == 1) 
       rownames(res) <- c("Estimation")
     if (der == 2) 

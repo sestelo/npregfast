@@ -2,20 +2,31 @@
 #' @aliases print.frfast
 #' @description Takes a fitted \code{frfast} object produced by \code{frfast()}
 #' and produces various useful summaries from it.
-#' @param model a fitted \code{frfast} object as produced by \code{frfast()}.
+#' @param object a fitted \code{frfast} object as produced by \code{frfast()}.
+#' @param \ldots additional arguments affecting the predictions produced.
 #' @details \code{print.frfast} tries to be smart about \code{summary.frfast}.
 #' @return \code{summary.frfast} computes and returns a list of summary 
 #' information for a fitted \code{frfast} object.
-#' \item{model}{type of estimate.}
+#' \item{model}{type of model: nonparametric or allometric.}
 #' \item{h}{the kernel bandwidth smoothing parameter.}
-#' \item{dp}{degree of a polynomial.}
+#' \item{dp}{degree of the polynomial.}
 #' \item{nboot}{number of bootstrap repeats.}
 #' \item{kbin}{number of binning nodes over which the function is to be estimated.}
 #' \item{n}{total number of data.}
 #' \item{fmod}{factor's levels.}
+#' \item{coef}{if \code{model = "allo"}, coefficients of the model.}
+#' 
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#' 
+#' @references 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
+#' of Statistics and O.R. University of Vigo.
+#' 
+#' 
 #' @examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
@@ -28,11 +39,17 @@
 #' fit2
 #' summary(fit2)
 #' 
+#' # Allometric model
+#' fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo")
+#' fit3
+#' summary(fit3)
+#' 
 #' @export
 
 
 
-summary.frfast <- function(model) {
+summary.frfast <- function(object = model, ...) {
+  model <- object
   if (missing(model)) 
     stop("Argument 'model' is missing with no default")
   
@@ -61,7 +78,7 @@ summary.frfast <- function(model) {
     } else {
       cat("Bandwidth:", format(c(model$h0), digits = 2), "\n")
     }
-    cat("Degree of polinomium:", model$dp, "\n")
+    cat("Degree of the polinomial:", model$dp, "\n")
     cat("Number of bootstrap repeats:", model$nboot, "\n")
     cat("Number of binning nodes", model$kbin, "\n")
     cat("", "\n")
@@ -141,7 +158,7 @@ summary.frfast <- function(model) {
     
     cat("", "\n")
     cat("", "\n")
-    cat("Degree of polinomium:", model$dp, "\n")
+    cat("Degree of the polinomial:", model$dp, "\n")
     cat("Number of bootstrap repeats:", model$nboot, "\n")
     cat("Number of binning nodes", model$kbin, "\n")
     cat("", "\n")

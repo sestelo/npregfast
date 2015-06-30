@@ -1,10 +1,25 @@
-Package: NPRegfast
+Package: npregfast
 Type: Package
-Title: Nonparametric estimation for analyzing interactions factor-by-curve
+Title: Nonparametric Estimation of Regression Models with 
+       Factor-By-Curve Interactions
 Version: 1.0
-Date: 2011-11-13
-Author: Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardi\~{n}as.
+Date: 2015-06-29
+Author: Marta Sestelo [aut, cre],
+  Nora M. Villanueva [aut],
+  Javier Roca-Pardinas [aut]
 Maintainer: Marta Sestelo <sestelo@uvigo.es>
-Description: A method for obtain nonparametric estimates using local linear kernel smoothers.
-License: GPL
-LazyLoad: yes
+Authors@R: c(
+  person("Marta", "Sestelo",email= "sestelo@uvigo.es", role = c("aut", "cre")),
+  person("Nora", "M. Villanueva",email= "nmvillanueva@uvigo.es", role = "aut"),
+  person("Javier", "Roca-Pardinas",email= "roca@uvigo.es", role = "aut"))
+Description: A method for obtain nonparametric estimates of regression models
+             with or without factor-by-curve interactions using local linear 
+             kernel smoothers. Additionally, a parametric model (allometric model)
+             can be estimated.
+URL: 
+BugReports: http://github.com/sestelo/npregfast/issues
+Depends: R (>= 3.2.0)
+License: MIT + file LICENSE
+LazyData: true
+Imports:
+

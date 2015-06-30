@@ -1,45 +1,58 @@
-#' Maximum points for the estimate, first and second derivative, 
-#' with their 95\% confidence intervals
-#'@description Value of covariate \code{x} which maximizes the  estimate, 
-#'first and second derivative, for each level of the factor.
+#' Critical points of the regression function
+#' 
+#' @description This function draws inference about some some critical point in 
+#' the support of \eqn{X} which is associated  with  some features of the regression
+#' function (e.g., minimum, maximum or inflection point which indicate changes
+#' in the sign of curvature). Returns the value of the covariate \code{x} 
+#' which maximizes the estimate of the function, which maximizes the first derivative and
+#' which equals the second derivative to zero, for each level of the factor.
 #'
 #'@param model Parametric or nonparametric regression out 
 #' obtained by \code{\link{frfast}} function.
 #'@param der Number which determines any inference process. By default
-#' \code{der} is \code{NULL}. If this term is \code{0}, the calculation of the 
-#' maximum point is for the estimate. If it is \code{1} or \code{2}, it is 
-#' designed for the first or second derivative, respectively.
+#' \code{der} is \code{NULL}. If this term is \code{0}, the calculation is for
+#' the point which maximize the estimate. If it is \code{1} it is 
+#' designed for the first derivative and if it is \code{2}, it returns the point
+#'  which equals the second derivative to zero.
 #' 
 #'@return An object is returned with the following elements:
-#'\item{Estimation}{outputs for estimation with maximum points and their
+#'\item{Estimation}{ \code{x} value which maximize the regression function with 
+#'their 95\% confidence intervals (for each level).}
+#'\item{First_der}{\code{x} value which maximize the first derivative with their
 #' 95\% confidence intervals (for each level).}
-#'\item{First_der}{outputs for first derivative with maximum points and their
-#' 95\% confidence intervals (for each level).}
-#' \item{Second_der}{outputs for second derivative with maximum points and their
-#' 95\% confidence intervals (for each level).}
+#' \item{Second_der}{\code{x} value which equals the second derivative to zero 
+#' with their 95\% confidence intervals (for each level).}
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'
+#' @references 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
+#' of Statistics and O.R. University of Vigo.
+#'
 #'@examples
-#'library(NPRegfast)
+#'library(npregfast)
 #'data(barnacle)
 #'
 #'fit <- frfast(DW ~ RC, data = barnacle) # without interactions
-#'maxp(fit)
-#'maxp(fit, der = 0)
-#'maxp(fit, der = 1)
-#'maxp(fit, der = 2)
+#'critical(fit)
+#'critical(fit, der = 0)
+#'critical(fit, der = 1)
+#'critical(fit, der = 2)
 #'
 #'fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
-#'maxp(fit2)
-#'maxp(fit2, der = 0)
-#'maxp(fit2, der = 1)
-#'maxp(fit2, der = 2)
+#'critical(fit2)
+#'critical(fit2, der = 0)
+#'critical(fit2, der = 1)
+#'critical(fit2, der = 2)
+#'
+#'@export
 
 
 
 
-maxp <- function(model, der = NULL) {
+critical <- function(model, der = NULL) {
   
   if(length(der) > 1){
     stop("Argument \"der\" have to be a length-one vector")
@@ -83,9 +96,9 @@ maxp <- function(model, der = NULL) {
       factores[i] <- paste("Level", model$label[jnf[i]])
     }
     
-    colnames(res) <- c("Max point", "Lwr", "Upr")
-    colnames(res2) <- c("Max point", "Lwr", "Upr")
-    colnames(res3) <- c("Max point", "Lwr", "Upr")
+    colnames(res) <- c("Critical", "Lwr", "Upr")
+    colnames(res2) <- c("Critical", "Lwr", "Upr")
+    colnames(res3) <- c("Critical", "Lwr", "Upr")
     rownames(res) <- c(factores)
     rownames(res2) <- c(factores)
     rownames(res3) <- c(factores)
@@ -111,7 +124,7 @@ maxp <- function(model, der = NULL) {
       }
       a <- 2
     }
-    colnames(res) <- c("Max point", "Lwr", "Upr")
+    colnames(res) <- c("Critical", "Lwr", "Upr")
     rownames(res) <- c(rep(factores, length(der)))
     return(res)
   }

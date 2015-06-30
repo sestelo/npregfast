@@ -4,16 +4,18 @@
 \alias{plot.frfast}
 \title{Visualization of \code{frfast} objects}
 \usage{
-\method{plot}{frfast}(model, fac = NULL, der = NULL, points = TRUE,
-  xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL,
-  col = "black", CIcol = "black", ablinecol = "red", abline = TRUE,
-  type = "l", CItype = "l", lwd = 2, CIlwd = 1, lty = 1, CIlty = 2,
-  ...)
+\method{plot}{frfast}(x = model, y, fac = NULL, der = NULL,
+  points = TRUE, xlab = model$name[2], ylab = model$name[1],
+  ylim = NULL, main = NULL, col = "black", CIcol = "black",
+  ablinecol = "red", abline = TRUE, type = "l", CItype = "l", lwd = 2,
+  CIlwd = 1, lty = 1, CIlty = 2, ...)
 }
 \arguments{
-\item{model}{\code{frfast} object.}
+\item{x}{\code{frfast} object.}
 
-\item{fac}{Number or vector which determines the level to take into account
+\item{y}{NULL.}
+
+\item{fac}{Vector which determines the level to take into account
 in the plot. By default is \code{NULL}.}
 
 \item{der}{Number or vector which determines any inference process.
@@ -70,25 +72,25 @@ be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 Simply produce a plot.
 }
 \description{
-Useful for drawing the estimation, first and second derivative
-(for each factor's level).
+Useful for drawing the estimated regression function,
+first and second derivative (for each factor's level).
 }
 \examples{
-library(NPRegfast)
+library(npregfast)
 data(barnacle)
 
 # Nonparametric regression without interactions
 fit <- frfast(DW ~ RC, data = barnacle)
 plot(fit)
 plot(fit, der = 0)
-plot(fit, der = 0, main = "")
-plot(fit, der = 1, col = "red", CIcol = "blue", points = FALSE)
+plot(fit, der = 0, points = FALSE)
+plot(fit, der = 1, col = "red", CIcol = "blue")
 
 # Nonparametric regression with interactions
 fit2 <- frfast(DW ~ RC : F, data = barnacle)
 plot(fit2)
 plot(fit2, der = 0, fac = 2)
-plot(fit2, der = 1, col = "red", CIcol = "green")
+plot(fit2, der = 1, col = "grey", CIcol = "red")
 plot(fit2, der = c(0,1), fac = c(1,2))
 }
 \author{

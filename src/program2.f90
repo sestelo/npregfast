@@ -1,4 +1,4 @@
-subroutine test_allo(X,Y,W,n,kbin,nboot,seed,T,pvalor)
+subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor)
 implicit none
 
 !!DEC$ ATTRIBUTES DLLEXPORT::test_allo
@@ -7,7 +7,8 @@ implicit none
 integer n,kbin,p,iboot,nboot,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor
-real u,rand
+!real u, rand
+real u
 real,external::rnnof
 integer,external::which_min,which_max2
 integer seed
@@ -249,7 +250,7 @@ end subroutine
 
 
 
-subroutine localtest(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
+subroutine localtest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
 pcmax,pcmin,r,D,Ci,Cs,seed)
 
 
@@ -264,7 +265,7 @@ double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),xb(kbin),pb(kbin,3,nf),&
 h(nf),h1(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
 u,C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
 Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0
-REAL(4) rand 
+!REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
 muhatgboot(:),Xfino(:),Pfino(:),p0(:,:),pred(:),pboot(:,:,:,:),cboot(:,:,:),&
 media(:,:,:),sesgo(:,:,:)
@@ -697,7 +698,7 @@ end subroutine
 
 
 
-subroutine globaltest(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor,seed)
+subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor,seed)
 
 !!DEC$ ATTRIBUTES DLLEXPORT::globaltest
 !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
@@ -708,14 +709,14 @@ nh,nboot,kernel,r,pp,seed
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
 u,Tboot,T,pvalor
-REAL(4) rand 
+!REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:),&
 muhatg2(:)
 
 
 allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
 
-!write(*,*) h
+
 
 
 
@@ -882,7 +883,7 @@ end subroutine
 
 
 
-subroutine frfast(F,X,Y,W,n,h0,h,C2,ncmax,p,kbin,fact,&
+subroutine frfast_(F,X,Y,W,n,h0,h,C2,ncmax,p,kbin,fact,&
 nf,nboot,xb,pb,li,ls,dif,difi,difs,model,&
  c,cs,ci,difc,difcs,difci,pboot,pcmin,pcmax,cboot,&
 kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu,seed)
@@ -909,7 +910,7 @@ bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),pboota(:,:,:,:),&
 sesgo(:,:,:),media(:,:,:),Xboot(:)
 
-REAL(4) rand 
+!REAL(4) rand 
 
 
 
@@ -1654,7 +1655,7 @@ end    subroutine
 subroutine Sample_Int(n,size,II)
 implicit none
 integer n,size,II(n),i
-real rand
+!real rand
 do i=1,size
 II(i)=1+rand()*n
 if (ii(i).le.1) ii(i)=1
@@ -3301,9 +3302,9 @@ DO i = 0, m
 !      i, beta(i), sterr(i), rss(i+1)
 END DO
 
-WRITE(*, *)
+!WRITE(*, *)
 
-WRITE(*, '(a, g20.12)') ' Residual standard deviation = ', SQRT(var)
+!WRITE(*, '(a, g20.12)') ' Residual standard deviation = ', SQRT(var)
 
 se=SQRT(var)
 totalSS = rss(1)

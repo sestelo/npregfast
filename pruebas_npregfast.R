@@ -13,6 +13,8 @@
 # globaltest listo
 
 
+# R CMD Rd2pdf npregfast
+
 
 library(formatR)
 tidy_source("globaltest.R",arrow = TRUE, width.cutoff = 80)
@@ -32,18 +34,9 @@ summary(fit)
 
 
 
-
-fit2 <- frfast(DW~RC:F, data = barnacle, model = "np")
-fit2
-plot(fit2, fac = 2, der = 0)
-
-
-
-
-
 #predict
 nd2 <- data.frame(RC = c(10, 15, 20))
-pred <- predict.frfast(fit2, newdata = nd2, fac = c("marta","nora"))
+pred <- predict.frfast(fit, newdata = nd2)
 
 
 

@@ -1,5 +1,5 @@
-#' Testing the equality of M curves specific to each level
-#'@description \code{globaltest}  can be used to test the equality of the 
+#' Testing the equality of the \emph{M} curves specific to each level
+#'@description This function can be used to test the equality of the 
 #'\eqn{M} curves specific to each level.
 #'@param formula An object of class \code{formula}: a sympbolic description
 #' of the model to be fitted.
@@ -34,33 +34,52 @@
 #' 
 #' @details \code{globaltest}  can be used to test the equality of the \eqn{M} 
 #' curves specific to each level. This bootstrap based test assumes the  
-#' following null hypothesis
+#' following null hypothesis:
 #' 
-#' \eqn{H_0: m_1 = \ldots = m_M}
+#' \deqn{H_0^r: m_1^r(\cdot) = \ldots = m_M^r(\cdot)}
+#' 
+#' versus the general alternative
+#' 
+#' \deqn{H_1^r: m_i^r (\cdot)  \ne m_j^r (\cdot) \quad  \rm{for} \quad \rm{some}
+#'  \quad \emph{i}, \emph{j} \in \{ 1, \ldots, M\}. }
 #' 
 #' Note that, if \eqn{H_0} is not rejected, then the equality of critical points
-#' will also accepted. To test the null hypothesis, it is used an statistic, 
+#' will also accepted. 
+#' 
+#' To test the null hypothesis, it is used an statistic, 
 #' \eqn{T}, based on direct nonparametric estimates of the curves. 
+#' 
 #' If the null hypothesis is true, the \eqn{T} value should be close to zero 
 #' but is generally greater. The test rule based on \eqn{T} consists of 
 #' rejecting the null hypothesis if \eqn{T > T^{1- \alpha}}, where \eqn{T^p} 
-#' is the empirical \eqn{p}-percentile of \eqn{T} under the null hypothesis. 
+#' is the empirical \eqn{p}-percentile of \eqn{T} under the null hypothesis. To
+#' obtain this percentile, we have used bootstrap techniques. See details in 
+#' references.
 #' 
 #'@return The \eqn{T} value and the \eqn{p}-value  are returned. Additionally, 
 #'it is shown the decision, accepted or rejected, of the global test. 
 #'The null hypothesis is rejected if the \eqn{p}-value\eqn{< 0.05}.   
 #'
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+#'
+#' @references 
+#' Sestelo, M. (2013). Development and computational implementation of 
+#' estimation and inference methods in flexible regression models. 
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
+#' of Statistics and O.R. University of Vigo.
+#' 
 #'@examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' globaltest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853)
 #' 
+#' 
+#' @useDynLib npregfast globaltest_
 #' @export
 
 
 
-globaltest <- function(formula, data = data, der, weights = NULL, nboot = 200,
+globaltest <- function(formula, data = data, der, weights = NULL, nboot = 500,
                        h0 = -1, h = -1, nh = 30, kernel = "epanech", p = 3, 
                        kbin = 100, seed = NULL) {
   
@@ -137,7 +156,7 @@ globaltest <- function(formula, data = data, der, weights = NULL, nboot = 200,
       stop("The specified weights are not correct")
   }
   
-  globaltest <- .Fortran("globaltest", 
+  globaltest <- .Fortran("globaltest_", 
                          f = as.integer(f), 
                          x = as.double(data[, varnames]), 
                          y = as.double(data[, ffr$response]), 

@@ -44,23 +44,25 @@
 #' 
 #' Sestelo, M. (2013). Development and computational implementation of 
 #' estimation and inference methods in flexible regression models. 
-#' Applications in Biology, Engineering and Environment. PhD Thesis. Department
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
 #' of Statistics and O.R. University of Vigo.
 #' 
 #' 
 #'@examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' allotest(DW ~ RC, data = barnacle)
 #' allotest(DW ~ RC : F, data = barnacle)
 #' 
+#'
+#' @useDynLib npregfast allotest_
 #' @export
 
 
 
 
 
-allotest <- function(formula, data = data, nboot = 100, kbin = 200, 
+allotest <- function(formula, data = data, nboot = 500, kbin = 200, 
                      seed = NULL) {
   
   ffr <- interpret.frfastformula(formula, method = "frfast")
@@ -95,7 +97,7 @@ allotest <- function(formula, data = data, nboot = 100, kbin = 200,
     xx <- data[, 2][f == i]
     n <- length(xx)
     w <- rep(1, n)
-    fit <- .Fortran("test_allo", 
+    fit <- .Fortran("allotest_", 
                     x = as.double(xx), 
                     y = as.double(yy), 
                     w = as.double(w), 

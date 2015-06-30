@@ -124,11 +124,11 @@
 #' @references 
 #' Sestelo, M. (2013). Development and computational implementation of 
 #' estimation and inference methods in flexible regression models. 
-#' Applications in Biology, Engineering and Environment. PhD Thesis. Department
+#' Applications in Biology, Engineering and Environment. PhD Thesis, Department
 #' of Statistics and O.R. University of Vigo.
 #' 
 #' @examples
-#' library(NPRegfast)
+#' library(npregfast)
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
@@ -152,6 +152,7 @@
 #' fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo")
 #' summary(fit4)
 #' 
+#' @useDynLib npregfast frfast_
 #' @export
 
 
@@ -231,7 +232,7 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
   
   ipredict2 <- 0
   
-  frfast  <- .Fortran("frfast",
+  frfast  <- .Fortran("frfast_",
                       f = as.integer(f),
                       x = as.double(data[ ,varnames]),
                       y = as.double(data[ ,ffr$response]),
