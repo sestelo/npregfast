@@ -1,3 +1,4 @@
+
 subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor)
 implicit none
 
@@ -6,12 +7,14 @@ implicit none
 
 integer n,kbin,p,iboot,nboot,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
-errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor
+errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
+normrnd
 !real u, rand
 real u
 real,external::rnnof
 integer,external::which_min,which_max2
 integer seed
+
 
 
 call srand(seed)

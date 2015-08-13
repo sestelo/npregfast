@@ -1,11 +1,13 @@
 #' Critical points of the regression function
 #' 
-#' @description This function draws inference about some some critical point in 
+#' @description This function draws inference about some critical point in 
 #' the support of \eqn{X} which is associated  with  some features of the regression
-#' function (e.g., minimum, maximum or inflection point which indicate changes
+#' function (e.g., minimum, maximum or inflection points which indicate changes
 #' in the sign of curvature). Returns the value of the covariate \code{x} 
-#' which maximizes the estimate of the function, which maximizes the first derivative and
-#' which equals the second derivative to zero, for each level of the factor.
+#' which maximizes the estimate of the function, the value of the covariate 
+#' \code{x} which maximizes the first derivative and the value of the covariate 
+#' \code{x} which equals the second derivative to zero, for each level of the 
+#' factor.
 #'
 #'@param model Parametric or nonparametric regression out 
 #' obtained by \code{\link{frfast}} function.

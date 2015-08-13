@@ -26,7 +26,7 @@ An object is returned with the following elements:
 \item{value}{the p-value of the test.}
 }
 \description{
-Bootstrap-based procedure that test whether the data
+Bootstrap-based procedure that tests whether the data
 can be modelled by an allometric model.
 }
 \details{
@@ -42,7 +42,7 @@ Based on a general model of the type
 \deqn{Y^*=m(X^*)+\varepsilon}{}
 the aim here is to test the null hypothesis of an allometric model
 \deqn{H_0 = m(x^*) =  a^*+ b^* x^*}{}
-\eqn{vs.}{} general hypothesis
+\eqn{vs.}{} the general hypothesis
 \eqn{H_1}{}, with \eqn{m}{}
 being an unknown nonparametric function; or analogously,
 \deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}{}

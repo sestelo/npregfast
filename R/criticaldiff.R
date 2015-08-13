@@ -17,13 +17,13 @@
 #'another (\eqn{factor2 - factor1}).  By default \code{factor2} and 
 #'\code{factor1} are \code{NULL}, so the differences calculated are for all 
 #'possible combinations between two factors. Additionally, it is obtained 
-#'the 95\% interval confidence for this difference which let us to make
+#'the 95\% confidence interval for this difference which let us to make
 #'inference about them.
 #' 
 #'@return An object is returned with the following elements:
 #' \item{critical.diff}{a table with a couple of factor's level where it is used 
 #' to calculate the differences between the critical points, and their 
-#' 95\% interval confidence (for the estimation, first and second derivative).}
+#' 95\% confidence interval (for the estimation, first and second derivative).}
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'
@@ -37,13 +37,13 @@
 #' library(npregfast)
 #' data(barnacle)
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
-#' critical.diff(fit2)
-#' critical.diff(fit2, der = 1)
-#' critical.diff(fit2, der = 1, factor1 = 2, factor2 = 1)
+#' criticaldiff(fit2)
+#' criticaldiff(fit2, der = 1)
+#' criticaldiff(fit2, der = 1, factor1 = 2, factor2 = 1)
 #' 
 #' @export
 
-critical.diff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
+criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
   
   if(model$nf == 1) {
     stop("There is not factor in the model.")
