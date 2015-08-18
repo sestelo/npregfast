@@ -10,7 +10,7 @@
 #' @param data A data frame or matrix containing the model response
 #' variable and covariates required by the \code{formula}.
 #' @param model Type model used: \code{model = "np"}  nonparametric
-#' regression model with local linear kernel smoothers, 
+#' regression model with local polynomial kernel smoothers, 
 #' \code{model = "allo"} the  allometric model.
 #' @param h0 The kernel bandwidth smoothing parameter for the global effect (see
 #' references for more details at the estimation). Large values of the bandwidth lead
@@ -22,10 +22,10 @@
 #' @param weights Prior weights on the data.
 #' @param kernel A character string specifying the desired kernel. 
 #' Defaults to \code{kernel = "epanech"}, where the Epanechnikov
-#' density function kernel will be used. Also, several types of kernel funcitons 
+#' density function kernel will be used. Also, several types of kernel functons 
 #' can be used:  triangular and Gaussian density function, 
 #' with \code{"triang"} and \code{"gaussian"} term, respectively.
-#' @param p polynomial degree to be used. Its value must be the value of
+#' @param p Polynomial degree to be used. Its value must be the value of
 #' derivative + 1. The default value is 3, returning 
 #' the estimation, first and second derivative.
 #' @param kbin Number of binning nodes over which the function 

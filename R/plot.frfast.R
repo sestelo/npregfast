@@ -11,8 +11,8 @@
 #' it is designed for the first or second derivative, respectively.
 #' @param points Draw the original data into the plot. By default it is
 #' \code{TRUE}.
-#' @param xlab A title for the x axis. 
-#' @param ylab A title for the y axis. 
+#' @param xlab A title for the \code{x} axis. 
+#' @param ylab A title for the \code{y} axis. 
 #' @param ylim The \code{y} limits of the plot.
 #' @param main An overall title for the plot.
 #' @param col A specification for the default plotting color.
