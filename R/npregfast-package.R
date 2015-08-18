@@ -6,7 +6,7 @@
 #' models using local linear kernel smoothers. Particular features of the package
 #' are facilities for fast smoothness estimation, and the calculation of their 
 #' first and second derivative. Users can define the smoothers parameters. 
-#' Confidences intervals calculation is provided by bootstrap methods. 
+#' Confidence intervals calculation is provided by bootstrap methods. 
 #' Binning techniques were applied to speed up computation in the estimation 
 #' and testing processes.
 #'

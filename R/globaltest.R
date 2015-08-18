@@ -11,19 +11,19 @@
 #' \code{2}, it is designed for the first or second derivative, respectively.
 #' @param weights Prior weights on the data.
 #' @param nboot Number of bootstrap repeats.
-#' @param h0 The kernel bandwidth smoothing parameter for the global effect. 
-#' Large values of bandwidth make smoother estimates, smaller values of 
-#' bandwidth make less smooth estimates. The default is a bandwidth compute by 
-#' cross validation.
+#' @param h0 The kernel bandwidth smoothing parameter for the global effect (see
+#' references for more details at the estimation). Large values of the bandwidth lead
+#' to smoothed estimates; smaller values of the bandwidth lead lo undersmoothed estimates. 
+#' By default, cross validation is used to obtain the bandwidth.
 #' @param h The kernel bandwidth smoothing parameter for the partial effects.
 #' @param nh Integer number of equally-spaced bandwidth on which the
 #' \code{h} is discretised, to speed up computation.
-#' @param kernel Character which determines the smoothing kernel. 
-#' By default \code{kernel = "epanech"}, this is, the Epanechnikov
-#' density function. Also, several types of kernel funcitons 
+#' @param kernel A character string specifying the desired kernel. 
+#' Defaults to \code{kernel = "epanech"}, where the Epanechnikov
+#' density function kernel will be used. Also, several types of kernel funcitons 
 #' can be used:  triangular and Gaussian density function, 
 #' with \code{"triang"} and \code{"gaussian"} term, respectively.
-#' @param p Degree of polynomial used.  Its value must be the value of
+#' @param p Degree of polynomial to be used. Its value must be the value of
 #' derivative + 1. The default value is 3 due to the function
 #' returns the estimation, first and second derivative.
 #' @param kbin Number of binning nodes over which the function 
@@ -46,7 +46,7 @@
 #' Note that, if \eqn{H_0} is not rejected, then the equality of critical points
 #' will also accepted. 
 #' 
-#' To test the null hypothesis, it is used an statistic, 
+#' To test the null hypothesis, it is used a test statistic, 
 #' \eqn{T}, based on direct nonparametric estimates of the curves. 
 #' 
 #' If the null hypothesis is true, the \eqn{T} value should be close to zero 

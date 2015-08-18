@@ -3,7 +3,7 @@
 #' can be modelled by an allometric model.
 #'@param formula An object of class \code{formula}: a sympbolic description
 #' of the model to be fitted.
-#'@param data A data frame or matrix containing the model response variable
+#'@param data A data frame argumment or matrix containing the model response variable
 #' and covariates required by the \code{formula}.
 #'@param nboot Number of bootstrap repeats.
 #'@param kbin Number of binning nodes over which the function

@@ -1,9 +1,9 @@
 #' Fitting nonparametric models
 #' 
 #' @description This function is used to fit nonparametric models by
-#' using local linear kernel smoothers. These models can include or not  
+#' using local polynomial kernel smoothers. These models can include or not  
 #' factor-by-curve interactions. Additionally, a parametric 
-#' model (allometric model) can be estimated.
+#' model (allometric model) can be estimated (or not).
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
 #' specification are given under 'Details'.
@@ -13,26 +13,26 @@
 #' regression model with local linear kernel smoothers, 
 #' \code{model = "allo"} the  allometric model.
 #' @param h0 The kernel bandwidth smoothing parameter for the global effect (see
-#' refrences for more details at the estimation). Large values of bandwidth make
-#'  smoother estimates, smaller values of bandwidth make less smooth estimates. 
-#'  The default is a bandwidth compute by cross validation.
+#' references for more details at the estimation). Large values of the bandwidth lead
+#' to smoothed estimates; smaller values of the bandwidth lead lo undersmoothed estimates. 
+#' By default, cross validation is used to obtain the bandwidth.
 #' @param h The kernel bandwidth smoothing parameter for the partial effects. 
-#' @param nh Integer number of equally-spaced bandwidth on which the
+#' @param nh Integer number of equally-spaced bandwidth in which the
 #' \code{h} is discretised, to speed up computation.
 #' @param weights Prior weights on the data.
-#' @param kernel Character which determines the smoothing kernel. 
-#' By default \code{kernel = "epanech"}, this is, the Epanechnikov
-#' density function. Also, several types of kernel funcitons 
+#' @param kernel A character string specifying the desired kernel. 
+#' Defaults to \code{kernel = "epanech"}, where the Epanechnikov
+#' density function kernel will be used. Also, several types of kernel funcitons 
 #' can be used:  triangular and Gaussian density function, 
 #' with \code{"triang"} and \code{"gaussian"} term, respectively.
-#' @param p Degree of polynomial used.  Its value must be the value of
-#' derivative + 1. The default value is 3 due to the function
-#' returns the estimation, first and second derivative.
+#' @param p polynomial degree to be used. Its value must be the value of
+#' derivative + 1. The default value is 3, returning 
+#' the estimation, first and second derivative.
 #' @param kbin Number of binning nodes over which the function 
 #' is to be estimated.
-#' @param nboot Number of bootstrap repeats. Default 500. The wild bootstrap
-#' is used when \code{model = "np"} and the simple bootstrap when
-#' \code{model = "allo"}.
+#' @param nboot Number of bootstrap repeats. Defaults to 500 bootstrap repeats. 
+#' The wild bootstrap is used when \code{model = "np"} and the simple bootstrap 
+#' when \code{model = "allo"}.
 #' @param rankl Number or vector specifying the minimum value for the
 #' interval at which to search the \code{x} value which maximizes the
 #' estimate, first or second derivative  (for each level). The default
@@ -69,8 +69,8 @@
 #' between the estimation values of a couple of levels. It is performed for 
 #' their first and second derivative.}
 #' \item{nboot}{Number of bootstrap repeats.}
-#' \item{n}{Total number of data.}
-#' \item{dp}{Degree of polynomial used.}
+#' \item{n}{Sample size.}
+#' \item{dp}{Degree of polynomial to be used.}
 #' \item{h0}{The kernel bandwidth smoothing parameter for the global effect.}
 #' \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 #' \item{fmod}{Factor's level for each data.}
@@ -105,7 +105,7 @@
 #' \code{nmodel = 2} the allometric model.}
 #' \item{label}{Labels of the variables in the model.}
 #' \item{numlabel}{Number of labels.}
-#' \item{kernel}{Character which determines the smoothing kernel.}
+#' \item{kernel}{A character specifying the derised kernel.}
 #' \item{a}{Estimated coefficient in the case of fitting an allometric model.}
 #' \item{al}{Lower value of 95\% confidence interval for the value of \code{a}.}
 #' \item{au}{Upper value of 95\% confidence interval for the value of \code{a}.}
