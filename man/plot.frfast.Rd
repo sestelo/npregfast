@@ -26,9 +26,9 @@ it is designed for the first or second derivative, respectively.}
 \item{points}{Draw the original data into the plot. By default it is
 \code{TRUE}.}
 
-\item{xlab}{A title for the x axis.}
+\item{xlab}{A title for the \code{x} axis.}
 
-\item{ylab}{A title for the y axis.}
+\item{ylab}{A title for the \code{y} axis.}
 
 \item{ylim}{The \code{y} limits of the plot.}
 

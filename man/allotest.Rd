@@ -10,7 +10,7 @@ allotest(formula, data = data, nboot = 500, kbin = 200, seed = NULL)
 \item{formula}{An object of class \code{formula}: a sympbolic description
 of the model to be fitted.}
 
-\item{data}{A data frame or matrix containing the model response variable
+\item{data}{A data frame argumment or matrix containing the model response variable
 and covariates required by the \code{formula}.}
 
 \item{nboot}{Number of bootstrap repeats.}

@@ -24,23 +24,23 @@ the testing procedures is applied for the estimate. If it is \code{1} or
 
 \item{nboot}{Number of bootstrap repeats.}
 
-\item{h0}{The kernel bandwidth smoothing parameter for the global effect.
-Large values of bandwidth make smoother estimates, smaller values of
-bandwidth make less smooth estimates. The default is a bandwidth compute by
-cross validation.}
+\item{h0}{The kernel bandwidth smoothing parameter for the global effect (see
+references for more details at the estimation). Large values of the bandwidth lead
+to smoothed estimates; smaller values of the bandwidth lead lo undersmoothed estimates.
+By default, cross validation is used to obtain the bandwidth.}
 
 \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 
 \item{nh}{Integer number of equally-spaced bandwidth on which the
 \code{h} is discretised, to speed up computation.}
 
-\item{kernel}{Character which determines the smoothing kernel.
-By default \code{kernel = "epanech"}, this is, the Epanechnikov
-density function. Also, several types of kernel funcitons
+\item{kernel}{A character string specifying the desired kernel.
+Defaults to \code{kernel = "epanech"}, where the Epanechnikov
+density function kernel will be used. Also, several types of kernel funcitons
 can be used:  triangular and Gaussian density function,
 with \code{"triang"} and \code{"gaussian"} term, respectively.}
 
-\item{p}{Degree of polynomial used.  Its value must be the value of
+\item{p}{Degree of polynomial to be used. Its value must be the value of
 derivative + 1. The default value is 3 due to the function
 returns the estimation, first and second derivative.}
 
@@ -73,7 +73,7 @@ versus the general alternative
 Note that, if \eqn{H_0} is not rejected, then the equality of critical points
 will also accepted.
 
-To test the null hypothesis, it is used an statistic,
+To test the null hypothesis, it is used a test statistic,
 \eqn{T}, based on direct nonparametric estimates of the curves.
 
 If the null hypothesis is true, the \eqn{T} value should be close to zero

@@ -20,7 +20,7 @@ information for a fitted \code{frfast} object.
 \item{dp}{degree of the polynomial.}
 \item{nboot}{number of bootstrap repeats.}
 \item{kbin}{number of binning nodes over which the function is to be estimated.}
-\item{n}{total number of data.}
+\item{n}{sample size.}
 \item{fmod}{factor's levels.}
 \item{coef}{if \code{model = "allo"}, coefficients of the model.}
 }
