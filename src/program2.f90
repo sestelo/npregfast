@@ -907,7 +907,7 @@ C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
 DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,Pba(kbin,3,nf),&
 u,pcmax(nf),pcmin(nf),Cboot(3,nf,nboot),a(nf),b(nf),aboot(nf,nboot),bboot(nf,nboot),&
 asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf),&
-res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,sesg(n),s
+res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,sesg(n)
 double precision,allocatable::Pred(:),P0(:,:),Yboot(:),&
 bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),pboota(:,:,:,:),&
@@ -982,34 +982,6 @@ if (model.eq.1.) then
   call Interpola (Xb,Pb_0(1,1),kbin,X,P_0,n)
   res(1:n)=Y(1:n)-P_0(1:n)
 
-! condicion de identificabilidad (no necesario)
-!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
- ! do j=1,nf !efectos parciales
-!   Waux=0
-!   do i=1,n
- !   if (F(i).eq.fact(j)) Waux(i)=W(i)
-!   end do
-!   call rfast_h (X,res,Waux,n,h(j),p,Xb,Pb(1,1,j),kbin,kernel,nh)
-!  end do
- 
- ! do l=1,3
-!   do i=1,kbin
-!    s=sum(Pb(i,l,1:nf))/nf
-!    Pb_0(i,l)=Pb_0(i,l)+s
-!    do j=1,nf
-!     Pb(i,l,j)=Pb(i,l,j)-s
-!    end do
-!   end do
-!  end do
-      
-!  do j=1,nf
-!   do l=1,3
-!    do i=1,kbin
-!     Pb(i,l,j)=Pb_0(i,l)+Pb(i,l,j) !sumo efecto global y parcial
-!    end do
-!   end do
-!  end do
 
 
 
