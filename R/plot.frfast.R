@@ -107,7 +107,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
     jnf <- c()
     par(mfrow = c(fi, co))
     if (is.null(fac)) {
-      jnf <- c(1:nf)
+     jnf <- c(1:nf)
       fac <- model$label
     } else {
       for (i in 1:length(fac)) {
@@ -125,8 +125,8 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
       for (i in jder) {
         if (i == 1) {
           ylab2 <- ylab
-          ylim2 <- c(min(model$ydata[model$fmod == j], na.rm = T), 
-                     max(model$ydata[model$fmod == j], na.rm = T))
+          ylim2 <- c(min(model$ydata[model$fmod == model$numlabel[j]], na.rm = T), 
+                     max(model$ydata[model$fmod == model$numlabel[j]], na.rm = T))
         } else {
           ylim2 <- c(min(model$p[, der = i, fac = j], na.rm = T), 
                      max(model$p[, der = i, fac = j], na.rm = T))
@@ -157,7 +157,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
              ylab = ylab2, col = col, main = title, ylim = ylim, lwd = lwd, 
              lty = lty, ...)
         if ((points == TRUE) & (i == 1)) {
-          points(model$xdata[model$fmod == j], model$ydata[model$fmod == j], 
+          points(model$xdata[model$fmod == model$numlabel[j]], model$ydata[model$fmod == model$numlabel[j]], 
                  col = "grey80", cex = 0.6, ...)
           lines(model$x, model$p[, der = i, fac = j], type = type, xlab = xlab, 
                 ylab = ylab2, col = col, main = title, ylim = ylim2, lwd = lwd, 
