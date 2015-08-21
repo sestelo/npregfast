@@ -4,9 +4,9 @@
 #' factor's levels. 
 #'@param model Parametric or nonparametric regression model 
 #' obtained by \code{\link{frfast}} function.
-#' @param factor1 First factor's level at which to perform the differences 
+#' @param level1 First factor's level at which to perform the differences 
 #' between critical points.
-#' @param factor2 Second factor's level at which to perform the differences 
+#' @param level2 Second factor's level at which to perform the differences 
 #' between critical points.
 #' @param der Number which determines any inference process. By default 
 #' \code{der} is \code{NULL}. If this term is \code{0}, the calculate of the 
@@ -14,8 +14,8 @@
 #' \code{2}, it is designed for the first or second derivative, respectively.
 #' 
 #'@details Differences are calculated by subtracting a factor relative to 
-#'another (\eqn{factor2 - factor1}).  By default \code{factor2} and 
-#'\code{factor1} are \code{NULL}, so the differences calculated are for all 
+#'another (\eqn{level2 - level1}).  By default \code{level2} and 
+#'\code{level1} are \code{NULL}, so the differences calculated are for all 
 #'possible combinations between two factors. Additionally, it is obtained 
 #'the 95\% confidence interval for this difference which let us to make
 #'inference about them.
@@ -39,11 +39,11 @@
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
 #' criticaldiff(fit2)
 #' criticaldiff(fit2, der = 1)
-#' criticaldiff(fit2, der = 1, factor1 = 2, factor2 = 1)
+#' criticaldiff(fit2, der = 1, level1 = 2, level2 = 1)
 #' 
 #' @export
 
-criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
+  criticaldiff <- function(model, level1 = NULL, level2 = NULL, der = NULL) {
   
   if(model$nf == 1) {
     stop("There is not factor in the model.")
@@ -53,12 +53,12 @@ criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     stop("Argument \"der\" have to be a length-one vector")
   }
   
-  if(!is.null(factor1) & !isTRUE(factor1 %in% model$label)) {
-    stop("\"",paste(factor1),"\" is not a factor's level.")
+  if(!is.null(level1) & !isTRUE(level1 %in% model$label)) {
+    stop("\"",paste(level1),"\" is not a factor's level.")
   }
   
-  if(!is.null(factor2) & !isTRUE(factor2 %in% model$label)) {
-    stop("\"",paste(factor2),"\" is not a factor's level.")
+  if(!is.null(level2) & !isTRUE(level2 %in% model$label)) {
+    stop("\"",paste(level2),"\" is not a factor's level.")
   }
   
   if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
@@ -76,61 +76,62 @@ criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
   nrow(a)
   res <- list()
   
-  if (is.null(der) & is.null(factor2) & is.null(factor1)) {
+  if (is.null(der) & is.null(level2) & is.null(level1)) {
     
     for (i in 1:nrow(a)) {
-      res[i] <- list(matrix(ncol = 5, nrow = 3))
-      colnames(res[[i]]) <- c("Factor2", "Factor1", "Crit point Diff", "Lwr", "Upr")
-      rownames(res[[i]]) <- c("Estimation", "First_der", "Second_der")
+      aux<- matrix(ncol = 5, nrow = 3)
+      colnames(aux) <- c("L2", "L1", "Diff", "Lwr", "Upr")
+      rownames(aux) <- c("Estimation", "First_der", "Second_der")
       for (k in 1:3) {
-        res[[i]][k, 1] <- model$label[a[i, 2]]
-        res[[i]][k, 2] <- model$label[a[i, 1]]
-        res[[i]][k, 3] <- round(c(model$diffmax[k, a[i, 1], a[i, 2]]), 3)
-        res[[i]][k, 4] <- round(c(model$diffmaxl[k, a[i, 1], a[i, 2]]), 3)
-        res[[i]][k, 5] <- round(c(model$diffmaxu[k, a[i, 1], a[i, 2]]), 3)
+        aux[k, 1] <- model$label[a[i, 2]]
+        aux[k, 2] <- model$label[a[i, 1]]
+        aux[k, 3] <- round(c(model$diffmax[k, a[i, 1], a[i, 2]]), 3)
+        aux[k, 4] <- round(c(model$diffmaxl[k, a[i, 1], a[i, 2]]), 3)
+        aux[k, 5] <- round(c(model$diffmaxu[k, a[i, 1], a[i, 2]]), 3)
       }
+      res[[i]]<- data.frame(aux)
     }
     
-    return(data.frame(res))
+    return(res)
     
   } else if (is.null(der)) {
     
-    factor2 <- which(model$label == factor2)
-    factor1 <- which(model$label == factor1)
+    level2 <- which(model$label == level2)
+    level1 <- which(model$label == level1)
     
     
     res <- matrix(ncol = 5, nrow = 3)
     
     for (k in 1:3) {
-      res[k, 1] <- model$label[factor2]
-      res[k, 2] <- model$label[factor1]
-      if (factor2 < factor1) {
-        fac2 <- factor2
-        fac1 <- factor1
-        factor2 <- fac1
-        factor1 <- fac2
+      res[k, 1] <- model$label[level2]
+      res[k, 2] <- model$label[level1]
+      if (level2 < level1) {
+        fac2 <- level2
+        fac1 <- level1
+        level2 <- fac1
+        level1 <- fac2
       } else {
-        fac2 <- factor2
-        fac1 <- factor1
+        fac2 <- level2
+        fac1 <- level1
       }
       res[k, 3] <- if (fac2 < fac1) {
-        -1 * round(c(model$diffmax[k, factor1, factor2]), 3)
+        -1 * round(c(model$diffmax[k, level1, level2]), 3)
       } else {
-        round(c(model$diffmax[k, factor1, factor2]), 3)
+        round(c(model$diffmax[k, level1, level2]), 3)
       }
       res[k, 4] <- if (fac2 < fac1) {
-        -1 * round(c(model$diffmaxl[k, factor1, factor2]), 3)
+        -1 * round(c(model$diffmaxl[k, level1, level2]), 3)
       } else {
-        round(c(model$diffmaxl[k, factor1, factor2]), 3)
+        round(c(model$diffmaxl[k, level1, level2]), 3)
       }
       res[k, 5] <- if (fac2 < fac1) {
-        -1 * round(c(model$diffmaxu[k, factor1, factor2]), 3)
+        -1 * round(c(model$diffmaxu[k, level1, level2]), 3)
       } else {
-        round(c(model$diffmaxu[k, factor1, factor2]), 3)
+        round(c(model$diffmaxu[k, level1, level2]), 3)
       }
       if (fac2 < fac1) {
-        factor2 <- fac2
-        factor1 <- fac1
+        level2 <- fac2
+        level1 <- fac1
       }
     }
     
@@ -139,65 +140,68 @@ criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
     res[1, 4] <- low
     res[1, 5] <- up
     
-    colnames(res) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", "Upr")
+    colnames(res) <- c("L2", "L1", "Diff", "Lwr", "Upr")
     rownames(res) <- c("Estimation", "First_der", "Second_der")
     return(data.frame(res))
     
     
     
-  } else if (is.null(factor2) & is.null(factor1)) {
+  } else if (is.null(level2) & is.null(level1)) {
     der <- der + 1
     for (i in 1:nrow(a)) {
-      res[i] <- list(matrix(ncol = 5, nrow = 1))
+      aux <- matrix(ncol = 5, nrow = 1)
       
-      colnames(res[[i]]) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", 
+      colnames(aux) <- c("L2", "L1", "Diff", "Lwr", 
                               "Upr")
       if (der == 1) 
-        rownames(res[[i]]) <- c("Estimation")
+        rownames(aux) <- c("Estimation")
       if (der == 2) 
-        rownames(res[[i]]) <- c("First_der")
+        rownames(aux) <- c("First_der")
       if (der == 3) 
-        rownames(res[[i]]) <- c("Second_der")
-      res[[i]][1, 1] <- model$label[a[i, 2]]
-      res[[i]][1, 2] <- model$label[a[i, 1]]
-      res[[i]][1, 3] <- round(c(model$diffmax[der, a[i, 1], a[i, 2]]), 3)
-      res[[i]][1, 4] <- round(c(model$diffmaxl[der, a[i, 1], a[i, 2]]), 3)
-      res[[i]][1, 5] <- round(c(model$diffmaxu[der, a[i, 1], a[i, 2]]), 3)
+        rownames(aux) <- c("Second_der")
+      aux[1, 1] <- model$label[a[i, 2]]
+      aux[1, 2] <- model$label[a[i, 1]]
+      aux[1, 3] <- round(c(model$diffmax[der, a[i, 1], a[i, 2]]), 3)
+      aux[1, 4] <- round(c(model$diffmaxl[der, a[i, 1], a[i, 2]]), 3)
+      aux[1, 5] <- round(c(model$diffmaxu[der, a[i, 1], a[i, 2]]), 3)
+      
+      res[[i]] <- data.frame(aux)
     }
-    return(data.frame(res))
+    
+    return(res)
     
   } else {
     
-    factor2 <- which(model$label == factor2)
-    factor1 <- which(model$label == factor1)
+    level2 <- which(model$label == level2)
+    level1 <- which(model$label == level1)
     
     der <- der + 1
     res <- matrix(ncol = 5, nrow = 1)
-    res[1, 1] <- model$label[factor2]
-    res[1, 2] <- model$label[factor1]
-    if (factor2 < factor1) {
-      fac2 <- factor2
-      fac1 <- factor1
-      factor2 <- fac1
-      factor1 <- fac2
+    res[1, 1] <- model$label[level2]
+    res[1, 2] <- model$label[level1]
+    if (level2 < level1) {
+      fac2 <- level2
+      fac1 <- level1
+      level2 <- fac1
+      level1 <- fac2
     } else {
-      fac2 <- factor2
-      fac1 <- factor1
+      fac2 <- level2
+      fac1 <- level1
     }
     res[1, 3] <- if (fac2 < fac1) {
-      -1 * round(c(model$diffmax[der, factor1, factor2]), 3)
+      -1 * round(c(model$diffmax[der, level1, level2]), 3)
     } else {
-      round(c(model$diffmax[der, factor1, factor2]), 3)
+      round(c(model$diffmax[der, level1, level2]), 3)
     }
     res[1, 4] <- if (fac2 < fac1) {
-      -1 * round(c(model$diffmaxl[der, factor1, factor2]), 3)
+      -1 * round(c(model$diffmaxl[der, level1, level2]), 3)
     } else {
-      round(c(model$diffmaxl[der, factor1, factor2]), 3)
+      round(c(model$diffmaxl[der, level1, level2]), 3)
     }
     res[1, 5] <- if (fac2 < fac1) {
-      -1 * round(c(model$diffmaxu[der, factor1, factor2]), 3)
+      -1 * round(c(model$diffmaxu[der, level1, level2]), 3)
     } else {
-      round(c(model$diffmaxu[der, factor1, factor2]), 3)
+      round(c(model$diffmaxu[der, level1, level2]), 3)
     }
     
    
@@ -206,7 +210,7 @@ criticaldiff <- function(model, factor1 = NULL, factor2 = NULL, der = NULL) {
       res[1, 4] <- low
       res[1, 5] <- up
     
-    colnames(res) <- c("Factor2", "Factor1", "Crit points Diff", "Lwr", "Upr")
+    colnames(res) <- c("L2", "L1", "Diff", "Lwr", "Upr")
     if (der == 1) 
       rownames(res) <- c("Estimation")
     if (der == 2) 
