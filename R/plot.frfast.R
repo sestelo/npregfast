@@ -151,8 +151,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
           }
         }
         
-        if (is.null(ylim)) 
-          ylim <- ylim2  #### ver esto!!!!!
+        if (is.null(ylim)) ylim <- ylim2  #### ver esto!!!!!
         plot(model$x, model$p[, der = i, fac = j], type = type, xlab = xlab, 
              ylab = ylab2, col = col, main = title, ylim = ylim, lwd = lwd, 
              lty = lty, ...)
@@ -167,13 +166,18 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
               type = CItype, lwd = CIlwd, ...)
         lines(model$x, model$pu[, der = i, fac = j], lty = CIlty, col = CIcol, 
               type = CItype, lwd = CIlwd, ...)
-        ylim <- NULL
+       # ylim <- NULL
         if (i == 3) {
           if (abline == TRUE) 
             abline(h = 0, col = ablinecol)
         }
       }
     }
+    
+    
+    
+    
+    
 #   } else {
 #     # der=co+1 # esto estaba asi, pero no funcionaba plot(fit,der=1) #cuando
 #     # formula=DW~RC
