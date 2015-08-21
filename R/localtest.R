@@ -174,12 +174,12 @@ localtest <- function(formula, data = data, der, weights = NULL,
   
   if(is.null(c2)) c2 <- matrix(as.double(-1.0), ncmax, nf) 
   if(is.null(rankl)){
-    rankl <- as.vector(tapply(data[ ,varnames], f, min))
+    rankl <- na.omit(as.vector(tapply(data[ ,varnames], f, min)))
   }else{
     if(length(rankl) == 1) rankl <- rep(rankl, nf)
   }
   if(is.null(ranku)){
-    ranku <- as.vector(tapply(data[ ,varnames], f, max))
+    ranku <- na.omit(as.vector(tapply(data[ ,varnames], f, max)))
   }else{
     if(length(ranku) == 1) ranku <- rep(ranku, nf)
   } 
@@ -195,7 +195,9 @@ localtest <- function(formula, data = data, der, weights = NULL,
                         nh = as.integer(nh),
                         p = as.integer(p),
                         kbin = as.integer(kbin),
-                        fact = as.integer(c(1:nf)), #fact   =as.integer(c(1:nf))
+                        #fact = as.integer(c(1:nf)),
+                        fact = unique(as.integer(f)),
+                        #fact   =as.integer(c(1:nf))
                         nf = as.integer(nf),
                         kernel = as.integer(kernel),
                         nboot = as.integer(nboot),
