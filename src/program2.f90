@@ -721,12 +721,17 @@ allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
 
 
 
-
+Xb=-1
+Pb=-1
+call GRID(X,W,n,Xb,kbin)
 
 
 !estimo efecto global
 call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
+
+
+
 
 do i=1,n
  errg(i)=Y(i)-muhatg(i)
