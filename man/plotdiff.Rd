@@ -5,7 +5,7 @@
 \title{Visualization of the differences between the estimated curves
 for two factor's levels}
 \usage{
-plotdiff(model, factor2, factor1, der = NULL, est.include = FALSE,
+plotdiff(model, level2, level1, der = NULL, est.include = FALSE,
   xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL,
   col = "black", CIcol = "grey50", ablinecol = "red", abline = TRUE,
   type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, lty = 1,
@@ -15,10 +15,10 @@ plotdiff(model, factor2, factor1, der = NULL, est.include = FALSE,
 \item{model}{Parametric or nonparametric regression out
 obtained by \code{\link{frfast}} function.}
 
-\item{factor2}{Second factor's level at which to perform the
+\item{level2}{Second factor's level at which to perform the
 differences between curves.}
 
-\item{factor1}{First factor's level at which to perform the
+\item{level1}{First factor's level at which to perform the
 differences between curves.}
 
 \item{der}{Number or vector which determines any inference process.
@@ -86,8 +86,8 @@ data(barnacle)
 
 # Nonparametric regression with interactions
 fit2 <- frfast(DW ~ RC : F, data = barnacle)
-plotdiff(fit2, factor2 = 1, factor1 = 2)
-plotdiff(fit2, factor2 = 2, factor1 = 1, der = 1, col = "blue", CIcol = "grey")
+plotdiff(fit2, level2 = 1, level1 = 2)
+plotdiff(fit2, level2 = 2, level1 = 1, der = 1, col = "blue", CIcol = "grey")
 plotdiff(fit2, 1, 2, der = c(0, 1), ylim = c(-0.05, 0.05))
 }
 \author{

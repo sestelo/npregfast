@@ -5,16 +5,16 @@
 \title{Differences between the critical points
 for two factor's levels}
 \usage{
-criticaldiff(model, factor1 = NULL, factor2 = NULL, der = NULL)
+criticaldiff(model, level1 = NULL, level2 = NULL, der = NULL)
 }
 \arguments{
 \item{model}{Parametric or nonparametric regression model
 obtained by \code{\link{frfast}} function.}
 
-\item{factor1}{First factor's level at which to perform the differences
+\item{level1}{First factor's level at which to perform the differences
 between critical points.}
 
-\item{factor2}{Second factor's level at which to perform the differences
+\item{level2}{Second factor's level at which to perform the differences
 between critical points.}
 
 \item{der}{Number which determines any inference process. By default
@@ -34,8 +34,8 @@ factor's levels.
 }
 \details{
 Differences are calculated by subtracting a factor relative to
-another (\eqn{factor2 - factor1}).  By default \code{factor2} and
-\code{factor1} are \code{NULL}, so the differences calculated are for all
+another (\eqn{level2 - level1}).  By default \code{level2} and
+\code{level1} are \code{NULL}, so the differences calculated are for all
 possible combinations between two factors. Additionally, it is obtained
 the 95\% confidence interval for this difference which let us to make
 inference about them.
@@ -46,7 +46,7 @@ data(barnacle)
 fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
 criticaldiff(fit2)
 criticaldiff(fit2, der = 1)
-criticaldiff(fit2, der = 1, factor1 = 2, factor2 = 1)
+criticaldiff(fit2, der = 1, level1 = 2, level2 = 1)
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
