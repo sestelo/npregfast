@@ -5,9 +5,9 @@
 #' Missing values of factor's levels is not allowed. 
 #'@param model Parametric or nonparametric regression out 
 #' obtained by \code{\link{frfast}} function.
-#'@param factor2 Second factor's level at which to perform the 
+#'@param level2 Second factor's level at which to perform the 
 #'differences between curves.
-#'@param factor1 First factor's level at which to perform the 
+#'@param level1 First factor's level at which to perform the 
 #'differences between curves.
 #' @param der Number or vector which determines any inference process. 
 #' By default \code{der} is \code{NULL}. If this term is \code{0}, the plot 
@@ -51,8 +51,8 @@
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle) 
-#' plotdiff(fit2, factor2 = 1, factor1 = 2)
-#' plotdiff(fit2, factor2 = 2, factor1 = 1, der = 1, col = "blue", CIcol = "grey")
+#' plotdiff(fit2, level2 = 1, level1 = 2)
+#' plotdiff(fit2, level2 = 2, level1 = 1, der = 1, col = "blue", CIcol = "grey")
 #' plotdiff(fit2, 1, 2, der = c(0, 1), ylim = c(-0.05, 0.05))
 #' 
 #' 
@@ -62,7 +62,7 @@
 
 
 
-plotdiff <- function(model, factor2, factor1, der = NULL, est.include = FALSE, 
+plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE, 
                       xlab = model$name[2], ylab = model$name[1], ylim = NULL, 
                       main = NULL, col = "black", CIcol = "grey50", ablinecol = "red", 
                       abline = TRUE, type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, 
@@ -70,8 +70,8 @@ plotdiff <- function(model, factor2, factor1, der = NULL, est.include = FALSE,
   nf <- model$nf
   # co=length(der)
   jnf <- c()
-  jnf[1] <- which(model$label == factor1)  #'B' plot.diff(ajus,'A','B');plot.diff(ajus,1,2) 
-  jnf[2] <- which(model$label == factor2)  #'A'
+  jnf[1] <- which(model$label == level1)  #'B' plot.diff(ajus,'A','B');plot.diff(ajus,1,2) 
+  jnf[2] <- which(model$label == level2)  #'A'
   # if(length(der)==0) {jder=c(1:3)}else{jder=der+1}
   
   ## Argumentos control
@@ -79,18 +79,18 @@ plotdiff <- function(model, factor2, factor1, der = NULL, est.include = FALSE,
     stop("Argument \"model\" is missing, with no default. 
          Must be a frfast object.")
   
-  if (missing(factor1) & missing(factor2)) 
-    stop("Argument 'factor1' and/or 'factor2' are missing, with no default")
+  if (missing(level1) & missing(level2)) 
+    stop("Argument 'level1' and/or 'level2' are missing, with no default")
   
-  if (factor1 == factor2) 
-    stop("Argument 'factor1' and 'factor2' are not different")
+  if (level1 == level2) 
+    stop("Argument 'level1' and 'level2' are not different")
   
-  if(!isTRUE(factor1 %in% model$label)) {
-    stop("\"",paste(factor1),"\" is not a factor's level.")
+  if(!isTRUE(level1 %in% model$label)) {
+    stop("\"",paste(level1),"\" is not a factor's level.")
   }
   
-  if(!isTRUE(factor2 %in% model$label)) {
-    stop("\"",paste(factor2),"\" is not a factor's level.")
+  if(!isTRUE(level2 %in% model$label)) {
+    stop("\"",paste(level2),"\" is not a factor's level.")
   }
   
   if (sum(der > 2) >= 1) 
