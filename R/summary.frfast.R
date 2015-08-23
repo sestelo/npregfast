@@ -78,7 +78,7 @@ summary.frfast <- function(object = model, ...) {
     } else {
       cat("Bandwidth:", format(c(model$h0), digits = 2), "\n")
     }
-    cat("Degree of the polinomial:", model$dp, "\n")
+    cat("Polynomial degree:", model$dp, "\n")
     cat("Number of bootstrap repeats:", model$nboot, "\n")
     cat("Number of binning nodes", model$kbin, "\n")
     cat("", "\n")
@@ -158,7 +158,7 @@ summary.frfast <- function(object = model, ...) {
     
     cat("", "\n")
     cat("", "\n")
-    cat("Degree of the polinomial:", model$dp, "\n")
+    cat("Polynomial degree:", model$dp, "\n")
     cat("Number of bootstrap repeats:", model$nboot, "\n")
     cat("Number of binning nodes", model$kbin, "\n")
     cat("", "\n")
