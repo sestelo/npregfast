@@ -28,14 +28,37 @@ library(npregfast)
 
 head(barnacle)
 summary(barnacle)
-m0 <- frfast(DW~RC:F, data = barnacle, p=2, seed = 130853)
-plot(m0, der=0)
-plot(m0, der=1, ylim = c(0,0.5))
-critical(m0, der = 1)
+mwo <- frfast(DW ~ RC, data = barnacle, p = 2, seed = 130853)
+pdf("mwo.pdf",14,8)
+plot(mwo, der = c(0, 1))
+dev.off()
+
+
+mwi <- frfast(DW ~ RC : F, data = barnacle, p = 2, seed = 130853)
+summary(mwi)
+
+
+pdf("mwi.pdf",14,16)
+plot(mwi, der = c(0, 1))
+dev.off()
+
+globaltest(DW ~ RC : F, data = barnacle, p = 2, seed = 130853, der = 0)
+globaltest(DW ~ RC : F, data = barnacle, p = 2, seed = 130853, der = 1)
+
+critical(mwi, der = 1)
+localtest(DW ~ RC : F, data = barnacle, p = 2, seed = 130853, der = 1)
+
+
+
 criticaldiff(m0, der = 1)
-globaltest(PS~RC:LOC, data = newdata, p = 2, seed = 130853, der = 1)
-localtest(PS~RC:LOC, data = newdata, p = 2, seed = 130853, der = 1)
+
+
 plotdiff(m0, der = 1, level1 = "barca", level2 = "lens")
+
+
+
+
+
 
 
 
