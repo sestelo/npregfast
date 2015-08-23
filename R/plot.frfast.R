@@ -166,7 +166,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
               type = CItype, lwd = CIlwd, ...)
         lines(model$x, model$pu[, der = i, fac = j], lty = CIlty, col = CIcol, 
               type = CItype, lwd = CIlwd, ...)
-       # ylim <- NULL
+        ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
         if (i == 3) {
           if (abline == TRUE) 
             abline(h = 0, col = ablinecol)
