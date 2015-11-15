@@ -132,7 +132,7 @@
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
-#' fit <- frfast(DW ~ RC, data = barnacle) 
+#' fit <- frfast(DW ~ RC, data = barnacle, nboot = 100) 
 #' fit
 #' summary(fit)
 #' 
@@ -140,19 +140,20 @@
 #' fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 100)
 #' 
 #' # Nonparametric regression with interactions
-#' fit2 <- frfast(DW ~ RC : F, data = barnacle)
+#' fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100)
 #' fit2
 #' summary(fit2)
 #' 
 #' 
 #' # Allometric model
-#' fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo")
+#' fit3 <- frfast(DW ~ RC, data = barnacle, model = "allo", nboot = 100)
 #' summary(fit3)
 #' 
-#' fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo")
-#' summary(fit4)
+#' # fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo", nboot = 100)
+#' # summary(fit4)
 #' 
 #' @useDynLib npregfast frfast_
+#' @importFrom stats na.omit
 #' @export
 
 

@@ -71,10 +71,11 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' globaltest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853)
+#' globaltest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 #' 
 #' 
 #' @useDynLib npregfast globaltest_
+#' @importFrom stats na.omit
 #' @export
 
 

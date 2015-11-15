@@ -1,3 +1,5 @@
+#' @importFrom stats as.formula terms.formula 
+
 interpret.frfastformula <-
 function(formula, method = "frfast") {
 
@@ -47,3 +49,4 @@ function(formula, method = "frfast") {
     res <- list(response = response, II = II,vtab=vtab)
     res
 }
+

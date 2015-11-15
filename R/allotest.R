@@ -16,7 +16,6 @@
 #' \code{allotest} tests the null hypothesis of an allometric model taking 
 #' into account the logarithm of the original variable
 #'  (\eqn{X^* = log(X)}{} and \eqn{Y^* =log (Y)}{}). 
-#'  
 #' Based on a general model of the type 
 #' \deqn{Y^*=m(X^*)+\varepsilon}{} 
 #' the aim here is to test the null hypothesis of an allometric model 
@@ -51,11 +50,10 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' allotest(DW ~ RC, data = barnacle)
-#' allotest(DW ~ RC : F, data = barnacle)
+#' allotest(DW ~ RC, data = barnacle, nboot = 100)
 #' 
-#'
 #' @useDynLib npregfast allotest_
+#' @importFrom stats na.omit
 #' @export
 
 

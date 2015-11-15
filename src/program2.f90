@@ -1,3 +1,15 @@
+! para llamar a los generadores de R
+subroutine test_random(y) 
+double precision normrnd, unifrnd, x, y
+call rndstart() 
+!x = normrnd()
+y = unifrnd() 
+call rndend() 
+return
+end
+
+
+
 
 subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor)
 implicit none
@@ -10,7 +22,7 @@ double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
 normrnd
 !real u, rand
-real u
+double precision u
 real,external::rnnof
 integer,external::which_min,which_max2
 integer seed
@@ -44,7 +56,9 @@ call RfastC3(X,Y,W,n,p,kbin,h,T)
 pvalor=0
 do iboot=1,nboot
  do i=1,n
-  u=RAND()
+  !u=RAND()
+  call test_random(u)
+ !u =unif_rand()
   if (u.le.(5.0+sqrt(5.0))/10) then
    Yboot(i)=muhatg(i)+errg(i)*(1-sqrt(5.0))/2
   else
@@ -265,8 +279,8 @@ integer,parameter::kfino=1000
 integer i,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,&
 nh,nboot,kernel,r,index,posmin,posmax,seed
 double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),xb(kbin),pb(kbin,3,nf),&
-h(nf),h1(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
-u,C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
+u,h(nf),h1(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
+C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
 Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
@@ -384,8 +398,10 @@ do j=1,nf
    C(k,j)=9999 
   end if
 
-  if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
-   C(k,j)=9999
+  if(index.ne.kfino) then
+   if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
+    C(k,j)=9999
+   end if
   end if
  
  end do
@@ -506,7 +522,8 @@ if(seed.ne.-1) call srand(seed)
 
 do iboot=1,nboot
 do i=1,n
-  u=RAND()    !wild bootstrap
+  !u=RAND()    !wild bootstrap
+  call test_random(u)
   ir=0
   IF (u.le.(5+sqrt(5.0))/10) ir=1
   if (ir.eq.1) then
@@ -813,7 +830,8 @@ if(seed.ne.-1) call srand(seed)
 pvalor=0
 do iboot=1,nboot
 do z=1,n
-u=RAND()
+!u=RAND()
+call test_random(u)
 if (u.le.(5.0+sqrt(5.0))/10) then
 Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
 else
@@ -1060,8 +1078,12 @@ do j=1,nf
    C(k,j)=9999 
   end if
 
-  if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
-   C(k,j)=9999
+
+
+  if(index.ne.kfino) then
+   if (index+1.le.kfino.and.xfino(index+1).ge.xmax(j)) then
+    C(k,j)=9999
+   end if
   end if
  
  end do
@@ -1207,7 +1229,8 @@ do iboot=1,nboot
 
 do i=1,n
  if(model.eq.1) then
-  u=RAND()    !wild bootstrap
+  !u=RAND()    !wild bootstrap
+  call test_random(u)
   ir=0
   IF (u.le.(5+sqrt(5.0))/10) ir=1
   if (ir.eq.1) then
@@ -1668,9 +1691,12 @@ end    subroutine
 subroutine Sample_Int(n,size,II)
 implicit none
 integer n,size,II(n),i
+double precision u
 !real rand
 do i=1,size
-II(i)=1+rand()*n
+!II(i)=1+rand()*n
+call test_random(u)
+II(i)=1+u*n
 if (ii(i).le.1) ii(i)=1
 if (ii(i).ge.n) ii(i)=n
 end do

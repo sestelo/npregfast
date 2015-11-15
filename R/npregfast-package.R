@@ -1,9 +1,9 @@
 #' \code{npregfast}: Nonparametric Estimation of 
-#' Regression Models with Factor-By-Curve Interactions. 
+#' Regression Models with Factor-by-Curve Interactions. 
 #'
 #'
 #' This package provides a method for obtain nonparametric estimates of regression
-#' models using local linear kernel smoothers. Particular features of the package
+#' models using local polynomial kernel smoothers. Particular features of the package
 #' are facilities for fast smoothness estimation, and the calculation of their 
 #' first and second derivative. Users can define the smoothers parameters. 
 #' Confidence intervals calculation is provided by bootstrap methods. 
@@ -13,13 +13,39 @@
 #' @name npregfast
 #' @docType package
 #' @details \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
-#' Version: \tab 1.0\cr Date: \tab 2015-06-29\cr License: \tab MIT + file LICENSE\cr}
+#' Version: \tab 1.0\cr Date: \tab 2015-11-05\cr License: \tab MIT + file LICENSE\cr}
 #'
-#' CAMBIAR \code{npregfast} provides functions for nonparametric regression models 
-#' \code{\link{frfast}}, \code{\link{plot.frfast}}. The term \code{frfast} is 
-#' taken to include any nonparametric regression estimated by local lineal 
-#' kernel smoothers. A number of other functions such \code{\link{summary.frfast}} 
-#' are also provided, for extracting information from a fitted \code{frfast} object.
+#'\code{npregfast} is designed along lines similar to those of other \code{R} 
+#'regression packages. The main function of the library is \code{frfast} 
+#'which, by default, fits a nonparametric regression model based on local 
+#'polynomial kernel smoothers. Note that through the argument \code{formula}
+#' users can decide to fit a model by taking or not taking the interaction 
+#' into account. Numerical and graphical summaries of the fitted object can be 
+#' obtained by using the generic functions, \code{print.frfast}, 
+#' \code{summary.frfast} and \code{plot.frfast}. Another of these generic 
+#' functions is \code{predict.frfast}, which takes a fitted model of the 
+#' \code{frfast} class and, given a new data set of values of the covariate, 
+#' produces predictions.
+#' As mentioned above, this package can be used to fit models taking into 
+#' account factor-by-curve interactions. In this framework, it will be 
+#' necessary to ascertain if the factor produces an effect on the response 
+#' and thus, there is a interaction or, in contrast, the estimated regression 
+#' curves are equal. To this end, the package provides the \code{globaltest} 
+#' function which answers this question through a bootstrap-based test. 
+#' If the factor results significant, then \code{plotdiff()} enables the user 
+#' to obtain a graphical representation that shows the differences between 
+#' the estimated curves (estimate, first or second derivative) for any set of 
+#' two levels of the factor. Additionally, with \code{critical()} it is possible
+#'  to obtain the value of the covariate that maximises the estimate and 
+#'  first derivative of the function and the value of the covariate that equals 
+#'  the second derivative to zero, for each of these levels. Again, to test if 
+#'  these estimated points are equal for all levels, the package provides the 
+#'  \code{localtest} function. Note that, to compare these points between 
+#'  any set of two levels, a confidence interval for the difference can be 
+#'  obtained by applying \code{criticaldiff()}.
+#'
+#'
+#'
 #'
 #' For a listing of all routines in the NPRegfast package type:
 #' \code{library(help="npregfast")}. 

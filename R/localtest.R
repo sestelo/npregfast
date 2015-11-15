@@ -91,9 +91,10 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853)
+#' localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 #' 
 #' @useDynLib npregfast localtest_
+#' @importFrom stats na.omit
 #' @export
 
 

@@ -1,5 +1,4 @@
 #' @export
-#' 
 print.frfast <- function(x = model, ...) {
   
   if (inherits(x, "frfast")) {

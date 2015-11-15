@@ -43,11 +43,11 @@
 #'critical(fit, der = 1)
 #'critical(fit, der = 2)
 #'
-#'fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
-#'critical(fit2)
-#'critical(fit2, der = 0)
-#'critical(fit2, der = 1)
-#'critical(fit2, der = 2)
+#' # fit2 <- frfast(DW ~ RC : F, data = barnacle) # with interactions
+#' # critical(fit2)
+#' # critical(fit2, der = 0)
+#' # critical(fit2, der = 1)
+#' # critical(fit2, der = 2)
 #'
 #'@export
 

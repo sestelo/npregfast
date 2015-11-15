@@ -36,11 +36,12 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853) # with interactions
+#' fit2 <- frfast(DW ~ RC : F, data = barnacle, seed = 130853, nboot = 100) # with interactions
 #' criticaldiff(fit2)
 #' criticaldiff(fit2, der = 1)
-#' criticaldiff(fit2, der = 1, level1 = 2, level2 = 1)
+#' criticaldiff(fit2, der = 1, level1 = "lens", level2 = "barca")
 #' 
+#' @importFrom utils combn
 #' @export
 
   criticaldiff <- function(model, level1 = NULL, level2 = NULL, der = NULL) {

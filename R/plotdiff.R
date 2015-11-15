@@ -50,14 +50,14 @@
 #' data(barnacle)
 #' 
 #' # Nonparametric regression with interactions
-#' fit2 <- frfast(DW ~ RC : F, data = barnacle) 
-#' plotdiff(fit2, level2 = 1, level1 = 2)
-#' plotdiff(fit2, level2 = 2, level1 = 1, der = 1, col = "blue", CIcol = "grey")
-#' plotdiff(fit2, 1, 2, der = c(0, 1), ylim = c(-0.05, 0.05))
+#' fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
+#' plotdiff(fit2, level2 = "lens", level1 = "barca")
+#' plotdiff(fit2, level2 = "lens", level1 = "barca", der = 1, col = "blue", CIcol = "grey")
+#' plotdiff(fit2, "lens", "barca", der = c(0, 1), ylim = c(-0.05, 0.05))
 #' 
 #' 
 #' 
-#' 
+#' @importFrom graphics lines par plot
 #' @export
 
 
