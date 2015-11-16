@@ -29,7 +29,8 @@ integer seed
 
 
 
-call srand(seed)
+!call srand(seed)
+
 h=-1.0
 
 do i=1,n
@@ -58,7 +59,6 @@ do iboot=1,nboot
  do i=1,n
   !u=RAND()
   call test_random(u)
- !u =unif_rand()
   if (u.le.(5.0+sqrt(5.0))/10) then
    Yboot(i)=muhatg(i)+errg(i)*(1-sqrt(5.0))/2
   else
@@ -516,7 +516,7 @@ deallocate (p0)
 
 cboot=-1
 
-if(seed.ne.-1) call srand(seed)
+!if(seed.ne.-1) call srand(seed)
 
 
 
@@ -825,7 +825,7 @@ end do
 
 
 ! Bootstrap
-if(seed.ne.-1) call srand(seed)
+!if(seed.ne.-1) call srand(seed)
 
 pvalor=0
 do iboot=1,nboot
@@ -1221,7 +1221,7 @@ Cboot=-1.0
 
 if (nboot.gt.0) then
 
-if(seed.ne.-1) call srand(seed)
+!if(seed.ne.-1) call srand(seed)
 
 do iboot=1,nboot
 

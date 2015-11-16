@@ -128,7 +128,12 @@ localtest <- function(formula, data = data, der, weights = NULL,
   
   ncmax <- 5
   c2 <- NULL
-  if(is.null(seed)) seed <- -1
+ # if(is.null(seed)) seed <- -1
+  
+  if (!is.null(seed)){
+    set.seed(seed)
+  }
+  
   
   ffr <- interpret.frfastformula(formula, method = "frfast")
   varnames <- ffr$II[2, ]

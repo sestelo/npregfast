@@ -70,7 +70,12 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
          permitted 0, 1 or 2.")
   }
   
-  if(is.null(seed)) seed <- -1
+ # if(is.null(seed)) seed <- -1
+  
+  if (!is.null(seed)){
+    set.seed(seed)
+  }
+  
   
   newdata <- newdata[, 1]
   len <- length(newdata)

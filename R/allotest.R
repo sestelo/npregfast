@@ -78,10 +78,15 @@ allotest <- function(formula, data = data, nboot = 500, kbin = 200,
   newdata <- na.omit(newdata[, varnames])
   n <- nrow(data)
   
-  if (is.null(seed)) {
-    set.seed(NULL)
-    seed <- .Random.seed[3]
+  #if (is.null(seed)) {
+  #  set.seed(NULL)
+  #  seed <- .Random.seed[3]
+  #}
+  
+  if (!is.null(seed)){
+    set.seed(seed)
   }
+  
   if (is.null(f)) 
     f <- rep(1, n)
   etiquetas <- unique(f)

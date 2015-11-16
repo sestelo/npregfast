@@ -109,8 +109,13 @@ globaltest <- function(formula, data = data, der, weights = NULL, nboot = 500,
     kernel <- 2
   
   
-  if (is.null(seed)) 
-    seed <- -1
+ # if (is.null(seed)) 
+#    seed <- -1
+  
+  if (!is.null(seed)){
+    set.seed(seed)
+  }
+  
   
   
   ffr <- interpret.frfastformula(formula, method = "frfast")

@@ -176,7 +176,13 @@ frfast <- function(formula, data = data, model = "np", h0 = -1.0, h = -1.0,
     stop("Kernel not suported")
   }
   
-  if(is.null(seed)) seed <- -1
+  #if(is.null(seed)) seed <- -1
+  
+  if (!is.null(seed)){
+    set.seed(seed)
+  }
+  
+  
   ncmax <- 5
   c2 <- NULL
   
