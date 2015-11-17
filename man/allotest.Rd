@@ -52,7 +52,7 @@ To implement this test we have used the wild bootstrap.
 \examples{
 library(npregfast)
 data(barnacle)
-allotest(DW ~ RC, data = barnacle, nboot = 100)
+allotest(DW ~ RC, data = barnacle, nboot = 100, seed = 130853)
 
 }
 \author{

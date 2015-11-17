@@ -2,8 +2,8 @@ Package: npregfast
 Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
-Version: 1.0.1.9000
-Date: 2015-11-05
+Version: 1.0.1
+Date: 2015-11-16
 Author: Marta Sestelo [aut, cre],
     Nora M. Villanueva [aut],
     Javier Roca-Pardinas [aut]

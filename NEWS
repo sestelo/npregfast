@@ -1,0 +1,9 @@
+This file documents software changes since the previous edition.
+
+
+
+# npregfast 1.0.1 (2015-11-16)
+
+  * the srand function of the fortran code has been deleted. Now it call the R one.
+
+
