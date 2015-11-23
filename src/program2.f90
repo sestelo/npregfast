@@ -65,6 +65,7 @@ do iboot=1,nboot
    Yboot(i)=muhatg(i)+errg(i)*(1+sqrt(5.0))/2
   end if
  end do
+ h=-1.0
 call RfastC3(X,Yboot,W,n,p,kbin,h,Tboot)
 if(Tboot.gt.T) pvalor=pvalor+1
 end do
@@ -98,6 +99,7 @@ end do
 ! -----------------------------------------
 
 p=2 
+
 
 call rfast_h_alo(X,Residuo,W,n,h,p,Xb,Pb,kbin,kernel,nh)
 
