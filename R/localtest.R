@@ -190,6 +190,9 @@ localtest <- function(formula, data = data, der, weights = NULL,
     if(length(ranku) == 1) ranku <- rep(ranku, nf)
   } 
   
+  umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
+  
+  
   localtest  <-.Fortran("localtest_",
                         f = as.integer(f),
                         x = as.double(data[,varnames]),
@@ -213,7 +216,8 @@ localtest <- function(formula, data = data, der, weights = NULL,
                         D = as.double(rep(-1.0,1)),
                         Ci = as.double(rep(-1.0,1)),
                         Cs = as.double(rep(-1.0,1)),
-                        seed = as.integer(seed)
+                        seed = as.integer(seed),
+                        umatrix = as.double(umatrix)
   )
   
 

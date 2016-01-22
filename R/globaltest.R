@@ -162,6 +162,8 @@ globaltest <- function(formula, data = data, der, weights = NULL, nboot = 500,
       stop("The specified weights are not correct")
   }
   
+  umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
+  
   globaltest <- .Fortran("globaltest_", 
                          f = as.integer(f), 
                          x = as.double(data[, varnames]), 
@@ -181,7 +183,8 @@ globaltest <- function(formula, data = data, der, weights = NULL, nboot = 500,
                          r = as.integer(der), 
                          T = as.double(rep(-1, 1)), 
                          pvalor = as.double(rep(-1, 1)), 
-                         seed = as.integer(seed)
+                         seed = as.integer(seed),
+                         umatrix = as.double(umatrix)
                          )
  
   if (globaltest$pvalor < 0.05) {

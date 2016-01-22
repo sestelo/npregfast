@@ -1,17 +1,17 @@
-! para llamar a los generadores de R
-subroutine test_random(y) 
-double precision normrnd, unifrnd, x, y
-call rndstart() 
-!x = normrnd()
-y = unifrnd() 
-call rndend() 
-return
-end
+!! para llamar a los generadores de R
+!subroutine test_random(y) 
+!double precision normrnd, unifrnd, x, y
+!call rndstart() 
+!!x = normrnd()
+!y = unifrnd() 
+!call rndend() 
+!return
+!end
 
 
 
 
-subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor)
+subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor,umatrix)
 implicit none
 
 !!DEC$ ATTRIBUTES DLLEXPORT::test_allo
@@ -20,7 +20,7 @@ implicit none
 integer n,kbin,p,iboot,nboot,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
-normrnd
+normrnd, umatrix(n,nboot)
 !real u, rand
 double precision u
 real,external::rnnof
@@ -58,7 +58,8 @@ pvalor=0
 do iboot=1,nboot
  do i=1,n
   !u=RAND()
-  call test_random(u)
+  !call test_random(u)
+  u = umatrix(i,iboot)
   if (u.le.(5.0+sqrt(5.0))/10) then
    Yboot(i)=muhatg(i)+errg(i)*(1-sqrt(5.0))/2
   else
@@ -270,7 +271,7 @@ end subroutine
 
 
 subroutine localtest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
-pcmax,pcmin,r,D,Ci,Cs,seed)
+pcmax,pcmin,r,D,Ci,Cs,seed,umatrix)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::localtest
@@ -283,7 +284,8 @@ nh,nboot,kernel,r,index,posmin,posmax,seed
 double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),xb(kbin),pb(kbin,3,nf),&
 u,h(nf),h1(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
 C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
-Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0
+Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0,&
+umatrix(n,nboot)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
 muhatgboot(:),Xfino(:),Pfino(:),p0(:,:),pred(:),pboot(:,:,:,:),cboot(:,:,:),&
@@ -525,7 +527,8 @@ cboot=-1
 do iboot=1,nboot
 do i=1,n
   !u=RAND()    !wild bootstrap
-  call test_random(u)
+  !call test_random(u)
+  u=umatrix(i,iboot)
   ir=0
   IF (u.le.(5+sqrt(5.0))/10) ir=1
   if (ir.eq.1) then
@@ -720,7 +723,8 @@ end subroutine
 
 
 
-subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,pvalor,seed)
+subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,&
+pvalor,seed,umatrix)
 
 !!DEC$ ATTRIBUTES DLLEXPORT::globaltest
 !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
@@ -730,7 +734,7 @@ integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
 nh,nboot,kernel,r,pp,seed
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
-u,Tboot,T,pvalor
+u,Tboot,T,pvalor,umatrix(n,nboot)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:),&
 muhatg2(:)
@@ -833,7 +837,8 @@ pvalor=0
 do iboot=1,nboot
 do z=1,n
 !u=RAND()
-call test_random(u)
+!call test_random(u)
+u=umatrix(i,iboot)
 if (u.le.(5.0+sqrt(5.0))/10) then
 Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
 else
@@ -914,7 +919,8 @@ end subroutine
 subroutine frfast_(F,X,Y,W,n,h0,h,C2,ncmax,p,kbin,fact,&
 nf,nboot,xb,pb,li,ls,dif,difi,difs,model,&
  c,cs,ci,difc,difcs,difci,pboot,pcmin,pcmax,cboot,&
-kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,predict,predictl,predictu,seed)
+kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,&
+predict,predictl,predictu,seed,umatrix)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::frfast
@@ -932,7 +938,7 @@ C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
 DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,Pba(kbin,3,nf),&
 u,pcmax(nf),pcmin(nf),Cboot(3,nf,nboot),a(nf),b(nf),aboot(nf,nboot),bboot(nf,nboot),&
 asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf),&
-res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,sesg(n)
+res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,sesg(n),umatrix(n,nboot)
 double precision,allocatable::Pred(:),P0(:,:),Yboot(:),&
 bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),pboota(:,:,:,:),&
@@ -1223,16 +1229,17 @@ Cboot=-1.0
 
 if (nboot.gt.0) then
 
-!if(seed.ne.-1) call srand(seed)
+!if(seed.ne.-1) call srand(seed) va desde fuera
 
 do iboot=1,nboot
 
- if (model.eq.2) call Sample_Int(n,n,II)
+ if (model.eq.2) call Sample_Int(n,n,II,umatrix(1,iboot))
 
 do i=1,n
  if(model.eq.1) then
   !u=RAND()    !wild bootstrap
-  call test_random(u)
+  !call test_random(u)
+  u=umatrix(i,iboot)
   ir=0
   IF (u.le.(5+sqrt(5.0))/10) ir=1
   if (ir.eq.1) then
@@ -1690,14 +1697,15 @@ end    subroutine
 
 
 
-subroutine Sample_Int(n,size,II)
+subroutine Sample_Int(n,size,II,uvector)
 implicit none
 integer n,size,II(n),i
-double precision u
+double precision u, uvector(n)
 !real rand
 do i=1,size
 !II(i)=1+rand()*n
-call test_random(u)
+!call test_random(u)
+u=uvector(size)
 II(i)=1+u*n
 if (ii(i).le.1) ii(i)=1
 if (ii(i).ge.n) ii(i)=n
