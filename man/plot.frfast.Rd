@@ -8,7 +8,7 @@
   points = TRUE, xlab = model$name[2], ylab = model$name[1],
   ylim = NULL, main = NULL, col = "black", CIcol = "black",
   ablinecol = "red", abline = TRUE, type = "l", CItype = "l", lwd = 2,
-  CIlwd = 1, lty = 1, CIlty = 2, ...)
+  CIlwd = 1, lty = 1, CIlty = 2, pcol = "grey80", cex = 0.6, ...)
 }
 \arguments{
 \item{x}{\code{frfast} object.}
@@ -65,6 +65,11 @@ defaulting to 1.}
 \item{CIlty}{The line type for confidence intervals. Line types can either 
 be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).}
+
+\item{pcol}{A specification for the points color.}
+
+\item{cex}{A numerical value giving the amount by which plotting symbols
+should be magnified relative to the default. See details in \code{\link{par}}.}
 
 \item{\ldots}{Other options.}
 }

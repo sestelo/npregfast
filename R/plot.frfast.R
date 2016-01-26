@@ -37,6 +37,9 @@
 #' @param CIlty The line type for confidence intervals. Line types can either 
 #' be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 #' 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).
+#' @param pcol  A specification for the points color.
+#' @param cex A numerical value giving the amount by which plotting symbols
+#' should be magnified relative to the default. See details in \code{\link{par}}.
 #' @param \ldots Other options.
 #' 
 #'@return Simply produce a plot.
@@ -71,8 +74,10 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
                         main = NULL, col = "black", CIcol = "black", 
                         ablinecol = "red", abline = TRUE, type = "l", 
                         CItype = "l", lwd = 2, CIlwd = 1, lty = 1, 
-                        CIlty = 2, ...) {
+                        CIlty = 2, pcol = "grey80", cex = 0.6, ...) {
   # CIcol = 'grey50'
+
+   
   model <- x
   
   nf <- model$nf
@@ -157,7 +162,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
              lty = lty, ...)
         if ((points == TRUE) & (i == 1)) {
           points(model$xdata[model$fmod == model$numlabel[j]], model$ydata[model$fmod == model$numlabel[j]], 
-                 col = "grey80", cex = 0.6, ...)
+                 col = pcol, cex = cex, ...)
           lines(model$x, model$p[, der = i, fac = j], type = type, xlab = xlab, 
                 ylab = ylab2, col = col, main = title, ylim = ylim2, lwd = lwd, 
                 lty = lty, ...)
