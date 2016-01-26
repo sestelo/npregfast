@@ -59,7 +59,7 @@
 #' 
 #' @importFrom graphics lines par plot
 #' @export
-
+#' 
 
 
 plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE, 
