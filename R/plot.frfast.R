@@ -18,6 +18,7 @@
 #' @param col A specification for the default plotting color.
 #' @param CIcol A specification for the default confidence intervals
 #' plotting color.
+#' @param pcol  A specification for the points color.
 #' @param ablinecol The color to be used for \code{abline}.
 #' @param abline Draw an horizontal line into the plot of the second derivative 
 #' of the model.
@@ -37,7 +38,6 @@
 #' @param CIlty The line type for confidence intervals. Line types can either 
 #' be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 #' 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).
-#' @param pcol  A specification for the points color.
 #' @param cex A numerical value giving the amount by which plotting symbols
 #' should be magnified relative to the default. See details in \code{\link{par}}.
 #' @param \ldots Other options.
@@ -72,9 +72,9 @@
 plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE, 
                         xlab = model$name[2], ylab = model$name[1], ylim = NULL,
                         main = NULL, col = "black", CIcol = "black", 
-                        ablinecol = "red", abline = TRUE, type = "l", 
-                        CItype = "l", lwd = 2, CIlwd = 1, lty = 1, 
-                        CIlty = 2, pcol = "grey80", cex = 0.6, ...) {
+                        pcol = "grey80", ablinecol = "red", abline = TRUE, 
+                        type = "l", CItype = "l", lwd = 2, CIlwd = 1, lty = 1, 
+                        CIlty = 2, cex = 0.6, ...) {
   # CIcol = 'grey50'
 
    
