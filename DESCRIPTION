@@ -24,5 +24,6 @@ LazyData: true
 Imports:
   graphics,
   stats,
-  utils
+  utils,
+  shiny
 RoxygenNote: 5.0.0

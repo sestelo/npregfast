@@ -52,7 +52,10 @@ two levels of the factor. Additionally, with \code{critical()} it is possible
 
 
 For a listing of all routines in the NPRegfast package type:
-\code{library(help="npregfast")}.
+\code{library(help="npregfast")}. 
+
+View a \href{http://sestelo.shinyapps.io/npregfast}{demo Shiny app}
+or see the full \href{https://github.com/sestelo/npregfast}{README} on GitHub.
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
