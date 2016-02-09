@@ -121,7 +121,7 @@ shinyUI(fluidPage(
                checkboxInput("show_points", "Show data points", TRUE),
                conditionalPanel(
                  condition ="input.show_points == true",
-                 shinyjs::colourInput("pcol", "Points color", "#D5D5D3", 
+                 shinyjs::colourInput("pcol", "Points color", "#899DA4", 
                                       showColour = "background",
                                       palette = "limited",
                                       allowedCols = unlist(wes_palettes),
