@@ -7,9 +7,9 @@ for two factor's levels}
 \usage{
 plotdiff(model, level2, level1, der = NULL, est.include = FALSE,
   xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL,
-  col = "black", CIcol = "grey50", ablinecol = "red", abline = TRUE,
-  type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, lty = 1,
-  CIlty = 2, ...)
+  col = "black", CIcol = "black", CIlinecol = 0, abline = TRUE,
+  ablinecol = "red", lty = 1, CIlty = 2, lwd = 1, CIlwd = 1.5,
+  alpha = 0.2, ...)
 }
 \arguments{
 \item{model}{Parametric or nonparametric regression out 
@@ -43,24 +43,13 @@ By default it is \code{FALSE}.}
 \item{CIcol}{A specification for the default confidence intervals
 plotting color.}
 
-\item{ablinecol}{The color to be used for \code{abline}.}
+\item{CIlinecol}{A specification for the default confidence intervals
+plotting color (for the edge).}
 
 \item{abline}{Draw an horizontal line into the plot of the second derivative 
 of the model.}
 
-\item{type}{What type of plot should be drawn. Possible types are,
-\code{p} for points, \code{l} for lines, \code{o} for overplotted, etc. 
-See details in \code{\link{par}}.}
-
-\item{CItype}{What type of plot should be drawn for confidence intervals. 
-Possible types are, \code{p} for points, \code{l} for lines, \code{o} 
-for overplotted.}
-
-\item{lwd}{The line width, a positive number, defaulting to 1.
-See details in \code{\link{par}}.}
-
-\item{CIlwd}{The line width for confidence intervals, a positive number, 
-defaulting to 1.}
+\item{ablinecol}{The color to be used for \code{abline}.}
 
 \item{lty}{The line type. Line types can either be specified as an integer
 (0 = blank, 1 = solid (default), 2 = dashed, 3 = dotted, 4 = dotdash, 
@@ -69,6 +58,15 @@ defaulting to 1.}
 \item{CIlty}{The line type for confidence intervals. Line types can either 
 be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).}
+
+\item{lwd}{The line width, a positive number, defaulting to 1.
+See details in \code{\link{par}}.}
+
+\item{CIlwd}{The line width for confidence intervals, a positive number, 
+defaulting to 1.}
+
+\item{alpha}{Alpha transparency for overlapping elements expressed 
+as a fraction between 0 (complete transparency) and 1 (complete opacity).}
 
 \item{\ldots}{Other options.}
 }

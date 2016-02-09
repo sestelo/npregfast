@@ -23,25 +23,23 @@
 #' @param col A specification for the default plotting color.
 #' @param CIcol A specification for the default confidence intervals
 #' plotting color.
-#' @param ablinecol The color to be used for \code{abline}.
+#' @param CIlinecol A specification for the default confidence intervals
+#' plotting color (for the edge).
 #' @param abline Draw an horizontal line into the plot of the second derivative 
 #' of the model.
-#' @param type What type of plot should be drawn. Possible types are,
-#' \code{p} for points, \code{l} for lines, \code{o} for overplotted, etc. 
-#' See details in \code{\link{par}}.
-#' @param CItype What type of plot should be drawn for confidence intervals. 
-#' Possible types are, \code{p} for points, \code{l} for lines, \code{o} 
-#' for overplotted.
-#' @param lwd The line width, a positive number, defaulting to 1.  
-#' See details in \code{\link{par}}.
-#' @param CIlwd The line width for confidence intervals, a positive number, 
-#' defaulting to 1.
+#' @param ablinecol The color to be used for \code{abline}.
 #' @param lty The line type. Line types can either be specified as an integer
 #' (0 = blank, 1 = solid (default), 2 = dashed, 3 = dotted, 4 = dotdash, 
 #' 5 = longdash, 6 = twodash).  See details in \code{\link{par}}.
 #' @param CIlty The line type for confidence intervals. Line types can either 
 #' be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 #' 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).
+#' @param lwd The line width, a positive number, defaulting to 1.  
+#' See details in \code{\link{par}}.
+#' @param CIlwd The line width for confidence intervals, a positive number, 
+#' defaulting to 1.
+#' @param alpha Alpha transparency for overlapping elements expressed 
+#' as a fraction between 0 (complete transparency) and 1 (complete opacity).
 #' @param \ldots Other options.
 #' @return Simply produce a plot.
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
@@ -58,14 +56,17 @@
 #' 
 #' 
 #' @importFrom graphics lines par plot
+#' @import ggplot2
+#' @importFrom gridExtra grid.arrange
 #' @export
 
 
-plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE, 
-                      xlab = model$name[2], ylab = model$name[1], ylim = NULL, 
-                      main = NULL, col = "black", CIcol = "grey50", ablinecol = "red", 
-                      abline = TRUE, type = "l", CItype = "l", lwd = 1, CIlwd = 1.5, 
-                      lty = 1, CIlty = 2, ...) {
+plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
+                     xlab = model$name[2], ylab = model$name[1], ylim = NULL,
+                     main = NULL, col = "black", CIcol = "black",
+                     CIlinecol = 0, abline = TRUE, ablinecol = "red",
+                     lty = 1, CIlty = 2, lwd = 1, CIlwd = 1.5, 
+                     alpha = 0.2, ...) {
   nf <- model$nf
   # co=length(der)
   jnf <- c()
@@ -101,25 +102,30 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
          There is not factor in the model.")
   
   
-  
+  p <-list()
   
   if (est.include == FALSE) {
-    if (is.null(der)) 
-      der <- c(0, 1, 2)
+    if (is.null(der)) der <- c(0, 1, 2)
+    
     der <- der + 1
-    par(mfrow = c(1, length(der)))
+    
+   #par(mfrow = c(1, length(der)))
+    cont = 0
     for (i in der) {
-      if (i == 1) 
-        ylab2 <- ylab
-      if (i == 2) 
-        ylab2 <- "First derivative"
-      if (i == 3) 
-        ylab2 <- "Second derivative"
+      cont = cont + 1
+      if (i == 1) ylab2 <- ylab
+      if (i == 2) ylab2 <- "First derivative"
+      if (i == 3) ylab2 <- "Second derivative"
       if (sum(model$diff[, der = i, jnf[2], jnf[1]], na.rm = T) == 0) { # para ver si -1* o no
         
         if (is.null(ylim)) {
-          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T),
-                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T))
+          rgo <- max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) -
+                       min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T)
+                       
+          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) - 
+                      (rgo * 0.05),
+                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) + 
+                      (rgo * 0.05))
         }
         if (is.null(main)){
           if(i == der[1] ){
@@ -134,22 +140,45 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
             title <- NULL
           }
         }
-        plot(model$x, -1 * (model$diff[, der = i, jnf[1], jnf[2]]), 
-             type = type, xlab = xlab, ylab = ylab2, col = col, main = title, 
-             ylim = ylim, lty = lty, lwd = lwd, ...)
-        lines(model$x, -1 * (model$diffl[, der = i, jnf[1], jnf[2]]), 
-              lty = CIlty, col = CIcol, type = CItype, lwd = CIlwd, ...)
-        lines(model$x, -1 * (model$diffu[, der = i, jnf[1], jnf[2]]), 
-              lty = CIlty, col = CIcol, type = CItype, lwd = CIlwd, ...)
-        if (abline == TRUE) 
-          abline(h = 0, col = ablinecol)
+        
+        data_bin <- data.frame(x = model$x,
+                               p = model$diff[, der = i, jnf[1], jnf[2]],
+                               pl = model$diffl[, der = i, jnf[1], jnf[2]],
+                               pu = model$diffu[, der = i, jnf[1], jnf[2]])
+        
+        if (abline == TRUE){
+          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        }else{
+          abline_layer <- NULL
+        }
+        
+
+        p[[cont]] <- ggplot() +
+          geom_ribbon(data = data_bin, aes(x = x, 
+                                           ymin=-1 * pl, 
+                                           ymax=-1 * pu), 
+                      alpha = alpha, fill = CIcol, linetype = lty,
+                      size = CIlwd, col = CIlinecol) +
+          geom_line(data = data_bin, aes(x = x, 
+                                         y = -1 * p), 
+                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+          abline_layer +
+          coord_cartesian(ylim = ylim) +
+          # ylim(ylim) +
+          ylab(ylab2) +
+          xlab(xlab) +
+          ggtitle(title)
         
         
       } else {
         
         if (is.null(ylim)) {
-          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T),
-                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T))
+          rgo <- max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) -
+            min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T)
+          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) - 
+                      (rgo * 0.05),
+                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) +
+                      (rgo * 0.05))
         }
         if (is.null(main)){
           if(i == der[1] ){
@@ -164,27 +193,55 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
             title <- NULL
           }
         }
-        plot(model$x, model$diff[, der = i, jnf[2], jnf[1]], 
-             ylim = ylim, type = type, ylab = ylab2, xlab = xlab, 
-             main = title, lty = lty, ...)
-        lines(model$x, model$diffl[, der = i, jnf[2], nf[1]], lty = CIlty, 
-              col = CIcol, type = CItype, lwd = lwd, ...)
-        lines(model$x, model$diffu[, der = i, jnf[2], jnf[1]], lty = CIlty, 
-              col = CIcol, type = CItype, lwd = lwd, ...)
-        if (abline == TRUE) 
-          abline(h = 0, col = ablinecol)
+        
+        data_bin <- data.frame(x = model$x,
+                               p = model$diff[, der = i, jnf[2], jnf[1]],
+                               pl = model$diffl[, der = i, jnf[2], jnf[1]],
+                               pu = model$diffu[, der = i, jnf[2], jnf[1]])
+        
+        
+        
+        if (abline == TRUE){
+          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        }else{
+          abline_layer <- NULL
+        }
+        
+        
+        
+        p[[cont]] <- ggplot() +
+          geom_ribbon(data = data_bin, aes(x = x, 
+                                           ymin = pl, 
+                                           ymax = pu), 
+                      alpha = alpha, fill = CIcol, linetype = lty,
+                      size = CIlwd, col = CIlinecol) +
+          geom_line(data = data_bin, aes(x = x, 
+                                         y = p), 
+                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+          abline_layer +
+          coord_cartesian(ylim = ylim) +
+          # ylim(ylim) +
+          ylab(ylab2) +
+          xlab(xlab) +
+          ggtitle(title)
+
       }
+      ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
     }
     
+    args.list <- c(p, 1, length(der))
+    names(args.list) <- c(c(rep("", length(der)), "nrow", "ncol"))
+    suppressWarnings(do.call(grid.arrange, args.list))
     
     
   } else {  # est.include = TRUE
     
-    if (is.null(der)) 
-      der <- c(0, 1, 2)
+    if (is.null(der))  der <- c(0, 1, 2)
     jder <- der + 1  #if(length(der)==0) {jder=c(1:3)}else{jder=der+1}
-    par(mfrow = c(nf + 1, length(der)))
+   # par(mfrow = c(nf + 1, length(der)))
+    cont = 0
     for (i in jder) {
+      cont = cont + 1
       if (i == 1) 
         ylab2 <- ylab
       if (i == 2) 
@@ -192,9 +249,14 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
       if (i == 3) 
         ylab2 <- "Second derivative"
       if (sum(model$diff[, der = i, jnf[2], jnf[1]], na.rm = T) == 0) {
+        
         if (is.null(ylim)) {
-          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T),
-                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T))
+          rgo <- max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) -
+            min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T)
+          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) - 
+                      (rgo * 0.05),
+                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) +
+                      (rgo * 0.05))
         }
 
         
@@ -214,17 +276,42 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         }
         
 
-        plot(model$x, -1 * (model$diff[, der = i, jnf[1],  jnf[2]]), type = type, 
-             xlab = xlab, ylab = ylab2, col = col, main = title, ylim = ylim, 
-             lty = lty, lwd = lwd, ...)
-        lines(model$x, -1 * (model$diffl[, der = i, jnf[1], jnf[2]]), 
-              lty = CIlty, col = CIcol, type = CItype, lwd = CIlwd, ...)
-        lines(model$x, -1 * (model$diffu[, der = i, jnf[1], jnf[2]]), 
-              lty = CIlty, col = CIcol, type = CItype, lwd = CIlwd, ...)
-        if (abline == TRUE) 
-          abline(h = 0, col = ablinecol)
+        
+        data_bin <- data.frame(x = model$x,
+                               p = model$diff[, der = i, jnf[1], jnf[2]],
+                               pl = model$diffl[, der = i, jnf[1], jnf[2]],
+                               pu = model$diffu[, der = i, jnf[1], jnf[2]])
+        
+        
+        
+        if (abline == TRUE){
+          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        }else{
+          abline_layer <- NULL
+        }
+        
+        
+        
+        p[[cont]] <- ggplot() +
+          geom_ribbon(data = data_bin, aes(x = x, 
+                                           ymin = -1 * pl, 
+                                           ymax = -1 * pu), 
+                      alpha = alpha, fill = CIcol, linetype = lty,
+                      size = CIlwd, col = CIlinecol) +
+          geom_line(data = data_bin, aes(x = x, 
+                                         y = -1 * p), 
+                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+          abline_layer +
+          coord_cartesian(ylim = ylim) +
+          # ylim(ylim) +
+          ylab(ylab2) +
+          xlab(xlab) +
+          ggtitle(title)
+
+
         
         for (j in length(jnf):1) {
+          cont = cont + 1
           if (jnf[j] == jnf[2]) {
             title <- paste("Level", model$label[jnf[2]])
           } 
@@ -232,22 +319,36 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
             title <- paste("Level", model$label[jnf[1]])
           }
           
-          plot(model$x, model$p[, der = i, jnf[j]], type = type, 
-               xlab = xlab, ylab = ylab2, col = col, main = title, 
-               ylim = c(min(model$p[, der = i, jnf[j]], na.rm = T), 
-                        max(model$p[, der = i, jnf[j]], na.rm = T)), 
-               lty = lty, lwd = lwd, ...)
-          lines(model$x, model$pl[, der = i, jnf[j]], 
-                lty = CIlty, col = CIcol, type = CItype, 
-                lwd = CIlwd, ...)
-          lines(model$x, model$pu[, der = i, jnf[j]], 
-                lty = CIlty, col = CIcol, type = CItype, 
-                lwd = CIlwd, ...)
-          if (i == 3) {
-            if (abline == TRUE) 
-              abline(h = 0, col = ablinecol)
-          }
+          rgo <- max(model$p[, der = i, jnf[j]], na.rm = T) -
+            min(model$p[, der = i, jnf[j]], na.rm = T)
+          ylim <- c(min(model$p[, der = i, jnf[j]], na.rm = T) - (rgo * 0.05), 
+                    max(model$p[, der = i, jnf[j]], na.rm = T) + (rgo * 0.05))
+          
+          data_bin <- data.frame(x = model$x,
+                                 pl = model$pl[, der = i, fac = jnf[j]],
+                                 pu = model$pu[, der = i, fac = jnf[j]],
+                                 p = model$p[, der = i, fac = jnf[j]])
+          
+          p[[cont]] <- ggplot() +
+            geom_ribbon(data = data_bin, aes(x = x, 
+                                             ymin=pl, 
+                                             ymax=pu), 
+                        alpha = alpha, fill = CIcol, linetype = lty,
+                        size = CIlwd, col = CIlinecol) +
+            geom_line(data = data_bin, aes(x = x, 
+                                           y = p), 
+                      size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+            coord_cartesian(ylim = 
+                              ylim) +
+            # ylim(ylim) +
+            ylab(ylab2) +
+            xlab(xlab) +
+            ggtitle(title)
         }
+      
+        ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
+        
+       
         
       } else {
         
@@ -269,45 +370,92 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         
         
         if (is.null(ylim)) {
-          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T),
-                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T))
+          rgo <- max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) -
+            min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T)
+          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) - 
+                      (rgo * 0.05),
+                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) +
+                      (rgo * 0.05))
         }
-        plot(model$x, model$diff[, der = i, jnf[2], jnf[1]], 
-             ylim = ylim, type = type, ylab = ylab2, xlab = xlab, 
-             main = title, lty = lty, lwd = lwd, ...)
-        lines(model$x, model$diffl[, der = i, jnf[2], jnf[1]], lty = CIlty, 
-              col = CIcol, type = CItype, lwd = CIlwd, ...)
-        lines(model$x, model$diffu[, der = i, jnf[2],  jnf[1]], lty = CIlty, 
-              col = CIcol, type = CItype, lwd = CIlwd, ...)
-        if (abline == TRUE) 
-          abline(h = 0, col = ablinecol)
+        
+        
+        data_bin <- data.frame(x = model$x,
+                               p = model$diff[, der = i, jnf[2], jnf[1]],
+                               pl = model$diffl[, der = i, jnf[2], jnf[1]],
+                               pu = model$diffu[, der = i, jnf[2], jnf[1]])
+        
+        
+        
+        if (abline == TRUE){
+          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        }else{
+          abline_layer <- NULL
+        }
+        
+        
+        
+        p[[cont]] <- ggplot() +
+          geom_ribbon(data = data_bin, aes(x = x, 
+                                           ymin = pl, 
+                                           ymax = pu), 
+                      alpha = alpha, fill = CIcol, linetype = lty,
+                      size = CIlwd, col = CIlinecol) +
+          geom_line(data = data_bin, aes(x = x, 
+                                         y = p), 
+                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+          abline_layer +
+          coord_cartesian(ylim = ylim) +
+          # ylim(ylim) +
+          ylab(ylab2) +
+          xlab(xlab) +
+          ggtitle(title)
+
         
         for (j in length(jnf):1) {
+          cont = cont + 1
           if (jnf[j] == jnf[2]) {
             title <- paste("Level", model$label[jnf[2]])
           } 
           if (jnf[j] == jnf[1]) {
             title <- paste("Level", model$label[jnf[1]])
           } 
-         
           
-          plot(model$x, model$p[, der = i, jnf[j]], type = type, 
-               xlab = xlab, ylab = ylab2, col = col, main = title, 
-               ylim = c(min(model$p[, der = i, jnf[j]], 
-                            na.rm = T), max(model$p[, der = i, jnf[j]], 
-                                            na.rm = T)), lty = lty, lwd = lwd, ...)
-          lines(model$x, model$pl[, der = i, jnf[j]], 
-                lty = CIlty, col = CIcol, type = CItype, 
-                lwd = CIlwd, ...)
-          lines(model$x, model$pu[, der = i, jnf[j]], 
-                lty = CIlty, col = CIcol, type = CItype, 
-                lwd = CIlwd, ...)
-          if (i == 3) {
-            if (abline == TRUE) 
-              abline(h = 0, col = ablinecol)
-          }
+          rgo <- max(model$p[, der = i, jnf[j]], na.rm = T) -
+            min(model$p[, der = i, jnf[j]], na.rm = T)
+          ylim <- c(min(model$p[, der = i, jnf[j]], na.rm = T) - (rgo * 0.05), 
+                    max(model$p[, der = i, jnf[j]], na.rm = T) + (rgo * 0.05))
+          
+          data_bin <- data.frame(x = model$x,
+                                 pl = model$pl[, der = i, fac = jnf[j]],
+                                 pu = model$pu[, der = i, fac = jnf[j]],
+                                 p = model$p[, der = i, fac = jnf[j]])
+          
+          p[[cont]] <- ggplot() +
+            geom_ribbon(data = data_bin, aes(x = x, 
+                                             ymin=pl, 
+                                             ymax=pu), 
+                        alpha = alpha, fill = CIcol, linetype = lty,
+                        size = CIlwd, col = CIlinecol) +
+            geom_line(data = data_bin, aes(x = x, 
+                                           y = p), 
+                      size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
+            coord_cartesian(ylim = ylim) +
+            # ylim(ylim) +
+            ylab(ylab2) +
+            xlab(xlab) +
+            ggtitle(title)
+          
+          
+         
+        }
+        ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
         }
       }
+      
+      args.list <- c(p, nf + 1, length(der))
+      names(args.list) <- c(c(rep("", (nf + 1) * length(der)), "nrow", "ncol"))
+      suppressWarnings(do.call(grid.arrange, args.list))
+      
     }
   }
-} 
+ 

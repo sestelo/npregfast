@@ -25,5 +25,7 @@ Imports:
   graphics,
   stats,
   utils,
-  shiny
+  shiny,
+  ggplot2,
+  gridExtra
 RoxygenNote: 5.0.0
