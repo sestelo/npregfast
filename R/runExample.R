@@ -1,3 +1,20 @@
+#' Run npregfast example
+#'
+#' Launch a Shiny app that shows a demo of what can be done with
+#' the package.
+#'
+#' This example is also
+#' \href{http://sestelo.shinyapps.io/npregfast/}{available online}.
+#'
+#' @examples
+#' ## Only run this example in interactive R sessions
+#' if (interactive()) {
+#'   runExample()
+#' }
+#' @export
+
+
+
 #' @export
 
 runExample <- function() {
