@@ -35,7 +35,7 @@
 #' # predict(fit2, newdata = nd2, der = 0, fac = "barca")
 #'  
 #' @useDynLib npregfast frfast_
-#' 
+#' @importFrom stats na.omit runif
 #' @export
 
 predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL, 
@@ -104,6 +104,7 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
   tmodel <- model$nmodel
   ipredict2 <- 1
   
+  umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
   
   frfast  <- .Fortran("frfast_",
                       f      = as.integer(f),
@@ -150,7 +151,8 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
                       predict = array(as.double(-1.0), c(n, 3, nf)),
                       predictl = array(as.double(-1.0), c(n, 3, nf)),
                       predictu = array(as.double(-1.0), c(n, 3, nf)),
-                      seed = as.integer(seed)
+                      seed = as.integer(seed),
+                      umatrix = as.double(umatrix)
   )
   
   
