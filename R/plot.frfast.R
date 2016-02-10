@@ -69,7 +69,7 @@
 plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE, 
                         xlab = model$name[2], ylab = model$name[1], ylim = NULL,
                         main = NULL, col = "black", CIcol = "black", 
-                        CIlinecol = 0, pcol = "grey80",  abline = TRUE, 
+                        CIlinecol = "transparent", pcol = "grey80",  abline = TRUE, 
                         ablinecol = "red", lty = 1, CIlty = 2, lwd = 1, 
                         CIlwd = 1, cex = 1.4, alpha = 0.2,...) {
   
