@@ -63,8 +63,6 @@
 #' 
 #' @importFrom graphics lines par plot
 #' @import ggplot2
-#' @importFrom gridExtra grid.arrange
-
 #' @export
 
 
@@ -76,6 +74,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
                         CIlwd = 1, cex = 1.4, alpha = 0.2,...) {
   
   
+ 
   
   model <- x
   nf <- model$nf
@@ -176,8 +175,8 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
                           ydata = model$ydata[model$fmod == model$numlabel[j]])
       
        if ((points == TRUE) & (i == 1)) {
-        points_layer <- geom_point(data = data_ori, aes(x = xdata,
-                                       y = ydata),
+        points_layer <- geom_point(data = data_ori, aes_string(x = "xdata",
+                                       y = "ydata"),
                                   colour = pcol, size = cex)
       }else{
         points_layer <- NULL
@@ -191,13 +190,13 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
       
       p[[cont]] <- ggplot() +
         points_layer +
-        geom_ribbon(data = data_bin, aes(x = x, 
-                                         ymin=pl, 
-                                         ymax=pu), 
+        geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                         ymin = "pl", 
+                                         ymax = "pu"), 
                     alpha = alpha, fill = CIcol, linetype = lty,
                     size = CIlwd, col = CIlinecol) +
-        geom_line(data = data_bin, aes(x = x, 
-                                       y = p), 
+        geom_line(data = data_bin, aes_string(x = "x", 
+                                       y = "p"), 
                   size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
         abline_layer +
         coord_cartesian(ylim = ylim) +
@@ -215,9 +214,23 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
   if(fi*co == 1) {
     p[[1]]
   }else{
-  args.list <- c(p, fi, co)
+  
+    # NOTE: This ugly hack is here because of a bug in gridExtra which calls
+    # a ggplot2 function directly instead of namespacing it.  The bug is fixed
+    # in the gridExtra GitHub version, but not on CRAN. Hopefully gridExtra
+    # will submit the fix to CRAN and I can remove this ugliness.
+    # https://github.com/baptiste/gridextra/issues/5
+    # Thanks to Dean Attali!!
+    if (!"package:ggplot2" %in% search()) {
+      suppressPackageStartupMessages(attachNamespace("ggplot2"))
+      on.exit(detach("package:ggplot2"))
+    }  
+    
+    
+    
+   args.list <- c(p, fi, co)
    names(args.list) <- c(c(rep("", fi*co), "nrow", "ncol"))
-   suppressWarnings(do.call(grid.arrange, args.list))
+   suppressWarnings(do.call(gridExtra::grid.arrange, args.list))
   }
 
 

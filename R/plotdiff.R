@@ -57,7 +57,6 @@
 #' 
 #' @importFrom graphics lines par plot
 #' @import ggplot2
-#' @importFrom gridExtra grid.arrange
 #' @export
 
 
@@ -142,9 +141,9 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         }
         
         data_bin <- data.frame(x = model$x,
-                               p = model$diff[, der = i, jnf[1], jnf[2]],
-                               pl = model$diffl[, der = i, jnf[1], jnf[2]],
-                               pu = model$diffu[, der = i, jnf[1], jnf[2]])
+                               p = -1 * model$diff[, der = i, jnf[1], jnf[2]],
+                               pl = -1 * model$diffl[, der = i, jnf[1], jnf[2]],
+                               pu = -1 * model$diffu[, der = i, jnf[1], jnf[2]])
         
         if (abline == TRUE){
           abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
@@ -154,13 +153,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         
 
         p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes(x = x, 
-                                           ymin=-1 * pl, 
-                                           ymax=-1 * pu), 
+          geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                           ymin = "pl", 
+                                           ymax = "pu"), 
                       alpha = alpha, fill = CIcol, linetype = lty,
                       size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes(x = x, 
-                                         y = -1 * p), 
+          geom_line(data = data_bin, aes_string(x = "x", 
+                                         y = "p"), 
                     size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
           abline_layer +
           coord_cartesian(ylim = ylim) +
@@ -210,13 +209,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         
         
         p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes(x = x, 
-                                           ymin = pl, 
-                                           ymax = pu), 
+          geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                           ymin = "pl", 
+                                           ymax = "pu"), 
                       alpha = alpha, fill = CIcol, linetype = lty,
                       size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes(x = x, 
-                                         y = p), 
+          geom_line(data = data_bin, aes_string(x = "x", 
+                                         y = "p"), 
                     size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
           abline_layer +
           coord_cartesian(ylim = ylim) +
@@ -229,9 +228,22 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
       ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
     }
     
+    # NOTE: This ugly hack is here because of a bug in gridExtra which calls
+    # a ggplot2 function directly instead of namespacing it.  The bug is fixed
+    # in the gridExtra GitHub version, but not on CRAN. Hopefully gridExtra
+    # will submit the fix to CRAN and I can remove this ugliness.
+    # https://github.com/baptiste/gridextra/issues/5
+    # Thanks to Dean Attali!!
+    if (!"package:ggplot2" %in% search()) {
+      suppressPackageStartupMessages(attachNamespace("ggplot2"))
+      on.exit(detach("package:ggplot2"))
+    }  
+    
+    
+    
     args.list <- c(p, 1, length(der))
     names(args.list) <- c(c(rep("", length(der)), "nrow", "ncol"))
-    suppressWarnings(do.call(grid.arrange, args.list))
+    suppressWarnings(do.call(gridExtra::grid.arrange, args.list))
     
     
   } else {  # est.include = TRUE
@@ -278,9 +290,9 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
 
         
         data_bin <- data.frame(x = model$x,
-                               p = model$diff[, der = i, jnf[1], jnf[2]],
-                               pl = model$diffl[, der = i, jnf[1], jnf[2]],
-                               pu = model$diffu[, der = i, jnf[1], jnf[2]])
+                               p = -1 * model$diff[, der = i, jnf[1], jnf[2]],
+                               pl = -1 * model$diffl[, der = i, jnf[1], jnf[2]],
+                               pu = -1 * model$diffu[, der = i, jnf[1], jnf[2]])
         
         
         
@@ -293,13 +305,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         
         
         p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes(x = x, 
-                                           ymin = -1 * pl, 
-                                           ymax = -1 * pu), 
+          geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                           ymin = "pl", 
+                                           ymax = "pu"), 
                       alpha = alpha, fill = CIcol, linetype = lty,
                       size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes(x = x, 
-                                         y = -1 * p), 
+          geom_line(data = data_bin, aes_string(x = "x", 
+                                         y = "p"), 
                     size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
           abline_layer +
           coord_cartesian(ylim = ylim) +
@@ -330,13 +342,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
                                  p = model$p[, der = i, fac = jnf[j]])
           
           p[[cont]] <- ggplot() +
-            geom_ribbon(data = data_bin, aes(x = x, 
-                                             ymin=pl, 
-                                             ymax=pu), 
+            geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                             ymin = "pl", 
+                                             ymax = "pu"), 
                         alpha = alpha, fill = CIcol, linetype = lty,
                         size = CIlwd, col = CIlinecol) +
-            geom_line(data = data_bin, aes(x = x, 
-                                           y = p), 
+            geom_line(data = data_bin, aes_string(x = "x", 
+                                           y = "p"), 
                       size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
             coord_cartesian(ylim = 
                               ylim) +
@@ -395,13 +407,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         
         
         p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes(x = x, 
-                                           ymin = pl, 
-                                           ymax = pu), 
+          geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                           ymin = "pl", 
+                                           ymax = "pu"), 
                       alpha = alpha, fill = CIcol, linetype = lty,
                       size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes(x = x, 
-                                         y = p), 
+          geom_line(data = data_bin, aes_string(x = "x", 
+                                         y = "p"), 
                     size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
           abline_layer +
           coord_cartesian(ylim = ylim) +
@@ -431,13 +443,13 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
                                  p = model$p[, der = i, fac = jnf[j]])
           
           p[[cont]] <- ggplot() +
-            geom_ribbon(data = data_bin, aes(x = x, 
-                                             ymin=pl, 
-                                             ymax=pu), 
+            geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                             ymin = "pl", 
+                                             ymax = "pu"), 
                         alpha = alpha, fill = CIcol, linetype = lty,
                         size = CIlwd, col = CIlinecol) +
-            geom_line(data = data_bin, aes(x = x, 
-                                           y = p), 
+            geom_line(data = data_bin, aes_string(x = "x", 
+                                           y = "p"), 
                       size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
             coord_cartesian(ylim = ylim) +
             # ylim(ylim) +
@@ -450,11 +462,23 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
         }
         ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
         }
-      }
-      
+    }
+    
+    # NOTE: This ugly hack is here because of a bug in gridExtra which calls
+    # a ggplot2 function directly instead of namespacing it.  The bug is fixed
+    # in the gridExtra GitHub version, but not on CRAN. Hopefully gridExtra
+    # will submit the fix to CRAN and I can remove this ugliness.
+    # https://github.com/baptiste/gridextra/issues/5
+    # Thanks to Dean Attali!!
+    if (!"package:ggplot2" %in% search()) {
+      suppressPackageStartupMessages(attachNamespace("ggplot2"))
+      on.exit(detach("package:ggplot2"))
+    }  
+    
+    
       args.list <- c(p, nf + 1, length(der))
       names(args.list) <- c(c(rep("", (nf + 1) * length(der)), "nrow", "ncol"))
-      suppressWarnings(do.call(grid.arrange, args.list))
+      suppressWarnings(do.call(gridExtra::grid.arrange, args.list))
       
     }
   }
