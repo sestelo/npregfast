@@ -153,7 +153,7 @@
 #' # summary(fit4)
 #' 
 #' @useDynLib npregfast frfast_
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit runif
 #' @export
 
 

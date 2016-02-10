@@ -53,7 +53,7 @@
 #' allotest(DW ~ RC, data = barnacle, nboot = 100, seed = 130853)
 #' 
 #' @useDynLib npregfast allotest_
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit runif
 #' @export
 
 

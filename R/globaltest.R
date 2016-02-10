@@ -75,7 +75,7 @@
 #' 
 #' 
 #' @useDynLib npregfast globaltest_
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit runif
 #' @export
 
 

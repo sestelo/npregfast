@@ -94,7 +94,7 @@
 #' localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 #' 
 #' @useDynLib npregfast localtest_
-#' @importFrom stats na.omit
+#' @importFrom stats na.omit runif
 #' @export
 
 
