@@ -7,3 +7,7 @@ This file documents software changes since the previous edition.
   * the srand function of the fortran code has been deleted. Now it call the R one.
 
 
+# npregfast 1.2.0 (2016-02-10)
+
+   * the random numbers generation (for the bootstrap) has been changed reducing the computational time.
+  * the plots are now obtained by means of the ggplot2.
