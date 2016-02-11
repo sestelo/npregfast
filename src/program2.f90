@@ -835,14 +835,14 @@ end do
 
 pvalor=0
 do iboot=1,nboot
- do i=1,n
+ do z=1,n
   !u=RAND()
   !call test_random(u)
-  u=umatrix(i,iboot)
+  u=umatrix(z,iboot)
   if (u.le.(5.0+sqrt(5.0))/10) then
-   Yboot(i)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
+   Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
   else
-   Yboot(i)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
+   Yboot(z)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
   end if
 end do
 
