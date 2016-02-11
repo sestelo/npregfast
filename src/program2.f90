@@ -29,7 +29,7 @@ integer seed
 
 
 
-!call srand(seed)
+
 
 h=-1.0
 
@@ -520,7 +520,7 @@ deallocate (p0)
 
 cboot=-1
 
-!if(seed.ne.-1) call srand(seed)
+
 
 
 
@@ -736,8 +736,8 @@ double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
 u,Tboot,T,pvalor,umatrix(n,nboot)
 !REAL(4) rand 
-double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),muhatgboot(:),&
-muhatg2(:)
+double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
+muhatgboot(:),muhatg2(:)
 
 
 allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
@@ -831,19 +831,19 @@ end do
 
 
 ! Bootstrap
-!if(seed.ne.-1) call srand(seed)
+
 
 pvalor=0
 do iboot=1,nboot
-do z=1,n
-!u=RAND()
-!call test_random(u)
-u=umatrix(i,iboot)
-if (u.le.(5.0+sqrt(5.0))/10) then
-Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
-else
-Yboot(z)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
-end if
+ do i=1,n
+  !u=RAND()
+  !call test_random(u)
+  u=umatrix(i,iboot)
+  if (u.le.(5.0+sqrt(5.0))/10) then
+   Yboot(i)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
+  else
+   Yboot(i)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
+  end if
 end do
 
 
@@ -878,10 +878,10 @@ end do
 
 Tboot=0
 do k=1,nf
-do z=1,kbin
-! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
-Tboot=Tboot+abs(pred1(z,k))
-end do
+ do z=1,kbin
+ ! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
+  Tboot=Tboot+abs(pred1(z,k))
+ end do
 end do
 
 if(Tboot.gt.T) pvalor=pvalor+1

@@ -184,7 +184,8 @@ globaltest <- function(formula, data = data, der, weights = NULL, nboot = 500,
                          T = as.double(rep(-1, 1)), 
                          pvalor = as.double(rep(-1, 1)), 
                          seed = as.integer(seed),
-                         umatrix = as.double(umatrix)
+                       #  umatrix = as.double(umatrix)
+                        umatrix = array(umatrix, c(n, nboot))
                          )
  
   if (globaltest$pvalor < 0.05) {
