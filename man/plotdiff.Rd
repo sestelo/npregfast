@@ -7,9 +7,9 @@ for two factor's levels}
 \usage{
 plotdiff(model, level2, level1, der = NULL, est.include = FALSE,
   xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL,
-  col = "black", CIcol = "black", CIlinecol = 0, abline = TRUE,
-  ablinecol = "red", lty = 1, CIlty = 2, lwd = 1, CIlwd = 1.5,
-  alpha = 0.2, ...)
+  col = "black", CIcol = "black", CIlinecol = "transparent",
+  abline = TRUE, ablinecol = "red", lty = 1, CIlty = 2, lwd = 1,
+  CIlwd = 1.5, alpha = 0.2, ...)
 }
 \arguments{
 \item{model}{Parametric or nonparametric regression out 
