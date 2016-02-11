@@ -11,3 +11,7 @@ This file documents software changes since the previous edition.
 
    * the random numbers generation (for the bootstrap) has been changed reducing the computational time.
   * the plots are now obtained by means of the ggplot2.
+  
+# npregfast 1.2.1 (2016-02-11)
+
+   * corrected bug at globaltest function (random numbers problem)
