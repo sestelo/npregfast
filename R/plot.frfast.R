@@ -52,14 +52,13 @@
 #' plot(fit)
 #' plot(fit, der = 0)
 #' plot(fit, der = 0, points = FALSE)
-#' plot(fit, der = 1, col = "red", CIcol = "blue")
+#' #plot(fit, der = 1, col = "red", CIcol = "blue")
 #' 
 #' # Nonparametric regression with interactions
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
 #' plot(fit2)
 #' plot(fit2, der = 0, fac = "lens")
-#' plot(fit2, der = 1, col = "grey", CIcol = "red")
-#' plot(fit2, der = c(0,1), fac = c("barca","lens"))
+#' #plot(fit2, der = c(0,1), fac = c("barca","lens"))
 #' 
 #' @importFrom graphics lines par plot
 #' @import ggplot2
@@ -212,7 +211,7 @@ plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE,
   }
   
   if(fi*co == 1) {
-    p[[1]]
+    suppressWarnings(print(p[[1]]))
   }else{
   
     # NOTE: This ugly hack is here because of a bug in gridExtra which calls
