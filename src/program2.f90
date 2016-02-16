@@ -1705,7 +1705,7 @@ double precision u, uvector(n)
 do i=1,size
 !II(i)=1+rand()*n
 !call test_random(u)
-u=uvector(size)
+u=uvector(i)
 II(i)=1+u*n
 if (ii(i).le.1) ii(i)=1
 if (ii(i).ge.n) ii(i)=n
