@@ -15,3 +15,8 @@ This file documents software changes since the previous edition.
 # npregfast 1.2.1 (2016-02-16)
 
    * corrected bug at globaltest function (random numbers problem)
+   
+   
+   # npregfast 1.2.1.9000 (2016-02-16)
+
+   * under development
