@@ -188,7 +188,7 @@
 #' @useDynLib npregfast frfast_
 #' @importFrom stats na.omit runif
 #' @importFrom mgcv interpret.gam gam predict.gam
-#' @importFrom sfsmisc D1ss D2ss
+#' @importFrom sfsmisc D1D2
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach
@@ -457,9 +457,11 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
       m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
       muhat <- as.vector(predict(m, newdata = newd, type = "response"))
       p[, 1, 1:nf] <- muhat
-      d1 <- apply(p, 3, function(z){D1ss(x = xgrid, y = z[, 1])})
+      #d1 <- apply(p, 3, function(z){D1ss(x = xgrid, y = z[, 1])})
+      d1 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 1)$D1})
       p[, 2, 1:nf] <- as.vector(d1)
-      d2 <- apply(p, 3, function(z){D2ss(x = xgrid, y = z[, 1])$y})
+      #d2 <- apply(p, 3, function(z){D2ss(x = xgrid, y = z[, 1])$y})
+      d2 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 2)$D2})
       p[, 3, 1:nf] <- as.vector(d2)
       
       
@@ -479,9 +481,11 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
       pfino[, 1, 1:nf] <- muhatfino
       
       aux <- data.frame(muhatfino, newdfino)
-      d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
+     # d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
+      d1 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 1)$D1})
       pfino[, 2, 1:nf] <- unlist(d1)
-      d2 <- by(aux, aux[, 3], function(z){D2ss(x = z[, 2], y = z[, 1])$y})
+      #d2 <- by(aux, aux[, 3], function(z){D2ss(x = z[, 2], y = z[, 1])$y})
+      d2 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 2)$D2})
       pfino[, 3, 1:nf] <- unlist(d2)
       
       
@@ -614,17 +618,21 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
     }
     
     # ci  diffmax FALTA
-    # if (nf > 1) {
-    #com <- combn(1:nf, m = 2)
-    #aux <- apply(maxboot, c(2,1), 
-    #            function(x){quantile(x, probs = c(0.025), na.rm = TRUE)})
-    #aux2 <- apply(maxboot, c(2,1), 
-    #              function(x){quantile(x, probs = c(0.975), na.rm = TRUE)})
-    
+    diffmaxl <- array(NA, dim = c(3, nf, nf))
+    diffmaxu <- array(NA, dim = c(3, nf, nf))
+    if (nf > 1) {
+    com <- combn(1:nf, m = 2)
+    for (j in 1:ncol(com)) {
+      diffmaxl[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
+                function(x){quantile(x, probs = c(0.025), na.rm = TRUE)}))
+      diffmaxu[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
+                                                 function(x){quantile(x, probs = c(0.975), na.rm = TRUE)}))
+    }
+    }
     #  maxl <- t(aux)
     #  maxu <- t(aux2)
-    diffmaxu <- NA
-    diffmaxl <- NA
+    #diffmaxu <- NA
+    #diffmaxl <- NA
     #}
     
     
