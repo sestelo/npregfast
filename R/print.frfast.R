@@ -32,6 +32,13 @@ print.frfast <- function(x = model, ...) {
     cat("\n")
     
     if (model$nmodel == 1) {
+      cat("\nType of Nonparametric Smoother: ")
+      cat(format(model$smooth))
+      cat("\n")
+    }
+      
+    
+    if (model$nmodel == 1 & model$smooth == "kernel") {
       if (model$nf != 1) {
         cat("\nBandwidth: ")
         cat(format(c(model$h0, model$h), digits = 2))
@@ -50,6 +57,16 @@ print.frfast <- function(x = model, ...) {
       if (model$kernel == 3) 
         cat("Gaussian")
     }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
   }else{
     stop("Argument x must be either frfast object.")
   }
