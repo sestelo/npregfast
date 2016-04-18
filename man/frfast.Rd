@@ -4,9 +4,10 @@
 \alias{frfast}
 \title{Fitting nonparametric models}
 \usage{
-frfast(formula, data = data, model = "np", h0 = -1, h = -1, nh = 30,
-  weights = NULL, kernel = "epanech", p = 3, kbin = 100, nboot = 500,
-  rankl = NULL, ranku = NULL, seed = NULL)
+frfast(formula, data = data, model = "np", smooth = "kernel", h0 = -1,
+  h = -1, nh = 30, weights = NULL, kernel = "epanech", p = 3,
+  kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, seed = NULL,
+  cluster = TRUE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -17,8 +18,12 @@ specification are given under 'Details'.}
 variable and covariates required by the \code{formula}.}
 
 \item{model}{Type model used: \code{model = "np"}  nonparametric
-regression model with local polynomial kernel smoothers, 
+regression model, 
 \code{model = "allo"} the  allometric model.}
+
+\item{smooth}{Type smoother used: \code{smooth = "kernel"} for local polynomial
+kernel smoothers and \code{smooth = "splines"} for splines using the 
+\code{mgcv} package.}
 
 \item{h0}{The kernel bandwidth smoothing parameter for the global effect (see
 references for more details at the estimation). Large values of the bandwidth lead
@@ -28,7 +33,7 @@ By default, cross validation is used to obtain the bandwidth.}
 \item{h}{The kernel bandwidth smoothing parameter for the partial effects.}
 
 \item{nh}{Integer number of equally-spaced bandwidth in which the
-\code{h} is discretised, to speed up computation.}
+\code{h} is discretised, to speed up computation in the kernel-based regression.}
 
 \item{weights}{Prior weights on the data.}
 
@@ -38,7 +43,8 @@ density function kernel will be used. Also, several types of kernel functons
 can be used:  triangular and Gaussian density function, 
 with \code{"triang"} and \code{"gaussian"} term, respectively.}
 
-\item{p}{Polynomial degree to be used. Its value must be the value of
+\item{p}{Polynomial degree to be used in the kernel-based regression. Its 
+value must be the value of
 derivative + 1. The default value is 3, returning 
 the estimation, first and second derivative.}
 
@@ -60,6 +66,18 @@ estimate, first or second derivative  (for each level). The default
 is the maximum data value.}
 
 \item{seed}{Seed to be used in the bootstrap procedure.}
+
+\item{cluster}{A logical value. If  \code{TRUE} (default), the
+bootstrap procedure is  parallelized (only for \code{smooth = "splines"}.
+ Note that there are cases 
+(e.g., a low number of bootstrap repetitions) that R will gain in
+performance through serial computation. R takes time to distribute tasks
+across the processors also it will need time for binding them all together
+later on. Therefore, if the time for distributing and gathering pieces
+together is greater than the time need for single-thread computing, it does
+not worth parallelize.}
+
+\item{\ldots}{Other options.}
 }
 \value{
 An object is returned with the following elements:
@@ -129,10 +147,12 @@ the estimate, their first and second derivative for each bootstrap repeat.}
 \item{nh}{Integer number of equally-spaced bandwidth on which the
 \code{h} is discretised.}
 \item{r2}{Coefficient of determination (in the case of the allometric model).}
+\item{smooth}{Type smoother used.}
 }
 \description{
 This function is used to fit nonparametric models by
-using local polynomial kernel smoothers. These models can include or not  
+using local polynomial kernel smoothers or splines. These models can 
+include or not  
 factor-by-curve interactions. Additionally, a parametric 
 model (allometric model) can be estimated (or not).
 }
@@ -144,22 +164,36 @@ a specification that the response \code{y} is modelled by a predictor
 specified symbolically by \code{model}. The possible terms consist of a 
 variable name or a variable name and a factor name separated by : operator. 
 Such a term is interpreted as the interaction of the continuous variable and 
-the factor.
+the factor. If \code{smooth = "splines"}, the formula is based on the function
+formula.gam of the mgcv package.
 }
 \examples{
 library(npregfast)
 data(barnacle)
 
 # Nonparametric regression without interactions
-fit <- frfast(DW ~ RC, data = barnacle, nboot = 100) 
+fit <- frfast(DW ~ RC, data = barnacle, nboot = 100, smooth = "kernel") 
 fit
 summary(fit)
 
+# using  splines
+fit <- frfast(DW ~ s(RC), data = barnacle, nboot = 100, smooth = "splines") 
+fit
+summary(fit)
+
+
 # Change the number of binning nodes and bootstrap replicates
-fit <- frfast(DW ~ RC, data = barnacle, kbin = 200, nboot = 100)
+fit <- frfast(DW ~ RC, data = barnacle, kbin = 200,
+               nboot = 100, smooth = "kernel")
 
 # Nonparametric regression with interactions
 fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100)
+fit2
+summary(fit2)
+
+# using  splines
+fit2 <- frfast(DW ~ s(RC, by = F), data = barnacle,
+               nboot = 100, smooth = "splines")
 fit2
 summary(fit2)
 
