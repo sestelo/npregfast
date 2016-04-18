@@ -16,6 +16,7 @@
 \code{summary.frfast} computes and returns a list of summary 
 information for a fitted \code{frfast} object.
 \item{model}{type of model: nonparametric or allometric.}
+\item{smooth}{type of smoother: kernel or splines.}
 \item{h}{the kernel bandwidth smoothing parameter.}
 \item{dp}{degree of the polynomial.}
 \item{nboot}{number of bootstrap repeats.}
