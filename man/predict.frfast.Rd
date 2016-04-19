@@ -24,7 +24,7 @@ it is designed for the first or second derivative, respectively.}
 
 \item{seed}{Seed to be used in the bootstrap procedure.}
 
-\item{\ldots}{Seed to be used in the bootstrap procedure.}
+\item{\ldots}{Other options.}
 }
 \value{
 \code{predict.frfast} computes and returns a list containing 

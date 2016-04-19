@@ -148,6 +148,7 @@ the estimate, their first and second derivative for each bootstrap repeat.}
 \code{h} is discretised.}
 \item{r2}{Coefficient of determination (in the case of the allometric model).}
 \item{smooth}{Type smoother used.}
+\item{cluster}{Is the procedure parallelized? (for splines smoothers).}
 }
 \description{
 This function is used to fit nonparametric models by

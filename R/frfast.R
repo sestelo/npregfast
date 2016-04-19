@@ -137,6 +137,7 @@
 #' \code{h} is discretised.}
 #' \item{r2}{Coefficient of determination (in the case of the allometric model).}
 #' \item{smooth}{Type smoother used.}
+#' \item{cluster}{Is the procedure parallelized? (for splines smoothers).}
 #' 
 #' 
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
@@ -440,6 +441,7 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
                 nh = frfast$nh,
                 r2 = r2,
                 smooth = smooth,
+                cluster = NA,
                 call = match.call()
     )
     
@@ -679,6 +681,7 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
                 nh = nh,
                 r2 = NA,
                 smooth = smooth,
+                cluster = cluster,
                 call = match.call()
     )
   }

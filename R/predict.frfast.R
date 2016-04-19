@@ -13,7 +13,7 @@
 #' the function returns the initial estimate. If it is \code{1} or \code{2}, 
 #' it is designed for the first or second derivative, respectively.
 #' @param seed Seed to be used in the bootstrap procedure.
-#' @param \ldots Seed to be used in the bootstrap procedure.
+#' @param \ldots Other options.
 #' @return \code{predict.frfast} computes and returns a list containing 
 #' predictions of the estimates, first and second derivative, 
 #' with their 95\% confidence intervals.
@@ -76,6 +76,14 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     set.seed(seed)
   }
   
+  
+  if (isTRUE(model$cluster)) {
+    num_cores <- detectCores() - 1
+    registerDoParallel(cores = num_cores)
+  }
+  
+  
+  if (model$smooth != "splines"){
   
   newdata <- newdata[, 1]
   len <- length(newdata)
@@ -160,9 +168,108 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
   frfast$predictl[frfast$predictl == -1] <- NA
   frfast$predictu[frfast$predictu == -1] <- NA
   
+  }else{
+    
+    
+    formula <- model$formula
+    ffr <- interpret.gam(formula)
+    varnames <- ffr$pred.names[1]
+    namef <- ffr$pred.names[2]
+    response <- ffr$response
+    data <- data.frame(model$xdata, model$ydata, model$fmod)
+    names(data) <- c(paste(varnames), paste(response), paste(namef))
+    weights <- model$w
+    newdata <- newdata[, 1]
+    len <- length(newdata)
+  
+    
+    mainfun <- function(formula, data, weights){
+      # grid
+      xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = model$kbin)
+      xgrid <- c(xgrid, newdata)
+      newd <- expand.grid(xgrid, unique(model$fmod))
+      names(newd) <- ffr$pred.names
+      
+      # estimations
+      p <- array(NA, dim = c(model$kbin + length(newdata), 3, model$nf))
+      m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
+      muhat <- as.vector(predict(m, newdata = newd, type = "response"))
+      p[, 1, 1:model$nf] <- muhat
+      #d1 <- apply(p, 3, function(z){D1ss(x = xgrid, y = z[, 1])})
+      d1 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 1)$D1})
+      p[, 2, 1:model$nf] <- as.vector(d1)
+      #d2 <- apply(p, 3, function(z){D2ss(x = xgrid, y = z[, 1])$y})
+      d2 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 2)$D2})
+      p[, 3, 1:model$nf] <- as.vector(d2)
+      return(p)
+    }
+      
+    
+    
+    
+    
+    res <- mainfun(formula, data = data, weights = weights)
+    p <- res
+
+    
+    # bootstrap
+    m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
+    muhat <- as.vector(predict(m, type = "response"))
+    err <- data[, ffr$response] - muhat
+    err <- err - mean(err)
+    yboot <- replicate(model$nboot, muhat + err *
+                         sample(c(-sqrt(5) + 1, sqrt(5) + 1)/2, size = model$n,
+                                replace = TRUE,
+                                prob = c(sqrt(5) + 1, sqrt(5) - 1)/(2 * sqrt(5))))
+    
+    
+    
+    allboot <- foreach(i = 1:model$nboot) %dopar% {
+      datab <- data
+      datab$DW <- yboot[, i]
+      aux <- mainfun(formula, data = data.frame(datab, weights), 
+                     weights = weights, ...)
+      return(aux)
+    }
+    
+    #pboot <- lapply(allboot, function(x){x$p})
+    pboot <- array(unlist(allboot), dim = c(model$kbin + length(newdata), 3, model$nf, model$nboot))
+    
+    
+    
+    # ci  p
+    aux <- apply(pboot, c(3,2,1), 
+                 function(x){quantile(x, probs = c(0.025), na.rm = TRUE)})
+    aux2 <- apply(pboot, c(3,2,1), 
+                  function(x){quantile(x, probs = c(0.975), na.rm = TRUE)})
+    
+    pl <- array(NA, dim = c(model$kbin + length(newdata), 3, model$nf))
+    pu <- array(NA, dim = c(model$kbin + length(newdata), 3, model$nf))
+    for (i in  1:model$nf) {
+      pl[, , i] <- t(aux[i, , ])
+      pu[, , i] <- t(aux2[i, , ])
+    }
+    
+    
+  } # close else
   
   
-  ii <- c(rep(FALSE, n - length(newdata)), rep(TRUE, length(newdata)))
+  
+  
+  if (model$smooth != "splines") {
+   ii <- c(rep(FALSE, n - length(newdata)), rep(TRUE, length(newdata)))
+   aux <- frfast$predict
+   auxl <- frfast$predictl
+   auxu <- frfast$predictu
+  }else{
+    ii <- c(rep(FALSE, model$kbin) , rep(TRUE, length(newdata)))
+    aux <- p
+    auxl <- pl
+    auxu <- pu
+  }
+  
+nf <- model$nf
+  
   if (nf == 1) {
     for (k in 1:nf) {
       if (is.null(der)) {
@@ -173,9 +280,9 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
       res <- array(data = NA, dim = c(len, 3, length(der)))
       for (j in der) {
         cont <- cont + 1
-        res[, 1, cont] <- frfast$predict[, , 1][ii, j]
-        res[, 2, cont] <- frfast$predictl[, , 1][ii, j]
-        res[, 3, cont] <- frfast$predictu[, , 1][ii, j]
+        res[, 1, cont] <- aux[, , 1][ii, j]
+        res[, 2, cont] <- auxl[, , 1][ii, j]
+        res[, 3, cont] <- auxu[, , 1][ii, j]
       }
     }
     colnames(res) <- c("Pred", "Lwr", "Upr")
@@ -199,15 +306,19 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     return(res)
   } else {
     if (is.null(fac)){
-      fac <- unique(f)
+      fac <- unique(model$fmod)
     }else{
       fac <- which(model$label == fac)
     }
     factores <- c()
     resul <- vector("list", length = length(fac))
     zz <- 1
-    for (k in fac) {
-      factores[zz] <- paste("Level_", model$label[frfast$fact[k]], sep = "")
+    for (k in 1:length(fac)) {
+     if (model$smooth != "splines") {
+       factores[zz] <- paste("Level_", model$label[frfast$fact[k]], sep = "")
+     }else{
+       factores[zz] <- paste("Level_", model$label[k], sep = "")
+     }
       zz <- zz + 1
     }
     names(resul) <- factores
@@ -216,14 +327,14 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     }
     der <- der + 1
     zz <- 1
-    for (k in fac) {
+    for (k in 1:length(fac)) {
       cont <- 0
       res <- array(data = NA, dim = c(len, 3, length(der)))
       for (j in der) {
         cont <- cont + 1
-        res[, 1, cont] <- frfast$predict[, , k][ii, j]
-        res[, 2, cont] <- frfast$predictl[, , k][ii, j]
-        res[, 3, cont] <- frfast$predictu[, , k][ii, j]
+        res[, 1, cont] <- aux[, , k][ii, j]
+        res[, 2, cont] <- auxl[, , k][ii, j]
+        res[, 3, cont] <- auxu[, , k][ii, j]
       }
       colnames(res) <- c("Pred", "Lwr", "Upr")
       # res<-list(Estimation=res[,,1], First_deriv=res[,,2], Second_deriv=res[,,3])
@@ -246,9 +357,10 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
       resul[[zz]] <- res
       zz <- zz + 1
     }
+  }
     class(resul) <- "predict.frfast"
     return(resul)
   }
   
-}
+
 

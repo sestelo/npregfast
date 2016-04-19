@@ -17,15 +17,15 @@ Description: A method for obtain nonparametric estimates of regression models
     kernel smoothers. Additionally, a parametric model (allometric model)
     can be estimated.
 BugReports: http://github.com/sestelo/npregfast/issues
-Depends: 
+Depends:
     R (>= 3.2.0)
 License: MIT + file LICENSE
 LazyData: true
 Imports:
-  graphics,
-  stats,
-  utils,
-  shiny,
-  ggplot2,
-  gridExtra
-RoxygenNote: 5.0.0
+    graphics,
+    stats,
+    utils,
+    shiny,
+    ggplot2,
+    gridExtra
+RoxygenNote: 5.0.1
