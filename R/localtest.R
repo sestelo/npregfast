@@ -9,6 +9,9 @@
 #' By default \code{der} is \code{NULL}. If this term is \code{0}, 
 #' the testing procedures is applied for the estimate. If it is \code{1} or
 #' \code{2}, it is designed for the first or second derivative, respectively.
+#' @param smooth Type smoother used: \code{smooth = "kernel"} for local polynomial
+#' kernel smoothers and \code{smooth = "splines"} for splines using the 
+#' \code{mgcv} package.
 #' @param weights Prior weights on the data.
 #' @param nboot Number of bootstrap repeats.
 #' @param h0 The kernel bandwidth smoothing parameter for the global effect (see
@@ -37,7 +40,16 @@
 #' estimate, first or second derivative  (for each level). The default
 #' is the maximum data value.
 #' @param seed Seed to be used in the bootstrap procedure.
-#' 
+#' @param cluster A logical value. If  \code{TRUE} (default), the
+#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}.
+#'   Note that there are cases 
+#'  (e.g., a low number of bootstrap repetitions) that R will gain in
+#'  performance through serial computation. R takes time to distribute tasks
+#'  across the processors also it will need time for binding them all together
+#'  later on. Therefore, if the time for distributing and gathering pieces
+#'  together is greater than the time need for single-thread computing, it does
+#'  not worth parallelize.
+#' @param \ldots Other options.
 #' 
 #' 
 #' @details \code{localtest} can be used to test the equality of the 
@@ -95,14 +107,20 @@
 #' 
 #' @useDynLib npregfast localtest_
 #' @importFrom stats na.omit runif
+#' @importFrom mgcv interpret.gam gam predict.gam
+#' @importFrom sfsmisc D1D2
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel detectCores
+#' @importFrom foreach foreach
 #' @export
 
 
 
 
-localtest <- function(formula, data = data, der, weights = NULL, 
+localtest <- function(formula, data = data, der, smooth = "kernel", weights = NULL, 
                       nboot = 500, h0 = -1.0, h = -1.0, nh = 30, kernel = "epanech", 
-                      p = 3, kbin = 100, rankl = NULL, ranku = NULL, seed = NULL) {
+                      p = 3, kbin = 100, rankl = NULL, ranku = NULL, seed = NULL,
+                      cluster = TRUE, ...) {
   
   if(kernel == "gaussian")  kernel <- 3
   if(kernel == "epanech")   kernel <- 1
@@ -125,27 +143,47 @@ localtest <- function(formula, data = data, der, weights = NULL,
   }
   
  
+  if (!is.null(seed)) {
+    set.seed(seed)
+  }
+  if (isTRUE(cluster)) {
+    num_cores <- detectCores() - 1
+    registerDoParallel(cores = num_cores)
+  }
   
   ncmax <- 5
   c2 <- NULL
  # if(is.null(seed)) seed <- -1
   
-  if (!is.null(seed)){
-    set.seed(seed)
+ 
+  
+  if (smooth != "splines") {
+    
+    ffr <- interpret.frfastformula(formula, method = "frfast")
+    varnames <- ffr$II[2, ]
+    aux <- unlist(strsplit(varnames,split = ":"))
+    varnames <- aux[1]
+    namef <- aux[2]
+    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
+    newdata <- data
+    data <- na.omit(data[ ,c(ffr$response, varnames)])
+    #newdata <- na.omit(newdata[ ,varnames])
+    n <- nrow(data)
+    
+  }else{
+    ffr <- interpret.gam(formula)
+    varnames <- ffr$pred.names[1]
+    namef <- ffr$pred.names[2]
+    if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
+    newdata <- data
+    if (length(ffr$pred.names) == 1) {
+      data <- na.omit(data[ ,c(ffr$response, varnames)])
+    }else{
+      data <- na.omit(data[ ,c(ffr$response, varnames, namef)])
+    }
+    #newdata <- na.omit(newdata[ ,varnames])
+    n <- nrow(data)
   }
-  
-  
-  ffr <- interpret.frfastformula(formula, method = "frfast")
-  varnames <- ffr$II[2, ]
-  aux <- unlist(strsplit(varnames,split=":"))
-  varnames <- aux[1]
-  namef <- aux[2]
-  if(length(aux) == 1){f <- NULL}else{f <- data[ ,namef]}
-  newdata <- data
-  data <- na.omit(data[ ,c(ffr$response, varnames)])
-  newdata <- na.omit(newdata[ ,varnames])
-  n <- nrow(data)
-  
   
   
   
@@ -190,6 +228,11 @@ localtest <- function(formula, data = data, der, weights = NULL,
     if(length(ranku) == 1) ranku <- rep(ranku, nf)
   } 
   
+  
+  
+  if (smooth != "splines") {
+  
+  
   umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
   
   
@@ -211,7 +254,7 @@ localtest <- function(formula, data = data, der, weights = NULL,
                         kernel = as.integer(kernel),
                         nboot = as.integer(nboot),
                         pcmax = as.double(ranku), # rango de busqueda minimo
-                        pcmin =as.double(rankl), # rango de busqueda maximo
+                        pcmin = as.double(rankl), # rango de busqueda maximo
                         r = as.integer(der),
                         D = as.double(rep(-1.0,1)),
                         Ci = as.double(rep(-1.0,1)),
@@ -230,6 +273,114 @@ localtest <- function(formula, data = data, der, weights = NULL,
   res <- cbind(d = round(localtest$D, digits = 4), Lwr = round(localtest$Ci, digits = 4), 
                Upr = round(localtest$Cs, digits = 4), Decision = decision)
   # class(res) <- 'localtest'
+  
+  }else{
+    
+    mainfun_localtest <- function(formula, data, weights){
+      
+      # grid
+      xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
+      newd <- expand.grid(xgrid, unique(f))
+      names(newd) <- ffr$pred.names
+      
+      # estimations
+      p <- array(NA, dim = c(kbin, 3, nf))
+      m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
+      muhat <- as.vector(predict(m, newdata = newd, type = "response"))
+      p[, 1, 1:nf] <- muhat
+      #d1 <- apply(p, 3, function(z){D1ss(x = xgrid, y = z[, 1])})
+      d1 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 1)$D1})
+      p[, 2, 1:nf] <- as.vector(d1)
+      #d2 <- apply(p, 3, function(z){D2ss(x = xgrid, y = z[, 1])$y})
+      d2 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 2)$D2})
+      p[, 3, 1:nf] <- as.vector(d2)
+      
+      
+      # gridfino
+      kfino <- 100
+      xgridfino <- vapply(c(1:nf),
+                          FUN = function(x){seq(rankl[x], ranku[x], length.out = kfino)}, 
+                          FUN.VALUE = numeric(kfino))
+      
+      newdfino <- data.frame(as.vector(xgridfino), rep(unique(f), each = kfino))
+      names(newdfino) <- ffr$pred.names
+      
+      # max
+      muhatfino <- as.vector(predict(m, newdata = newdfino, type = "response"))
+      
+      pfino <- array(NA, dim = c(kfino, 3, nf))
+      pfino[, 1, 1:nf] <- muhatfino
+      
+      aux <- data.frame(muhatfino, newdfino)
+      # d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
+      d1 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 1)$D1})
+      pfino[, 2, 1:nf] <- unlist(d1)
+      #d2 <- by(aux, aux[, 3], function(z){D2ss(x = z[, 2], y = z[, 1])$y})
+      d2 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 2)$D2})
+      pfino[, 3, 1:nf] <- unlist(d2)
+      
+      
+      iimax <- apply(pfino, 3:2, which.max)
+      iicero <- apply(abs(pfino), 3:2, which.min)
+      max <- matrix(NA, ncol = nf, nrow = 3)
+      for (j in 1:nf) {
+        max[1:2 , j] <- xgridfino[ t(iimax)[1:2, j], j]
+        max[3 , j] <- xgridfino[ t(iicero)[3, j], j]
+      }
+      
+      xmin <- min(max[der + 1, ])
+      posmin <- which.min(max[der + 1, ])
+      
+      xmax <- max(max[der + 1, ])
+      posmax <- which.max(max[der + 1, ])
+   
+      if (posmin < posmax){
+        d <-  xmin - xmax
+      }else{
+        d <-  xmax - xmin
+      }
+
+      return(d)
+    }
+    
+    
+    
+    d <- mainfun_localtest(formula, data = data, weights = weights)
+    
+    # bootstrap
+    m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
+    muhat <- as.vector(predict(m, type = "response"))
+    err <- data[, ffr$response] - muhat
+    err <- err - mean(err)
+    yboot <- replicate(nboot, muhat + err *
+                         sample(c(-sqrt(5) + 1, sqrt(5) + 1)/2, size = n,
+                                replace = TRUE,
+                                prob = c(sqrt(5) + 1, sqrt(5) - 1)/(2 * sqrt(5))))
+    
+    
+    d_allboot <- foreach(i = 1:nboot) %dopar% {
+      datab <- data
+      datab$DW <- yboot[, i]
+      aux <- mainfun_localtest(formula, data = data.frame(datab, weights), 
+                     weights = weights, ...)
+      return(aux)
+    }
+    
+    
+    ci <- quantile(unlist(d_allboot), probs = c(0.025, 0.975), na.rm = TRUE)
+    
+    if (ci[1] <= 0 & 0 <= ci[2]) {
+      decision <- "Acepted"
+    } else {
+      decision <- "Rejected"
+    }
+    res <- cbind(d = round(d, digits = 4), Lwr = round(ci[1], digits = 4), 
+                 Upr = round(ci[2], digits = 4), Decision = decision)
+    
+    rownames(res) <- NULL
+    
+  }
+    
   return(as.data.frame(res))
   
 } 
