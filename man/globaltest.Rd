@@ -4,9 +4,9 @@
 \alias{globaltest}
 \title{Testing the equality of the \emph{M} curves specific to each level}
 \usage{
-globaltest(formula, data = data, der, weights = NULL, nboot = 500,
-  h0 = -1, h = -1, nh = 30, kernel = "epanech", p = 3, kbin = 100,
-  seed = NULL)
+globaltest(formula, data = data, der, smooth = "kernel", weights = NULL,
+  nboot = 500, h0 = -1, h = -1, nh = 30, kernel = "epanech", p = 3,
+  kbin = 100, seed = NULL, cluster = TRUE, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic description
@@ -19,6 +19,10 @@ and covariates required by the \code{formula}.}
 By default \code{der} is \code{NULL}. If this term is \code{0}, 
 the testing procedures is applied for the estimate. If it is \code{1} or
 \code{2}, it is designed for the first or second derivative, respectively.}
+
+\item{smooth}{Type smoother used: \code{smooth = "kernel"} for local polynomial
+kernel smoothers and \code{smooth = "splines"} for splines using the 
+\code{mgcv} package.}
 
 \item{weights}{Prior weights on the data.}
 
@@ -48,6 +52,18 @@ returns the estimation, first and second derivative.}
 is to be estimated.}
 
 \item{seed}{Seed to be used in the bootstrap procedure.}
+
+\item{cluster}{A logical value. If  \code{TRUE} (default), the
+bootstrap procedure is  parallelized (only for \code{smooth = "splines"}.
+ Note that there are cases 
+(e.g., a low number of bootstrap repetitions) that R will gain in
+performance through serial computation. R takes time to distribute tasks
+across the processors also it will need time for binding them all together
+later on. Therefore, if the time for distributing and gathering pieces
+together is greater than the time need for single-thread computing, it does
+not worth parallelize.}
+
+\item{\ldots}{Other options.}
 }
 \value{
 The \eqn{T} value and the \eqn{p}-value  are returned. Additionally, 
