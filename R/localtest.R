@@ -360,7 +360,7 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
     
     d_allboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
-      datab$DW <- yboot[, i]
+      datab[, ffr$response] <- yboot[, i]
       aux <- mainfun_localtest(formula, data = data.frame(datab, weights), 
                      weights = weights, ...)
       return(aux)
