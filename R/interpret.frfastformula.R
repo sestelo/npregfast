@@ -47,6 +47,8 @@ function(formula, method = "frfast") {
         matrix(0, nrow = 2)
     }       
     res <- list(response = response, II = II,vtab=vtab)
-    res
+    
+    class(res) <- "frfast.formula"
+    return(res)
 }
 

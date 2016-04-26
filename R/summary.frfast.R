@@ -93,7 +93,6 @@ summary.frfast <- function(object = model, ...) {
       cat("\nType of nonparametric smoother: ",format(model$smooth), "\n")
       cat("Number of bootstrap repeats:", model$nboot, "\n")
       cat("", "\n")
-      cat("", "\n")
       cat("The number of data is: ", model$n, "\n")
     }
     # cat('The factor's levels are: ',etiquetas<-model$etiquetas, '\n')

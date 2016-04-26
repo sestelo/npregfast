@@ -120,6 +120,14 @@ globaltest <- function(formula, data = data, der, smooth = "kernel", weights = N
   if (kernel == "triang") 
     kernel <- 2
   
+  if (!(kernel %in% 1:3)) {
+    stop("Kernel not suported")
+  }
+  
+  if (!(smooth %in% c("kernel", "splines"))) {
+    stop("Smoother not suported")
+  }
+  
   
   # if (is.null(seed)) 
   #    seed <- -1
@@ -139,25 +147,27 @@ globaltest <- function(formula, data = data, der, smooth = "kernel", weights = N
     
     ffr <- interpret.frfastformula(formula, method = "frfast")
     varnames <- ffr$II[2, ]
-    aux <- unlist(strsplit(varnames, split = ":"))
+    aux <- unlist(strsplit(varnames,split = ":"))
     varnames <- aux[1]
-    namef <- aux[2]
-    if (length(aux) == 1) {
-      f <- NULL
-    } else {
-      f <- data[, namef]
+    if (unlist(strsplit(varnames,split = ""))[1] == "s") {
+      stop("Argument \"formula\" is wrong specified, see details of
+model specification in 'Details' of the frfast help." )
     }
+    namef <- aux[2]
+    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data
-    data <- na.omit(data[, c(ffr$response, varnames)])
-    newdata <- na.omit(newdata[, varnames])
+    data <- na.omit(data[ ,c(ffr$response, varnames)])
+    #newdata <- na.omit(newdata[ ,varnames])
     n <- nrow(data)
     
-    
   }else{
-    
-    
     ffr <- interpret.gam(formula)
     varnames <- ffr$pred.names[1]
+    if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
+      stop("Argument \"formula\" is wrong specified, see details of
+           model specification in 'Details' of the frfast help." )
+    }
+    
     namef <- ffr$pred.names[2]
     if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data
@@ -169,8 +179,6 @@ globaltest <- function(formula, data = data, der, smooth = "kernel", weights = N
     #newdata <- na.omit(newdata[ ,varnames])
     n <- nrow(data)
   }
-  
-  
   
   
   if (is.null(f)) 

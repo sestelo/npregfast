@@ -68,7 +68,7 @@ is the maximum data value.}
 \item{seed}{Seed to be used in the bootstrap procedure.}
 
 \item{cluster}{A logical value. If  \code{TRUE} (default), the
-bootstrap procedure is  parallelized (only for \code{smooth = "splines"}.
+bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
  Note that there are cases 
 (e.g., a low number of bootstrap repetitions) that R will gain in
 performance through serial computation. R takes time to distribute tasks

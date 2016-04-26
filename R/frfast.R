@@ -48,7 +48,7 @@
 #' is the maximum data value.
 #' @param seed Seed to be used in the bootstrap procedure.
 #' @param cluster A logical value. If  \code{TRUE} (default), the
-#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}.
+#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
 #'   Note that there are cases 
 #'  (e.g., a low number of bootstrap repetitions) that R will gain in
 #'  performance through serial computation. R takes time to distribute tasks
@@ -204,7 +204,7 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
                    kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, 
                    seed = NULL, cluster = TRUE, ...){
   
-  
+  if(kernel == "gaussian")  kernel <- 3
   if (kernel == "epanech")   kernel <- 1
   if (kernel == "triang")    kernel <- 2
   
@@ -216,6 +216,10 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
   }
   if (!(kernel %in% 1:3)) {
     stop("Kernel not suported")
+  }
+  
+  if (!(smooth %in% c("kernel", "splines"))) {
+    stop("Smoother not suported")
   }
   
   #if(is.null(seed)) seed <- -1
@@ -238,6 +242,10 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
     varnames <- ffr$II[2, ]
     aux <- unlist(strsplit(varnames,split = ":"))
     varnames <- aux[1]
+    if (unlist(strsplit(varnames,split = ""))[1] == "s") {
+      stop("Argument \"formula\" is wrong specified, see details of
+model specification in 'Details' of the frfast help." )
+    }
     namef <- aux[2]
     if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data
@@ -248,6 +256,11 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
   }else{
     ffr <- interpret.gam(formula)
     varnames <- ffr$pred.names[1]
+    if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
+      stop("Argument \"formula\" is wrong specified, see details of
+           model specification in 'Details' of the frfast help." )
+    }
+    
     namef <- ffr$pred.names[2]
     if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data

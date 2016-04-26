@@ -28,4 +28,4 @@ Imports:
     shiny,
     ggplot2,
     gridExtra
-RoxygenNote: 5.0.1
+RoxygenNote: 5.0.0
