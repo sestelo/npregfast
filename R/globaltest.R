@@ -41,6 +41,9 @@
 #'  later on. Therefore, if the time for distributing and gathering pieces
 #'  together is greater than the time need for single-thread computing, it does
 #'  not worth parallelize.
+#'@param ncores An integer value specifying the number of cores to be used
+#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
+#' to be used is equal to the number of cores of the machine - 1.
 #' @param \ldots Other options.
 #' 
 #' 
@@ -88,13 +91,23 @@
 #' 
 #' @useDynLib npregfast globaltest_
 #' @importFrom stats na.omit runif
+#' @importFrom mgcv interpret.gam gam predict.gam
+#' @importFrom sfsmisc D1D2
+#' @importFrom doParallel registerDoParallel
+#' @importFrom parallel detectCores
+#' @importFrom foreach foreach %dopar%
 #' @export
 
 
 
 globaltest <- function(formula, data = data, der, smooth = "kernel", weights = NULL, 
                        nboot = 500, h0 = -1, h = -1, nh = 30, kernel = "epanech", p = 3, 
-                       kbin = 100, seed = NULL, cluster = TRUE, ...) {
+                       kbin = 100, seed = NULL, cluster = TRUE, ncores = NULL, ...) {
+  
+  # utils::globalVariables("i") # for the note at checking --as-cran
+  # globaltest: no visible binding for global variable 'i'
+  
+  # utils::suppressForeignCheck("i")
   
   if (missing(der)) {
     stop("Argument \"der\" is missing, with no default")
@@ -137,8 +150,12 @@ globaltest <- function(formula, data = data, der, smooth = "kernel", weights = N
   }
   
   
-  if (isTRUE(cluster)) {
-    num_cores <- detectCores() - 1
+  if (isTRUE(cluster) & smooth == "splines") {
+    if (is.null(ncores)) {
+      num_cores <- detectCores() - 1
+    }else{
+      num_cores <- ncores
+    }
     registerDoParallel(cores = num_cores)
   }
   
@@ -210,7 +227,7 @@ model specification in 'Details' of the frfast help." )
       stop("The specified weights are not correct")
   }
   
- 
+  
   
   
   if (smooth != "splines") {
@@ -280,10 +297,10 @@ model specification in 'Details' of the frfast help." )
         t <- sum(abs(as.vector(d1)))
       }
       if (der == 2) {
-      d2 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 2)$D2})
-      t <- sum(abs(as.vector(d2)))
+        d2 <- apply(p, 3, function(z){D1D2(x = xgrid, y = z[, 1], deriv = 2)$D2})
+        t <- sum(abs(as.vector(d2)))
       }
-
+      
       return(t)
     }
     
@@ -323,12 +340,12 @@ model specification in 'Details' of the frfast help." )
                                 replace = TRUE,
                                 prob = c(sqrt(5) + 1, sqrt(5) - 1)/(2 * sqrt(5))))
     
-    
+    i <- NULL
     dboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
       datab[, ffr$response] <- yboot[, i]
       aux <- mainfun_globaltest(formula, data = data.frame(datab, weights), 
-                               weights = weights, ...)
+                                weights = weights, ...)
       return(aux)
     }
     

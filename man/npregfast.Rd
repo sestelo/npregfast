@@ -8,7 +8,8 @@
 Regression Models with Factor-by-Curve Interactions.}
 \description{
 This package provides a method for obtain nonparametric estimates of regression
-models using local polynomial kernel smoothers. Particular features of the package
+models using local polynomial kernel smoothers or splines. Particular 
+features of the package
 are facilities for fast smoothness estimation, and the calculation of their 
 first and second derivative. Users can define the smoothers parameters. 
 Confidence intervals calculation is provided by bootstrap methods. 
@@ -17,14 +18,16 @@ and testing processes.
 }
 \details{
 \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
-Version: \tab 1.2.1.9000\cr Date: \tab 2016-02-16\cr License: \tab MIT + file LICENSE\cr}
+Version: \tab 1.3.0\cr Date: \tab 2016-04-29\cr License: \tab MIT + file LICENSE\cr}
 
 \code{npregfast} is designed along lines similar to those of other \code{R} 
 regression packages. The main function of the library is \code{frfast} 
 which, by default, fits a nonparametric regression model based on local 
 polynomial kernel smoothers. Note that through the argument \code{formula}
 users can decide to fit a model by taking or not taking the interaction 
-into account. Numerical and graphical summaries of the fitted object can be 
+into account and by the argument \code{formula} it is posible to select 
+the type of smoother: kernel or splines. Numerical and graphical summaries 
+of the fitted object can be 
 obtained by using the generic functions, \code{print.frfast}, 
 \code{summary.frfast} and \code{plot.frfast}. Another of these generic 
 functions is \code{predict.frfast}, which takes a fitted model of the 

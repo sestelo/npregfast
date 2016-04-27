@@ -12,8 +12,21 @@
 #' \code{der} is \code{NULL}. If this term is \code{0}, 
 #' the function returns the initial estimate. If it is \code{1} or \code{2}, 
 #' it is designed for the first or second derivative, respectively.
+#' @param cluster A logical value. If  \code{TRUE} (default), the
+#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
+#'   Note that there are cases 
+#'  (e.g., a low number of bootstrap repetitions) that R will gain in
+#'  performance through serial computation. R takes time to distribute tasks
+#'  across the processors also it will need time for binding them all together
+#'  later on. Therefore, if the time for distributing and gathering pieces
+#'  together is greater than the time need for single-thread computing, it does
+#'  not worth parallelize.
+#'@param ncores An integer value specifying the number of cores to be used
+#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
+#' to be used is equal to the number of cores of the machine - 1.
 #' @param seed Seed to be used in the bootstrap procedure.
 #' @param \ldots Other options.
+#' 
 #' @return \code{predict.frfast} computes and returns a list containing 
 #' predictions of the estimates, first and second derivative, 
 #' with their 95\% confidence intervals.
@@ -39,7 +52,7 @@
 #' @export
 
 predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL, 
-                           seed = NULL, ...) {
+                           seed = NULL, cluster = TRUE, ncores = NULL, ...) {
   
   model <- object
   
@@ -76,9 +89,12 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     set.seed(seed)
   }
   
-  
-  if (isTRUE(model$cluster)) {
-    num_cores <- detectCores() - 1
+  if (isTRUE(cluster) & model$smooth == "splines") {
+    if (is.null(ncores)) {
+      num_cores <- detectCores() - 1
+    }else{
+      num_cores <- ncores
+    }
     registerDoParallel(cores = num_cores)
   }
   

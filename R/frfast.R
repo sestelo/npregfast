@@ -56,6 +56,9 @@
 #'  later on. Therefore, if the time for distributing and gathering pieces
 #'  together is greater than the time need for single-thread computing, it does
 #'  not worth parallelize.
+#'@param ncores An integer value specifying the number of cores to be used
+#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
+#' to be used is equal to the number of cores of the machine - 1.
 #' @param \ldots Other options.
 #'  
 #'  
@@ -158,9 +161,10 @@
 #' summary(fit)
 #' 
 #' # using  splines
-#' fit <- frfast(DW ~ s(RC), data = barnacle, nboot = 100, smooth = "splines") 
-#' fit
-#' summary(fit)
+#' #fit <- frfast(DW ~ s(RC), data = barnacle, nboot = 100, 
+#' #smooth = "splines", cluster = TRUE, ncores = 2) 
+#' #fit
+#' #summary(fit)
 #' 
 #' 
 #' # Change the number of binning nodes and bootstrap replicates
@@ -173,10 +177,10 @@
 #' summary(fit2)
 #' 
 #' # using  splines
-#' fit2 <- frfast(DW ~ s(RC, by = F), data = barnacle,
-#'                nboot = 100, smooth = "splines")
-#' fit2
-#' summary(fit2)
+#' #fit2 <- frfast(DW ~ s(RC, by = F), data = barnacle,
+#' #               nboot = 100, smooth = "splines", cluster = TRUE, ncores = 2)
+#' #fit2
+#' #summary(fit2)
 #' 
 #' 
 #' # Allometric model
@@ -187,12 +191,12 @@
 #' # summary(fit4)
 #' 
 #' @useDynLib npregfast frfast_
-#' @importFrom stats na.omit runif
+#' @importFrom stats na.omit runif lm predict quantile
 #' @importFrom mgcv interpret.gam gam predict.gam
 #' @importFrom sfsmisc D1D2
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
-#' @importFrom foreach foreach
+#' @importFrom foreach foreach %dopar%
 #' 
 #' @export
 
@@ -202,7 +206,7 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
                    h0 = -1.0, h = -1.0, 
                    nh = 30, weights = NULL, kernel = "epanech", p = 3, 
                    kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, 
-                   seed = NULL, cluster = TRUE, ...){
+                   seed = NULL, cluster = TRUE, ncores = NULL, ...){
   
   if(kernel == "gaussian")  kernel <- 3
   if (kernel == "epanech")   kernel <- 1
@@ -227,8 +231,12 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  if (isTRUE(cluster)) {
-    num_cores <- detectCores() - 1
+  if (isTRUE(cluster) & smooth == "splines") {
+    if (is.null(ncores)) {
+      num_cores <- detectCores() - 1
+    }else{
+      num_cores <- ncores
+    }
     registerDoParallel(cores = num_cores)
   }
   
@@ -496,7 +504,7 @@ model specification in 'Details' of the frfast help." )
       pfino[, 1, 1:nf] <- muhatfino
       
       aux <- data.frame(muhatfino, newdfino)
-     # d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
+      # d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
       d1 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 1)$D1})
       pfino[, 2, 1:nf] <- unlist(d1)
       #d2 <- by(aux, aux[, 3], function(z){D2ss(x = z[, 2], y = z[, 1])$y})
@@ -508,8 +516,8 @@ model specification in 'Details' of the frfast help." )
       iicero <- apply(abs(pfino), 3:2, which.min)
       max <- matrix(NA, ncol = nf, nrow = 3)
       for (j in 1:nf) {
-       max[1:2 , j] <- xgridfino[ t(iimax)[1:2, j], j]
-       max[3 , j] <- xgridfino[ t(iicero)[3, j], j]
+        max[1:2 , j] <- xgridfino[ t(iimax)[1:2, j], j]
+        max[3 , j] <- xgridfino[ t(iicero)[3, j], j]
       }
       
       # differences curves
@@ -550,9 +558,9 @@ model specification in 'Details' of the frfast help." )
     
     res <- mainfun(formula, data = data, weights = weights)
     
-  #  for(j in 1:nf){
-   #   res$max[res$max[, j] == ranku[j], j] = NA
-  #  }
+    #  for(j in 1:nf){
+    #   res$max[res$max[, j] == ranku[j], j] = NA
+    #  }
     
     # bootstrap
     m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
@@ -573,6 +581,8 @@ model specification in 'Details' of the frfast help." )
                      weights = weights, ...)
       return(aux)
     }
+    
+    
     
     pboot <- lapply(allboot, function(x){x$p})
     pboot <- array(unlist(pboot), dim = c(kbin, 3, nf, nboot))
@@ -636,13 +646,13 @@ model specification in 'Details' of the frfast help." )
     diffmaxl <- array(NA, dim = c(3, nf, nf))
     diffmaxu <- array(NA, dim = c(3, nf, nf))
     if (nf > 1) {
-    com <- combn(1:nf, m = 2)
-    for (j in 1:ncol(com)) {
-      diffmaxl[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
-                function(x){quantile(x, probs = c(0.025), na.rm = TRUE)}))
-      diffmaxu[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
-                                                 function(x){quantile(x, probs = c(0.975), na.rm = TRUE)}))
-    }
+      com <- combn(1:nf, m = 2)
+      for (j in 1:ncol(com)) {
+        diffmaxl[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
+                                                   function(x){quantile(x, probs = c(0.025), na.rm = TRUE)}))
+        diffmaxu[, com[1,j], com[2,j] ] <- t(apply(diffmaxboot[, com[1,j], com[2,j], ], c(1), 
+                                                   function(x){quantile(x, probs = c(0.975), na.rm = TRUE)}))
+      }
     }
     #  maxl <- t(aux)
     #  maxu <- t(aux2)

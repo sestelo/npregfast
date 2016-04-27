@@ -7,7 +7,7 @@
 frfast(formula, data = data, model = "np", smooth = "kernel", h0 = -1,
   h = -1, nh = 30, weights = NULL, kernel = "epanech", p = 3,
   kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, seed = NULL,
-  cluster = TRUE, ...)
+  cluster = TRUE, ncores = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -76,6 +76,10 @@ across the processors also it will need time for binding them all together
 later on. Therefore, if the time for distributing and gathering pieces
 together is greater than the time need for single-thread computing, it does
 not worth parallelize.}
+
+\item{ncores}{An integer value specifying the number of cores to be used
+in the parallelized procedure. If \code{NULL} (default), the number of cores 
+to be used is equal to the number of cores of the machine - 1.}
 
 \item{\ldots}{Other options.}
 }
@@ -178,9 +182,10 @@ fit
 summary(fit)
 
 # using  splines
-fit <- frfast(DW ~ s(RC), data = barnacle, nboot = 100, smooth = "splines") 
-fit
-summary(fit)
+#fit <- frfast(DW ~ s(RC), data = barnacle, nboot = 100, 
+#smooth = "splines", cluster = TRUE, ncores = 2) 
+#fit
+#summary(fit)
 
 
 # Change the number of binning nodes and bootstrap replicates
@@ -193,10 +198,10 @@ fit2
 summary(fit2)
 
 # using  splines
-fit2 <- frfast(DW ~ s(RC, by = F), data = barnacle,
-               nboot = 100, smooth = "splines")
-fit2
-summary(fit2)
+#fit2 <- frfast(DW ~ s(RC, by = F), data = barnacle,
+#               nboot = 100, smooth = "splines", cluster = TRUE, ncores = 2)
+#fit2
+#summary(fit2)
 
 
 # Allometric model

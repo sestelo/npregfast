@@ -2,8 +2,8 @@ Package: npregfast
 Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
-Version: 1.2.1.9000
-Date: 2016-02-16
+Version: 1.3.0
+Date: 2016-04-29
 Author: Marta Sestelo [aut, cre],
     Nora M. Villanueva [aut],
     Javier Roca-Pardinas [aut]
@@ -14,7 +14,7 @@ Authors@R: c(
   person("Javier", "Roca-Pardinas",email= "roca@uvigo.es", role = "aut"))
 Description: A method for obtain nonparametric estimates of regression models
     with or without factor-by-curve interactions using local polynomial
-    kernel smoothers. Additionally, a parametric model (allometric model)
+    kernel smoothers or splines. Additionally, a parametric model (allometric model)
     can be estimated.
 BugReports: http://github.com/sestelo/npregfast/issues
 Depends:
@@ -27,5 +27,9 @@ Imports:
     utils,
     shiny,
     ggplot2,
-    gridExtra
+    gridExtra,
+    doParallel,
+    foreach,
+    mgcv,
+    sfsmisc
 RoxygenNote: 5.0.0

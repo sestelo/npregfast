@@ -49,6 +49,9 @@
 #'  later on. Therefore, if the time for distributing and gathering pieces
 #'  together is greater than the time need for single-thread computing, it does
 #'  not worth parallelize.
+#'@param ncores An integer value specifying the number of cores to be used
+#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
+#' to be used is equal to the number of cores of the machine - 1.
 #' @param \ldots Other options.
 #' 
 #' 
@@ -111,7 +114,7 @@
 #' @importFrom sfsmisc D1D2
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
-#' @importFrom foreach foreach
+#' @importFrom foreach foreach %dopar%
 #' @export
 
 
@@ -120,7 +123,7 @@
 localtest <- function(formula, data = data, der, smooth = "kernel", weights = NULL, 
                       nboot = 500, h0 = -1.0, h = -1.0, nh = 30, kernel = "epanech", 
                       p = 3, kbin = 100, rankl = NULL, ranku = NULL, seed = NULL,
-                      cluster = TRUE, ...) {
+                      cluster = TRUE, ncores = NULL, ...) {
   
   if(kernel == "gaussian")  kernel <- 3
   if(kernel == "epanech")   kernel <- 1
@@ -149,20 +152,25 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
   if (!(smooth %in% c("kernel", "splines"))) {
     stop("Smoother not suported")
   }
- 
+  
   if (!is.null(seed)) {
     set.seed(seed)
   }
-  if (isTRUE(cluster)) {
-    num_cores <- detectCores() - 1
+  
+  if (isTRUE(cluster) & smooth == "splines") {
+    if (is.null(ncores)) {
+      num_cores <- detectCores() - 1
+    }else{
+      num_cores <- ncores
+    }
     registerDoParallel(cores = num_cores)
   }
   
   ncmax <- 5
   c2 <- NULL
- # if(is.null(seed)) seed <- -1
+  # if(is.null(seed)) seed <- -1
   
- 
+  
   
   if (smooth != "splines") {
     
@@ -181,25 +189,25 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
     #newdata <- na.omit(newdata[ ,varnames])
     n <- nrow(data)
     
-    }else{
-      ffr <- interpret.gam(formula)
-      varnames <- ffr$pred.names[1]
-      if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
-        stop("Argument \"formula\" is wrong specified, see details of
+  }else{
+    ffr <- interpret.gam(formula)
+    varnames <- ffr$pred.names[1]
+    if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
+      stop("Argument \"formula\" is wrong specified, see details of
              model specification in 'Details' of the frfast help." )
-      }
-      
-      namef <- ffr$pred.names[2]
-      if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
-      newdata <- data
-      if (length(ffr$pred.names) == 1) {
-        data <- na.omit(data[ ,c(ffr$response, varnames)])
-      }else{
-        data <- na.omit(data[ ,c(ffr$response, varnames, namef)])
-      }
-      #newdata <- na.omit(newdata[ ,varnames])
-      n <- nrow(data)
-      }
+    }
+    
+    namef <- ffr$pred.names[2]
+    if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
+    newdata <- data
+    if (length(ffr$pred.names) == 1) {
+      data <- na.omit(data[ ,c(ffr$response, varnames)])
+    }else{
+      data <- na.omit(data[ ,c(ffr$response, varnames, namef)])
+    }
+    #newdata <- na.omit(newdata[ ,varnames])
+    n <- nrow(data)
+  }
   
   
   if (is.null(f)) f <- rep(1, n)
@@ -246,49 +254,49 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
   
   
   if (smooth != "splines") {
-  
-  
-  umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
-  
-  
-  localtest  <-.Fortran("localtest_",
-                        f = as.integer(f),
-                        x = as.double(data[,varnames]),
-                        y = as.double(data[,ffr$response]),
-                        w = as.double(weights),
-                        n = as.integer(n),
-                        h0 = as.double(h0),
-                        h = as.double(h),
-                        nh = as.integer(nh),
-                        p = as.integer(p),
-                        kbin = as.integer(kbin),
-                        #fact = as.integer(c(1:nf)),
-                        fact = unique(as.integer(f)),
-                        #fact   =as.integer(c(1:nf))
-                        nf = as.integer(nf),
-                        kernel = as.integer(kernel),
-                        nboot = as.integer(nboot),
-                        pcmax = as.double(ranku), # rango de busqueda minimo
-                        pcmin = as.double(rankl), # rango de busqueda maximo
-                        r = as.integer(der),
-                        D = as.double(rep(-1.0,1)),
-                        Ci = as.double(rep(-1.0,1)),
-                        Cs = as.double(rep(-1.0,1)),
-                        seed = as.integer(seed),
-                        umatrix = as.double(umatrix)
-  )
-  
-
-  
-  if (localtest$Ci <= 0 & 0 <= localtest$Cs) {
-    decision <- "Acepted"
-  } else {
-    decision <- "Rejected"
-  }
-  res <- cbind(d = round(localtest$D, digits = 4), Lwr = round(localtest$Ci, digits = 4), 
-               Upr = round(localtest$Cs, digits = 4), Decision = decision)
-  # class(res) <- 'localtest'
-  
+    
+    
+    umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
+    
+    
+    localtest  <-.Fortran("localtest_",
+                          f = as.integer(f),
+                          x = as.double(data[,varnames]),
+                          y = as.double(data[,ffr$response]),
+                          w = as.double(weights),
+                          n = as.integer(n),
+                          h0 = as.double(h0),
+                          h = as.double(h),
+                          nh = as.integer(nh),
+                          p = as.integer(p),
+                          kbin = as.integer(kbin),
+                          #fact = as.integer(c(1:nf)),
+                          fact = unique(as.integer(f)),
+                          #fact   =as.integer(c(1:nf))
+                          nf = as.integer(nf),
+                          kernel = as.integer(kernel),
+                          nboot = as.integer(nboot),
+                          pcmax = as.double(ranku), # rango de busqueda minimo
+                          pcmin = as.double(rankl), # rango de busqueda maximo
+                          r = as.integer(der),
+                          D = as.double(rep(-1.0,1)),
+                          Ci = as.double(rep(-1.0,1)),
+                          Cs = as.double(rep(-1.0,1)),
+                          seed = as.integer(seed),
+                          umatrix = as.double(umatrix)
+    )
+    
+    
+    
+    if (localtest$Ci <= 0 & 0 <= localtest$Cs) {
+      decision <- "Acepted"
+    } else {
+      decision <- "Rejected"
+    }
+    res <- cbind(d = round(localtest$D, digits = 4), Lwr = round(localtest$Ci, digits = 4), 
+                 Upr = round(localtest$Cs, digits = 4), Decision = decision)
+    # class(res) <- 'localtest'
+    
   }else{
     
     mainfun_localtest <- function(formula, data, weights){
@@ -348,13 +356,13 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
       
       xmax <- max(max[der + 1, ])
       posmax <- which.max(max[der + 1, ])
-   
+      
       if (posmin < posmax){
         d <-  xmin - xmax
       }else{
         d <-  xmax - xmin
       }
-
+      
       return(d)
     }
     
@@ -372,12 +380,12 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
                                 replace = TRUE,
                                 prob = c(sqrt(5) + 1, sqrt(5) - 1)/(2 * sqrt(5))))
     
-    
+    i <- NULL
     d_allboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
       datab[, ffr$response] <- yboot[, i]
       aux <- mainfun_localtest(formula, data = data.frame(datab, weights), 
-                     weights = weights, ...)
+                               weights = weights, ...)
       return(aux)
     }
     
@@ -395,7 +403,7 @@ localtest <- function(formula, data = data, der, smooth = "kernel", weights = NU
     rownames(res) <- NULL
     
   }
-    
+  
   return(as.data.frame(res))
   
 } 
