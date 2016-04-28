@@ -11,6 +11,8 @@
 #' if (interactive()) {
 #'   runExample()
 #' }
+#' @importFrom shinyjs colourInput useShinyjs
+#' @importFrom wesanderson wes_palettes
 #' @export
 
 

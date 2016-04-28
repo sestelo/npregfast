@@ -153,6 +153,7 @@ the estimate, their first and second derivative for each bootstrap repeat.}
 \item{r2}{Coefficient of determination (in the case of the allometric model).}
 \item{smooth}{Type smoother used.}
 \item{cluster}{Is the procedure parallelized? (for splines smoothers).}
+\item{ncores}{Number of cores used in the parallelized procedure? (for splines smoothers).}
 }
 \description{
 This function is used to fit nonparametric models by

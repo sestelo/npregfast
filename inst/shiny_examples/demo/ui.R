@@ -2,7 +2,7 @@ detach("package:npregfast")
 library(shiny)
 #library(shinyjs)
 library(miniUI)
-library(wesanderson)
+#library(wesanderson)
 library(npregfast)
 
 shinyUI(fluidPage(
@@ -105,14 +105,14 @@ shinyUI(fluidPage(
                  shinyjs::colourInput("colmu", "Line color", "#D67236", 
                                       showColour = "background",
                                       palette = "limited",
-                                      allowedCols = unlist(wes_palettes),
+                                      allowedCols = unlist(wesanderson::wes_palettes),
                                       allowTransparent = FALSE),
                  
                  
                  shinyjs::colourInput("colci", "CI color", "#5B1A18", 
                                       showColour = "background",
                                       palette = "limited",
-                                      allowedCols = unlist(wes_palettes),
+                                      allowedCols = unlist(wesanderson::wes_palettes),
                                       allowTransparent = FALSE)
              ),
              
@@ -124,7 +124,7 @@ shinyUI(fluidPage(
                  shinyjs::colourInput("pcol", "Points color", "#899DA4", 
                                       showColour = "background",
                                       palette = "limited",
-                                      allowedCols = unlist(wes_palettes),
+                                      allowedCols = unlist(wesanderson::wes_palettes),
                                       allowTransparent = FALSE)
                )
              )

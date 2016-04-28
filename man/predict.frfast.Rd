@@ -5,7 +5,7 @@
 \title{Prediction from fitted \code{frfast} model}
 \usage{
 \method{predict}{frfast}(object = model, newdata, fac = NULL, der = NULL,
-  seed = NULL, cluster = TRUE, ncores = NULL, ...)
+  seed = NULL, ...)
 }
 \arguments{
 \item{object}{A fitted \code{frfast} object as produced by \code{frfast()}.}
@@ -23,20 +23,6 @@ the function returns the initial estimate. If it is \code{1} or \code{2},
 it is designed for the first or second derivative, respectively.}
 
 \item{seed}{Seed to be used in the bootstrap procedure.}
-
-\item{cluster}{A logical value. If  \code{TRUE} (default), the
-bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
- Note that there are cases 
-(e.g., a low number of bootstrap repetitions) that R will gain in
-performance through serial computation. R takes time to distribute tasks
-across the processors also it will need time for binding them all together
-later on. Therefore, if the time for distributing and gathering pieces
-together is greater than the time need for single-thread computing, it does
-not worth parallelize.}
-
-\item{ncores}{An integer value specifying the number of cores to be used
-in the parallelized procedure. If \code{NULL} (default), the number of cores 
-to be used is equal to the number of cores of the machine - 1.}
 
 \item{\ldots}{Other options.}
 }

@@ -12,18 +12,6 @@
 #' \code{der} is \code{NULL}. If this term is \code{0}, 
 #' the function returns the initial estimate. If it is \code{1} or \code{2}, 
 #' it is designed for the first or second derivative, respectively.
-#' @param cluster A logical value. If  \code{TRUE} (default), the
-#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
-#'   Note that there are cases 
-#'  (e.g., a low number of bootstrap repetitions) that R will gain in
-#'  performance through serial computation. R takes time to distribute tasks
-#'  across the processors also it will need time for binding them all together
-#'  later on. Therefore, if the time for distributing and gathering pieces
-#'  together is greater than the time need for single-thread computing, it does
-#'  not worth parallelize.
-#'@param ncores An integer value specifying the number of cores to be used
-#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
-#' to be used is equal to the number of cores of the machine - 1.
 #' @param seed Seed to be used in the bootstrap procedure.
 #' @param \ldots Other options.
 #' 
@@ -52,54 +40,50 @@
 #' @export
 
 predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL, 
-                           seed = NULL, cluster = TRUE, ncores = NULL, ...) {
+                           seed = NULL, ...) {
   
   model <- object
   
-  if(missing(newdata)){
+  if (missing(newdata)) {
     stop("Argument \"newdata\" is missing, with no default")
   }
   
-  if(length(fac) > 1){
+  if (length(fac) > 1) {
     stop("Argument \"fac\" have to be a length-one vector")
   }
   
-  if(length(der) > 1){
+  if (length(der) > 1) {
     stop("Argument \"der\" have to be a length-one vector")
   }
   
   
-  if(!is.null(fac) & model$nf == 1) {
+  if (!is.null(fac) & model$nf == 1) {
     stop("Argument \"fac\" not supported. 
          There is not factor in the model.")
   }
   
-  if(!is.null(fac) & !isTRUE(fac %in% model$label)) {
+  if (!is.null(fac) & !isTRUE(fac %in% model$label)) {
     stop("\"",paste(fac),"\" is not a factor's level.")
   }
   
-  if(!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
+  if (!is.null(der) & !isTRUE(der %in% c(0, 1, 2))) {
     stop("",paste(der)," is not a r-th derivative implemented, only 
          permitted 0, 1 or 2.")
   }
   
  # if(is.null(seed)) seed <- -1
   
-  if (!is.null(seed)){
+  if (!is.null(seed)) {
     set.seed(seed)
   }
   
-  if (isTRUE(cluster) & model$smooth == "splines") {
-    if (is.null(ncores)) {
-      num_cores <- detectCores() - 1
-    }else{
-      num_cores <- ncores
-    }
+  if (isTRUE(model$cluster) & model$smooth == "splines") {
+      num_cores <- model$ncores
     registerDoParallel(cores = num_cores)
   }
   
   
-  if (model$smooth != "splines"){
+  if (model$smooth != "splines") {
   
   newdata <- newdata[, 1]
   len <- length(newdata)
@@ -321,7 +305,7 @@ nf <- model$nf
     class(res) <- "predict.frfast"
     return(res)
   } else {
-    if (is.null(fac)){
+    if (is.null(fac)) {
       fac <- unique(model$fmod)
     }else{
       fac <- which(model$label == fac)

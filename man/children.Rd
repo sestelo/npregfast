@@ -24,8 +24,8 @@ Other data sets of this type can be obtained
 from \url{http://www.who.int/childgrowth/en/}.
 }
 \examples{
-data(barnacle)
-head(barnacle)
+data(children)
+head(children)
 
 }
 

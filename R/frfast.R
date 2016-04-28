@@ -141,6 +141,7 @@
 #' \item{r2}{Coefficient of determination (in the case of the allometric model).}
 #' \item{smooth}{Type smoother used.}
 #' \item{cluster}{Is the procedure parallelized? (for splines smoothers).}
+#' \item{ncores}{Number of cores used in the parallelized procedure? (for splines smoothers).}
 #' 
 #' 
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
@@ -705,6 +706,7 @@ model specification in 'Details' of the frfast help." )
                 r2 = NA,
                 smooth = smooth,
                 cluster = cluster,
+                ncores = ncores,
                 call = match.call()
     )
   }
