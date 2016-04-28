@@ -13,9 +13,9 @@ Authors@R: c(
   person("Nora", "M. Villanueva",email= "nmvillanueva@uvigo.es", role = "aut"),
   person("Javier", "Roca-Pardinas",email= "roca@uvigo.es", role = "aut"))
 Description: A method for obtain nonparametric estimates of regression models
-    with or without factor-by-curve interactions using local polynomial
-    kernel smoothers or splines. Additionally, a parametric model (allometric model)
-    can be estimated.
+    with or without factor-by-curve interactions using local polynomial kernel
+    smoothers or splines. Additionally, a parametric model (allometric model) can be
+    estimated.
 BugReports: http://github.com/sestelo/npregfast/issues
 Depends:
     R (>= 3.2.0)
@@ -32,4 +32,4 @@ Imports:
     foreach,
     mgcv,
     sfsmisc
-RoxygenNote: 5.0.0
+RoxygenNote: 5.0.1

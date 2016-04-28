@@ -1,7 +1,7 @@
 # npregfast: Nonparametric Estimation of Regression Models with Factor-by-Curve Interactions
 
 ```npregfast``` is an R package for obtain nonparametric estimates of regression models 
-with or without factor-by-curve interactions using local polynomial kernel smoothers. 
+with or without factor-by-curve interactions using local polynomial kernel smoothers or splines. 
 Additionally, a parametric model (allometric model) can be estimated.
 Particular features of the package are facilities for fast smoothness
 estimation, and the calculation of their first and second derivative. Users can 
