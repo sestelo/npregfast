@@ -31,5 +31,7 @@ Imports:
     doParallel,
     foreach,
     mgcv,
-    sfsmisc
-RoxygenNote: 5.0.1
+    sfsmisc,
+    shinyjs,
+    wesanderson
+RoxygenNote: 5.0.0

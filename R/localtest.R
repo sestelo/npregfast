@@ -1,8 +1,9 @@
 #' Testing the equality of critical points
 #'@description This function can be used to test the equality of the
 #' \eqn{M} critical points estimated from the respective level-specific curves.
-#'@param formula An object of class \code{formula}: a sympbolic description
-#' of the model to be fitted.
+#' @param formula An object of class \code{formula}: a sympbolic 
+#' description of the model to be fitted. The details of model 
+#' specification are given under 'Details'.
 #'@param data A data frame or matrix containing the model response variable
 #' and covariates required by the \code{formula}.
 #' @param der Number which determines any inference process. 
@@ -90,6 +91,16 @@
 #' two levels), one option could be to use the \code{maxp.diff} function in 
 #' order to obtain the differences between each pair of factor's levels.
 #' 
+#' Note that the models fitted by \code{localtest} function are specified 
+#' in a compact symbolic form. The \~ operator is basic in the formation 
+#' of such models. An expression of the form \code{y ~ model}  is interpreted as 
+#' a specification that the response \code{y} is modelled by a predictor 
+#' specified symbolically by \code{model}. The possible terms consist of a 
+#' variable name or a variable name and a factor name separated by : operator. 
+#' Such a term is interpreted as the interaction of the continuous variable and 
+#' the factor. However, if \code{smooth = "splines"}, the formula is based on the function
+#' formula.gam of the mgcv package.
+
 #'@return The estimate of \eqn{d} value is returned and its confidence interval 
 #'for a specific-level of confidence, i.e. 95\%. Additionally, it is shown 
 #'the decision, accepted or rejected,  of the local test. Based on the null 

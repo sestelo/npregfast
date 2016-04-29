@@ -10,8 +10,9 @@ localtest(formula, data = data, der, smooth = "kernel", weights = NULL,
   ncores = NULL, ...)
 }
 \arguments{
-\item{formula}{An object of class \code{formula}: a sympbolic description
-of the model to be fitted.}
+\item{formula}{An object of class \code{formula}: a sympbolic 
+description of the model to be fitted. The details of model 
+specification are given under 'Details'.}
 
 \item{data}{A data frame or matrix containing the model response variable
 and covariates required by the \code{formula}.}
@@ -125,6 +126,16 @@ zero is not contained in the interval.
 Note that if this hypothesis is rejected (and the factor has more than 
 two levels), one option could be to use the \code{maxp.diff} function in 
 order to obtain the differences between each pair of factor's levels.
+
+Note that the models fitted by \code{localtest} function are specified 
+in a compact symbolic form. The \~ operator is basic in the formation 
+of such models. An expression of the form \code{y ~ model}  is interpreted as 
+a specification that the response \code{y} is modelled by a predictor 
+specified symbolically by \code{model}. The possible terms consist of a 
+variable name or a variable name and a factor name separated by : operator. 
+Such a term is interpreted as the interaction of the continuous variable and 
+the factor. However, if \code{smooth = "splines"}, the formula is based on the function
+formula.gam of the mgcv package.
 }
 \examples{
 library(npregfast)

@@ -65,6 +65,8 @@
 #' @export
 
 
+
+
 plot.frfast <- function(x = model, y, fac = NULL, der = NULL, points = TRUE, 
                         xlab = model$name[2], ylab = model$name[1], ylim = NULL,
                         main = NULL, col = "black", CIcol = "black", 

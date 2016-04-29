@@ -1,8 +1,9 @@
 #' Testing the equality of the \emph{M} curves specific to each level
 #'@description This function can be used to test the equality of the 
 #'\eqn{M} curves specific to each level.
-#'@param formula An object of class \code{formula}: a sympbolic description
-#' of the model to be fitted.
+#' @param formula An object of class \code{formula}: a sympbolic 
+#' description of the model to be fitted. The details of model 
+#' specification are given under 'Details'.
 #'@param data A data frame or matrix containing the model response variable
 #' and covariates required by the \code{formula}.
 #' @param der Number which determines any inference process. 
@@ -71,6 +72,16 @@
 #' obtain this percentile, we have used bootstrap techniques. See details in 
 #' references.
 #' 
+#' Note that the models fitted by \code{globaltest} function are specified 
+#' in a compact symbolic form. The \~ operator is basic in the formation 
+#' of such models. An expression of the form \code{y ~ model}  is interpreted as 
+#' a specification that the response \code{y} is modelled by a predictor 
+#' specified symbolically by \code{model}. The possible terms consist of a 
+#' variable name or a variable name and a factor name separated by : operator. 
+#' Such a term is interpreted as the interaction of the continuous variable and 
+#' the factor. However, if \code{smooth = "splines"}, the formula is based on the function
+#' formula.gam of the mgcv package.
+
 #'@return The \eqn{T} value and the \eqn{p}-value  are returned. Additionally, 
 #'it is shown the decision, accepted or rejected, of the global test. 
 #'The null hypothesis is rejected if the \eqn{p}-value\eqn{< 0.05}.   

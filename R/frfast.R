@@ -70,7 +70,7 @@
 #' specified symbolically by \code{model}. The possible terms consist of a 
 #' variable name or a variable name and a factor name separated by : operator. 
 #' Such a term is interpreted as the interaction of the continuous variable and 
-#' the factor. If \code{smooth = "splines"}, the formula is based on the function
+#' the factor. However, if \code{smooth = "splines"}, the formula is based on the function
 #' formula.gam of the mgcv package.
 #' @return An object is returned with the following elements:
 #' \item{x}{Vector of values of the grid points at which model is to 
@@ -200,6 +200,7 @@
 #' @importFrom foreach foreach %dopar%
 #' 
 #' @export
+
 
 
 
