@@ -470,7 +470,7 @@ model specification in 'Details' of the frfast help." )
     
   }else{
     
-    mainfun <- function(formula, data, weights){
+    mainfun <- function(formula, data, weights, ...){
       
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
@@ -558,7 +558,7 @@ model specification in 'Details' of the frfast help." )
     
     
     
-    res <- mainfun(formula, data = data, weights = weights)
+    res <- mainfun(formula, data = data, weights = weights, ...)
     
     #  for(j in 1:nf){
     #   res$max[res$max[, j] == ranku[j], j] = NA
