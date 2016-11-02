@@ -270,6 +270,10 @@ model specification in 'Details' of the frfast help." )
       stop("Argument \"formula\" is wrong specified, see details of
            model specification in 'Details' of the frfast help." )
     }
+    if (length(ffr$smooth.spec) == 0) {
+      warning("Argument \"formula\" could be wrong specified without an 's', see details of
+           model specification in 'Details' of the frfast help." )
+    }
     
     namef <- ffr$pred.names[2]
     if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
@@ -578,7 +582,7 @@ model specification in 'Details' of the frfast help." )
     
     allboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
-      datab$DW <- yboot[, i]
+      datab[, ffr$response] <- yboot[, i]
       aux <- mainfun(formula, data = data.frame(datab, weights), 
                      weights = weights, ...)
       return(aux)
