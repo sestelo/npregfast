@@ -512,10 +512,10 @@ model specification in 'Details' of the frfast help." )
       aux <- data.frame(muhatfino, newdfino)
       # d1 <- by(aux, aux[, 3], function(z){D1ss(x = z[, 2], y = z[, 1])})
       d1 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 1)$D1})
-      pfino[, 2, 1:nf] <- unlist(d1)
+      pfino[, 2, 1:nf] <- unlist(d1[etiquetas])
       #d2 <- by(aux, aux[, 3], function(z){D2ss(x = z[, 2], y = z[, 1])$y})
       d2 <- by(aux, aux[, 3], function(z){D1D2(x = z[, 2], y = z[, 1], deriv = 2)$D2})
-      pfino[, 3, 1:nf] <- unlist(d2)
+      pfino[, 3, 1:nf] <- unlist(d2[etiquetas])
       
       
       iimax <- apply(pfino, 3:2, which.max)
