@@ -2,14 +2,14 @@
 % Please edit documentation in R/plot.frfast.R
 \name{plot.frfast}
 \alias{plot.frfast}
-\title{Visualization of \code{frfast} objects}
+\title{Visualization of \code{frfast} objects with the base graphics}
 \usage{
 \method{plot}{frfast}(x = model, y, fac = NULL, der = NULL,
-  points = TRUE, xlab = model$name[2], ylab = model$name[1],
-  ylim = NULL, main = NULL, col = "black", CIcol = "black",
-  CIlinecol = "transparent", pcol = "grey80", abline = TRUE,
-  ablinecol = "red", lty = 1, CIlty = 2, lwd = 1, CIlwd = 1,
-  cex = 1.4, alpha = 0.2, ...)
+  diffwith = NULL, points = TRUE, xlab = model$name[2],
+  ylab = model$name[1], ylim = NULL, main = NULL, col = "black",
+  CIcol = "black", pcol = "grey80", ablinecol = "red", abline = TRUE,
+  type = "l", CItype = "l", lwd = 2, CIlwd = 1, lty = 1, CIlty = 2,
+  cex = 0.6, ...)
 }
 \arguments{
 \item{x}{\code{frfast} object.}
@@ -23,6 +23,11 @@ in the plot. By default is \code{NULL}.}
 By default \code{der} is \code{NULL}. If this term is \code{0}, the plot 
 shows the initial estimate. If it is \code{1} or \code{2},
 it is designed for the first or second derivative, respectively.}
+
+\item{diffwith}{Factor's level used for drawing the differences respect to the 
+level specified in the \code{fac} argument.  By default, \code{NULL}. 
+The differences are computed for the r-th derivative speciefied 
+in the \code{der} argument.}
 
 \item{points}{Draw the original data into the plot. By default it is
 \code{TRUE}.}
@@ -38,17 +43,28 @@ it is designed for the first or second derivative, respectively.}
 \item{col}{A specification for the default plotting color.}
 
 \item{CIcol}{A specification for the default confidence intervals
-plotting color (for the fill).}
-
-\item{CIlinecol}{A specification for the default confidence intervals
-plotting color (for the edge).}
+plotting color.}
 
 \item{pcol}{A specification for the points color.}
+
+\item{ablinecol}{The color to be used for \code{abline}.}
 
 \item{abline}{Draw an horizontal line into the plot of the second derivative 
 of the model.}
 
-\item{ablinecol}{The color to be used for \code{abline}.}
+\item{type}{What type of plot should be drawn. Possible types are,
+\code{p} for points, \code{l} for lines, \code{o} for overplotted, etc. 
+See details in \code{\link{par}}.}
+
+\item{CItype}{What type of plot should be drawn for confidence intervals. 
+Possible types are, \code{p} for points, \code{l} for lines, \code{o} 
+for overplotted.}
+
+\item{lwd}{The line width, a positive number, defaulting to 1.
+See details in \code{\link{par}}.}
+
+\item{CIlwd}{The line width for confidence intervals, a positive number, 
+defaulting to 1.}
 
 \item{lty}{The line type. Line types can either be specified as an integer
 (0 = blank, 1 = solid (default), 2 = dashed, 3 = dotted, 4 = dotdash, 
@@ -58,17 +74,8 @@ of the model.}
 be specified as an integer (0 = blank, 1 = solid (default), 2 = dashed,
 3 = dotted, 4 = dotdash, 5 = longdash, 6 = twodash).}
 
-\item{lwd}{The line width, a positive number, defaulting to 1.
-See details in \code{\link{par}}.}
-
-\item{CIlwd}{The line width for confidence intervals, a positive number, 
-defaulting to 1.}
-
 \item{cex}{A numerical value giving the amount by which plotting symbols
 should be magnified relative to the default. See details in \code{\link{par}}.}
-
-\item{alpha}{Alpha transparency for overlapping elements expressed 
-as a fraction between 0 (complete transparency) and 1 (complete opacity).}
 
 \item{\ldots}{Other options.}
 }
@@ -77,7 +84,9 @@ Simply produce a plot.
 }
 \description{
 Useful for drawing the estimated regression function, 
-first and second derivative (for each factor's level).
+first and second derivative (for each factor's level). Additionally, with the 
+\code{diffwith} argument it is possible to draw the differences between
+ two factor's levels.
 }
 \examples{
 library(npregfast)
@@ -88,13 +97,19 @@ fit <- frfast(DW ~ RC, data = barnacle, nboot = 100)
 plot(fit)
 plot(fit, der = 0)
 plot(fit, der = 0, points = FALSE)
-#plot(fit, der = 1, col = "red", CIcol = "blue")
+plot(fit, der = 1, col = "red", CIcol = "blue")
 
 # Nonparametric regression with interactions
 fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
 plot(fit2)
 plot(fit2, der = 0, fac = "lens")
-#plot(fit2, der = c(0,1), fac = c("barca","lens"))
+plot(fit2, der = 1, col = "grey", CIcol = "red")
+plot(fit2, der = c(0,1), fac = c("barca","lens"))
+
+# Visualization of the differences between two factor's levels
+plot(fit2, fac = "barca", diffwith = "lens")
+plot(fit2, fac = "barca", diffwith = "lens", der = 1)
+
 
 }
 \author{
