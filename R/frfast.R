@@ -231,6 +231,10 @@ frfast <- function(formula, data = data, na.action = "na.omit",
     stop("Smoother not suported")
   }
   
+  if ((model == "allo") & (smooth == "splines")) {
+    smooth <- "kernel"
+    warning("The allometric model is not a nonparametric model, it is a parametric one.")
+  }
   
   #if(is.null(seed)) seed <- -1
   
