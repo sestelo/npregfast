@@ -232,11 +232,6 @@ frfast <- function(formula, data = data, na.action = "na.omit",
   }
   
   
-  if(na.action != "na.omit"){
-    stop("")
-  }
-    
-  
   #if(is.null(seed)) seed <- -1
   
   if (!is.null(seed)) {
