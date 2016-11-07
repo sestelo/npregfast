@@ -5,6 +5,8 @@
 #' of the model to be fitted.
 #'@param data A data frame argumment or matrix containing the model response variable
 #' and covariates required by the \code{formula}.
+#' @param na.action A function which indicates what should happen when the 
+#' data contain 'NA's. The default is 'na.omit'.
 #'@param nboot Number of bootstrap repeats.
 #'@param kbin Number of binning nodes over which the function
 #' is to be estimated.
@@ -60,8 +62,8 @@
 
 
 
-allotest <- function(formula, data = data, nboot = 500, kbin = 200, 
-                     seed = NULL) {
+allotest <- function(formula, data = data, na.action = "na.omit",
+                     nboot = 500, kbin = 200, seed = NULL) {
   
   ffr <- interpret.frfastformula(formula, method = "frfast")
   varnames <- ffr$II[2, ]
@@ -74,8 +76,18 @@ allotest <- function(formula, data = data, nboot = 500, kbin = 200,
     f <- data[, namef]
   }
   newdata <- data
-  data <- na.omit(data[, c(ffr$response, varnames)])
-  newdata <- na.omit(newdata[, varnames])
+  data <- data[, c(ffr$response, varnames)]
+  newdata <- newdata[, varnames]
+  
+  if (na.action == "na.omit") { # ver la f
+    data <- na.omit(data)
+    newdata <- na.omit(newdata)
+  }else{
+    stop("The actual version of the package only supports 'na.omit' (observations are removed 
+         if they contain any missing values)")
+  }
+  
+  
   n <- nrow(data)
   
   #if (is.null(seed)) {

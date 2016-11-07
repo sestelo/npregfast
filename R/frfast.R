@@ -250,6 +250,9 @@ frfast <- function(formula, data = data, na.action = "na.omit",
   ncmax <- 5
   c2 <- NULL
   
+  
+  
+  
   if (smooth != "splines") {
     
     ffr <- interpret.frfastformula(formula, method = "frfast")

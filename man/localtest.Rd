@@ -4,10 +4,10 @@
 \alias{localtest}
 \title{Testing the equality of critical points}
 \usage{
-localtest(formula, data = data, der, smooth = "kernel", weights = NULL,
-  nboot = 500, h0 = -1, h = -1, nh = 30, kernel = "epanech", p = 3,
-  kbin = 100, rankl = NULL, ranku = NULL, seed = NULL, cluster = TRUE,
-  ncores = NULL, ...)
+localtest(formula, data = data, na.action = "na.omit", der,
+  smooth = "kernel", weights = NULL, nboot = 500, h0 = -1, h = -1,
+  nh = 30, kernel = "epanech", p = 3, kbin = 100, rankl = NULL,
+  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -16,6 +16,9 @@ specification are given under 'Details'.}
 
 \item{data}{A data frame or matrix containing the model response variable
 and covariates required by the \code{formula}.}
+
+\item{na.action}{A function which indicates what should happen when the 
+data contain 'NA's. The default is 'na.omit'.}
 
 \item{der}{Number which determines any inference process. 
 By default \code{der} is \code{NULL}. If this term is \code{0}, 
