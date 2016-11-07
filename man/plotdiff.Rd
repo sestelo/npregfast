@@ -5,7 +5,7 @@
 \title{Visualization of the differences between the estimated curves 
 for two factor's levels}
 \usage{
-plotdiff(model, level2, level1, der = NULL, est.include = FALSE,
+plotdiff(model, level2, level1, der = 0, est.include = FALSE,
   xlab = model$name[2], ylab = model$name[1], ylim = NULL, main = NULL,
   col = "black", CIcol = "black", CIlinecol = "transparent",
   abline = TRUE, ablinecol = "red", lty = 1, CIlty = 2, lwd = 1,
@@ -86,7 +86,7 @@ data(barnacle)
 fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
 plotdiff(fit2, level2 = "lens", level1 = "barca")
 plotdiff(fit2, level2 = "lens", level1 = "barca", der = 1, col = "blue", CIcol = "grey")
-plotdiff(fit2, "lens", "barca", der = c(0, 1), ylim = c(-0.05, 0.05))
+plotdiff(fit2, "lens", "barca", ylim = c(-0.05, 0.05))
 
 
 
