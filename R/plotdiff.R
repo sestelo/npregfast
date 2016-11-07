@@ -51,7 +51,7 @@
 #' fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
 #' plotdiff(fit2, level2 = "lens", level1 = "barca")
 #' plotdiff(fit2, level2 = "lens", level1 = "barca", der = 1, col = "blue", CIcol = "grey")
-#' plotdiff(fit2, "lens", "barca", der = c(0, 1), ylim = c(-0.05, 0.05))
+#' plotdiff(fit2, "lens", "barca", ylim = c(-0.05, 0.05))
 #' 
 #' 
 #' 
@@ -60,7 +60,7 @@
 #' @export
 
 
-plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
+plotdiff <- function(model, level2, level1, der = 0, est.include = FALSE,
                      xlab = model$name[2], ylab = model$name[1], ylim = NULL,
                      main = NULL, col = "black", CIcol = "black",
                      CIlinecol = "transparent", abline = TRUE, ablinecol = "red",
@@ -84,11 +84,11 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
   if (level1 == level2) 
     stop("Argument 'level1' and 'level2' are not different")
   
-  if(!isTRUE(level1 %in% model$label)) {
+  if (!isTRUE(level1 %in% model$label)) {
     stop("\"",paste(level1),"\" is not a factor's level.")
   }
   
-  if(!isTRUE(level2 %in% model$label)) {
+  if (!isTRUE(level2 %in% model$label)) {
     stop("\"",paste(level2),"\" is not a factor's level.")
   }
   
@@ -101,385 +101,100 @@ plotdiff <- function(model, level2, level1, der = NULL, est.include = FALSE,
          There is not factor in the model.")
   
   
-  p <-list()
   
-  if (est.include == FALSE) {
-    if (is.null(der)) der <- c(0, 1, 2)
+  
+  jder <- der + 1
+  
+  
+  if (jder == 1) ylab2 <- ylab
+  if (jder == 2) ylab2 <- "First derivative"
+  if (jder == 3) ylab2 <- "Second derivative"
+  
+  if (sum(model$diff[, der = jder, jnf[2], jnf[1]], na.rm = T) == 0) { # para ver si -1* o no
     
-    der <- der + 1
-    
-   #par(mfrow = c(1, length(der)))
-    cont = 0
-    for (i in der) {
-      cont = cont + 1
-      if (i == 1) ylab2 <- ylab
-      if (i == 2) ylab2 <- "First derivative"
-      if (i == 3) ylab2 <- "Second derivative"
-      if (sum(model$diff[, der = i, jnf[2], jnf[1]], na.rm = T) == 0) { # para ver si -1* o no
-        
-        if (is.null(ylim)) {
-          rgo <- max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) -
-                       min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T)
-                       
-          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) - 
-                      (rgo * 0.05),
-                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) + 
-                      (rgo * 0.05))
-        }
-        if (is.null(main)){
-          if(i == der[1] ){
-            title <- "Differences"
-          }else{
-            title <- NULL
-          }
-        }else{
-          if(i == der[1]){
-            title <- main
-          }else{
-            title <- NULL
-          }
-        }
-        
-        data_bin <- data.frame(x = model$x,
-                               p = -1 * model$diff[, der = i, jnf[1], jnf[2]],
-                               pl = -1 * model$diffl[, der = i, jnf[1], jnf[2]],
-                               pu = -1 * model$diffu[, der = i, jnf[1], jnf[2]])
-        
-        if (abline == TRUE){
-          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
-        }else{
-          abline_layer <- NULL
-        }
-        
-
-        p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                           ymin = "pl", 
-                                           ymax = "pu"), 
-                      alpha = alpha, fill = CIcol, linetype = lty,
-                      size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes_string(x = "x", 
-                                         y = "p"), 
-                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-          abline_layer +
-          coord_cartesian(ylim = ylim) +
-          # ylim(ylim) +
-          ylab(ylab2) +
-          xlab(xlab) +
-          ggtitle(title)
-        
-        
-      } else {
-        
-        if (is.null(ylim)) {
-          rgo <- max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) -
-            min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T)
-          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) - 
-                      (rgo * 0.05),
-                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) +
-                      (rgo * 0.05))
-        }
-        if (is.null(main)){
-          if(i == der[1] ){
-            title <- "Differences"
-          }else{
-            title <- NULL
-          }
-        }else{
-          if(i == der[1]){
-            title <- main
-          }else{
-            title <- NULL
-          }
-        }
-        
-        data_bin <- data.frame(x = model$x,
-                               p = model$diff[, der = i, jnf[2], jnf[1]],
-                               pl = model$diffl[, der = i, jnf[2], jnf[1]],
-                               pu = model$diffu[, der = i, jnf[2], jnf[1]])
-        
-        
-        
-        if (abline == TRUE){
-          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
-        }else{
-          abline_layer <- NULL
-        }
-        
-        
-        
-        p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                           ymin = "pl", 
-                                           ymax = "pu"), 
-                      alpha = alpha, fill = CIcol, linetype = lty,
-                      size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes_string(x = "x", 
-                                         y = "p"), 
-                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-          abline_layer +
-          coord_cartesian(ylim = ylim) +
-          # ylim(ylim) +
-          ylab(ylab2) +
-          xlab(xlab) +
-          ggtitle(title)
-
-      }
-      ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
-    }
-    
-    # NOTE: This ugly hack is here because of a bug in gridExtra which calls
-    # a ggplot2 function directly instead of namespacing it.  The bug is fixed
-    # in the gridExtra GitHub version, but not on CRAN. Hopefully gridExtra
-    # will submit the fix to CRAN and I can remove this ugliness.
-    # https://github.com/baptiste/gridextra/issues/5
-    # Thanks to Dean Attali!!
-    if (!"package:ggplot2" %in% search()) {
-      suppressPackageStartupMessages(attachNamespace("ggplot2"))
-      on.exit(detach("package:ggplot2"))
-    }  
-    
-    
-    
-    args.list <- c(p, 1, length(der))
-    names(args.list) <- c(c(rep("", length(der)), "nrow", "ncol"))
-    suppressWarnings(do.call(gridExtra::grid.arrange, args.list))
-    
-    
-  } else {  # est.include = TRUE
-    
-    if (is.null(der))  der <- c(0, 1, 2)
-    jder <- der + 1  #if(length(der)==0) {jder=c(1:3)}else{jder=der+1}
-   # par(mfrow = c(nf + 1, length(der)))
-    cont = 0
-    for (i in jder) {
-      cont = cont + 1
-      if (i == 1) 
-        ylab2 <- ylab
-      if (i == 2) 
-        ylab2 <- "First derivative"
-      if (i == 3) 
-        ylab2 <- "Second derivative"
-      if (sum(model$diff[, der = i, jnf[2], jnf[1]], na.rm = T) == 0) {
-        
-        if (is.null(ylim)) {
-          rgo <- max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) -
-            min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T)
-          ylim <- c(min(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) - 
-                      (rgo * 0.05),
-                    max(-1 * (model$diff[, der = i, jnf[1], jnf[2]]), na.rm = T) +
-                      (rgo * 0.05))
-        }
-
-        
-        
-        if (is.null(main)){
-          if(i == jder[1] ){
-            title <- "Differences"
-          }else{
-            title <- NULL
-          }
-        }else{
-          if(i == jder[1]){
-            title <- main
-          }else{
-            title <- NULL
-          }
-        }
-        
-
-        
-        data_bin <- data.frame(x = model$x,
-                               p = -1 * model$diff[, der = i, jnf[1], jnf[2]],
-                               pl = -1 * model$diffl[, der = i, jnf[1], jnf[2]],
-                               pu = -1 * model$diffu[, der = i, jnf[1], jnf[2]])
-        
-        
-        
-        if (abline == TRUE){
-          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
-        }else{
-          abline_layer <- NULL
-        }
-        
-        
-        
-        p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                           ymin = "pl", 
-                                           ymax = "pu"), 
-                      alpha = alpha, fill = CIcol, linetype = lty,
-                      size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes_string(x = "x", 
-                                         y = "p"), 
-                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-          abline_layer +
-          coord_cartesian(ylim = ylim) +
-          # ylim(ylim) +
-          ylab(ylab2) +
-          xlab(xlab) +
-          ggtitle(title)
-
-
-        
-        for (j in length(jnf):1) {
-          cont = cont + 1
-          if (jnf[j] == jnf[2]) {
-            title <- paste("Level", model$label[jnf[2]])
-          } 
-          if  (jnf[j] == jnf[1]) {
-            title <- paste("Level", model$label[jnf[1]])
-          }
-          
-          rgo <- max(model$p[, der = i, jnf[j]], na.rm = T) -
-            min(model$p[, der = i, jnf[j]], na.rm = T)
-          ylim <- c(min(model$p[, der = i, jnf[j]], na.rm = T) - (rgo * 0.05), 
-                    max(model$p[, der = i, jnf[j]], na.rm = T) + (rgo * 0.05))
-          
-          data_bin <- data.frame(x = model$x,
-                                 pl = model$pl[, der = i, fac = jnf[j]],
-                                 pu = model$pu[, der = i, fac = jnf[j]],
-                                 p = model$p[, der = i, fac = jnf[j]])
-          
-          p[[cont]] <- ggplot() +
-            geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                             ymin = "pl", 
-                                             ymax = "pu"), 
-                        alpha = alpha, fill = CIcol, linetype = lty,
-                        size = CIlwd, col = CIlinecol) +
-            geom_line(data = data_bin, aes_string(x = "x", 
-                                           y = "p"), 
-                      size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-            coord_cartesian(ylim = 
-                              ylim) +
-            # ylim(ylim) +
-            ylab(ylab2) +
-            xlab(xlab) +
-            ggtitle(title)
-        }
+    if (is.null(ylim)) {
+      rgo <- max(-1 * (model$diff[, der = jder, jnf[1], jnf[2]]), na.rm = T) -
+        min(-1 * (model$diff[, der = jder, jnf[1], jnf[2]]), na.rm = T)
       
-        ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
-        
-       
-        
-      } else {
-        
-        
-        if (is.null(main)){
-          if(i == jder[1]){
-            title <- "Differences"
-          }else{
-            title <- NULL
-          }
-        }else{
-          if(i == jder[1]){
-            title <- main
-          }else{
-            title <- NULL
-          }
-        }
-        
-        
-        
-        if (is.null(ylim)) {
-          rgo <- max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) -
-            min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T)
-          ylim <- c(min(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) - 
-                      (rgo * 0.05),
-                    max(1 * (model$diff[, der = i, jnf[2], jnf[1]]), na.rm = T) +
-                      (rgo * 0.05))
-        }
-        
-        
-        data_bin <- data.frame(x = model$x,
-                               p = model$diff[, der = i, jnf[2], jnf[1]],
-                               pl = model$diffl[, der = i, jnf[2], jnf[1]],
-                               pu = model$diffu[, der = i, jnf[2], jnf[1]])
-        
-        
-        
-        if (abline == TRUE){
-          abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
-        }else{
-          abline_layer <- NULL
-        }
-        
-        
-        
-        p[[cont]] <- ggplot() +
-          geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                           ymin = "pl", 
-                                           ymax = "pu"), 
-                      alpha = alpha, fill = CIcol, linetype = lty,
-                      size = CIlwd, col = CIlinecol) +
-          geom_line(data = data_bin, aes_string(x = "x", 
-                                         y = "p"), 
-                    size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-          abline_layer +
-          coord_cartesian(ylim = ylim) +
-          # ylim(ylim) +
-          ylab(ylab2) +
-          xlab(xlab) +
-          ggtitle(title)
-
-        
-        for (j in length(jnf):1) {
-          cont = cont + 1
-          if (jnf[j] == jnf[2]) {
-            title <- paste("Level", model$label[jnf[2]])
-          } 
-          if (jnf[j] == jnf[1]) {
-            title <- paste("Level", model$label[jnf[1]])
-          } 
-          
-          rgo <- max(model$p[, der = i, jnf[j]], na.rm = T) -
-            min(model$p[, der = i, jnf[j]], na.rm = T)
-          ylim <- c(min(model$p[, der = i, jnf[j]], na.rm = T) - (rgo * 0.05), 
-                    max(model$p[, der = i, jnf[j]], na.rm = T) + (rgo * 0.05))
-          
-          data_bin <- data.frame(x = model$x,
-                                 pl = model$pl[, der = i, fac = jnf[j]],
-                                 pu = model$pu[, der = i, fac = jnf[j]],
-                                 p = model$p[, der = i, fac = jnf[j]])
-          
-          p[[cont]] <- ggplot() +
-            geom_ribbon(data = data_bin, aes_string(x = "x", 
-                                             ymin = "pl", 
-                                             ymax = "pu"), 
-                        alpha = alpha, fill = CIcol, linetype = lty,
-                        size = CIlwd, col = CIlinecol) +
-            geom_line(data = data_bin, aes_string(x = "x", 
-                                           y = "p"), 
-                      size = lwd, colour = col, linetype = lty, na.rm=TRUE) +
-            coord_cartesian(ylim = ylim) +
-            # ylim(ylim) +
-            ylab(ylab2) +
-            xlab(xlab) +
-            ggtitle(title)
-          
-          
-         
-        }
-        ylim <- NULL # hay que poner el ylim nulo para el siguiente plot
-        }
+      ylim <- c(min(-1 * (model$diff[, der = jder, jnf[1], jnf[2]]), na.rm = T) - 
+                  (rgo * 0.05),
+                max(-1 * (model$diff[, der = jder, jnf[1], jnf[2]]), na.rm = T) + 
+                  (rgo * 0.05))
     }
     
-    # NOTE: This ugly hack is here because of a bug in gridExtra which calls
-    # a ggplot2 function directly instead of namespacing it.  The bug is fixed
-    # in the gridExtra GitHub version, but not on CRAN. Hopefully gridExtra
-    # will submit the fix to CRAN and I can remove this ugliness.
-    # https://github.com/baptiste/gridextra/issues/5
-    # Thanks to Dean Attali!!
-    if (!"package:ggplot2" %in% search()) {
-      suppressPackageStartupMessages(attachNamespace("ggplot2"))
-      on.exit(detach("package:ggplot2"))
-    }  
     
     
-      args.list <- c(p, nf + 1, length(der))
-      names(args.list) <- c(c(rep("", (nf + 1) * length(der)), "nrow", "ncol"))
-      suppressWarnings(do.call(gridExtra::grid.arrange, args.list))
-      
+    if (is.null(main)) main <- "Differences"
+    
+    
+    data_bin <- data.frame(x = model$x,
+                           p = -1 * model$diff[, der = jder, jnf[1], jnf[2]],
+                           pl = -1 * model$diffl[, der = jder, jnf[1], jnf[2]],
+                           pu = -1 * model$diffu[, der = jder, jnf[1], jnf[2]])
+    
+    if (abline == TRUE){
+      abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+    }else{
+      abline_layer <- NULL
     }
+    
+    
+    ggplot() +
+      geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                              ymin = "pl", 
+                                              ymax = "pu"), 
+                  alpha = alpha, fill = CIcol, linetype = lty,
+                  size = CIlwd, col = CIlinecol) +
+      geom_line(data = data_bin, aes_string(x = "x", 
+                                            y = "p"), 
+                size = lwd, colour = col, linetype = lty, na.rm = TRUE) +
+      abline_layer +
+      coord_cartesian(ylim = ylim) +
+      ylab(ylab2) +
+      xlab(xlab) +
+      ggtitle(main)
+    
+    
+  } else {
+    
+    if (is.null(ylim)) {
+      rgo <- max(1 * (model$diff[, der = jder, jnf[2], jnf[1]]), na.rm = T) -
+        min(1 * (model$diff[, der = jder, jnf[2], jnf[1]]), na.rm = T)
+      ylim <- c(min(1 * (model$diff[, der = jder, jnf[2], jnf[1]]), na.rm = T) - 
+                  (rgo * 0.05),
+                max(1 * (model$diff[, der = jder, jnf[2], jnf[1]]), na.rm = T) +
+                  (rgo * 0.05))
+    }
+    
+    
+    if (is.null(main)) main <- "Differences"
+    
+    data_bin <- data.frame(x = model$x,
+                           p = model$diff[, der = jder, jnf[2], jnf[1]],
+                           pl = model$diffl[, der = jder, jnf[2], jnf[1]],
+                           pu = model$diffu[, der = jder, jnf[2], jnf[1]])
+    
+    if (abline == TRUE) {
+      abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+    }else{
+      abline_layer <- NULL
+    }
+    
+    
+    ggplot() +
+      geom_ribbon(data = data_bin, aes_string(x = "x", 
+                                              ymin = "pl", 
+                                              ymax = "pu"), 
+                  alpha = alpha, fill = CIcol, linetype = lty,
+                  size = CIlwd, col = CIlinecol) +
+      geom_line(data = data_bin, aes_string(x = "x", 
+                                            y = "p"), 
+                size = lwd, colour = col, linetype = lty, na.rm = TRUE) +
+      abline_layer +
+      coord_cartesian(ylim = ylim) +
+      ylab(ylab2) +
+      xlab(xlab) +
+      ggtitle(main)
+    
   }
- 
+}
