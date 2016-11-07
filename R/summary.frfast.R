@@ -170,7 +170,6 @@ summary.frfast <- function(object = model, ...) {
     
     cat("", "\n")
     cat("", "\n")
-    cat("Polynomial degree:", model$dp, "\n")
     cat("Number of bootstrap repeats:", model$nboot, "\n")
     cat("Number of binning nodes", model$kbin, "\n")
     cat("", "\n")
