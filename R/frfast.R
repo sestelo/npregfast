@@ -10,6 +10,8 @@
 #' specification are given under 'Details'.
 #' @param data A data frame or matrix containing the model response
 #' variable and covariates required by the \code{formula}.
+#' @param na.action A function which indicates what should happen when the 
+#' data contain 'NA's. The default is 'na.omit'.
 #' @param model Type model used: \code{model = "np"}  nonparametric
 #' regression model, 
 #' \code{model = "allo"} the  allometric model.
@@ -204,7 +206,8 @@
 
 
 
-frfast <- function(formula, data = data, model = "np", smooth = "kernel", 
+frfast <- function(formula, data = data, na.action = "na.omit",
+                   model = "np", smooth = "kernel", 
                    h0 = -1.0, h = -1.0, 
                    nh = 30, weights = NULL, kernel = "epanech", p = 3, 
                    kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, 
@@ -227,6 +230,12 @@ frfast <- function(formula, data = data, model = "np", smooth = "kernel",
   if (!(smooth %in% c("kernel", "splines"))) {
     stop("Smoother not suported")
   }
+  
+  
+  if(na.action != "na.omit"){
+    stop("")
+  }
+    
   
   #if(is.null(seed)) seed <- -1
   
@@ -259,7 +268,15 @@ model specification in 'Details' of the frfast help." )
     namef <- aux[2]
     if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data
-    data <- na.omit(data[ ,c(ffr$response, varnames)])
+    data <- data[ ,c(ffr$response, varnames)]
+    
+    
+    if (na.action == "na.omit"){ # ver la f
+      data <- na.omit(data)
+    }else{
+      stop("The actual version of the package only supports 'na.omit' (observations are removed 
+           if they contain any missing values)")
+    }
     #newdata <- na.omit(newdata[ ,varnames])
     n <- nrow(data)
     
@@ -278,12 +295,20 @@ model specification in 'Details' of the frfast help." )
     namef <- ffr$pred.names[2]
     if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
     newdata <- data
+    
     if (length(ffr$pred.names) == 1) {
-      data <- na.omit(data[ ,c(ffr$response, varnames)])
+      data <- data[ ,c(ffr$response, varnames)]
     }else{
-      data <- na.omit(data[ ,c(ffr$response, varnames, namef)])
+      data <- data[ ,c(ffr$response, varnames, namef)]
     }
-    #newdata <- na.omit(newdata[ ,varnames])
+    
+    if (na.action == "na.omit"){
+      data <- na.omit(data)
+    }else{
+      stop("The actual version of the package only supports 'na.omit' (observations are removed 
+           if they contain any missing values)")
+    }
+  
     n <- nrow(data)
   }
   
