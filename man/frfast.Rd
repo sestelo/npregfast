@@ -4,10 +4,10 @@
 \alias{frfast}
 \title{Fitting nonparametric models}
 \usage{
-frfast(formula, data = data, model = "np", smooth = "kernel", h0 = -1,
-  h = -1, nh = 30, weights = NULL, kernel = "epanech", p = 3,
-  kbin = 100, nboot = 500, rankl = NULL, ranku = NULL, seed = NULL,
-  cluster = TRUE, ncores = NULL, ...)
+frfast(formula, data = data, na.action = "na.omit", model = "np",
+  smooth = "kernel", h0 = -1, h = -1, nh = 30, weights = NULL,
+  kernel = "epanech", p = 3, kbin = 100, nboot = 500, rankl = NULL,
+  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -16,6 +16,9 @@ specification are given under 'Details'.}
 
 \item{data}{A data frame or matrix containing the model response
 variable and covariates required by the \code{formula}.}
+
+\item{na.action}{A function which indicates what should happen when the 
+data contain 'NA's. The default is 'na.omit'.}
 
 \item{model}{Type model used: \code{model = "np"}  nonparametric
 regression model, 
