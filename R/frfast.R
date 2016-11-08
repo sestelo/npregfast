@@ -12,9 +12,9 @@
 #' variable and covariates required by the \code{formula}.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
-#' @param model Type model used: \code{model = "np"}  nonparametric
+#' @param model Type model used: \code{model = "np"} for a nonparametric
 #' regression model, 
-#' \code{model = "allo"} the  allometric model.
+#' \code{model = "allo"}  for an allometric model. See details.
 #' @param smooth Type smoother used: \code{smooth = "kernel"} for local polynomial
 #' kernel smoothers and \code{smooth = "splines"} for splines using the 
 #' \code{mgcv} package.
@@ -74,6 +74,18 @@
 #' Such a term is interpreted as the interaction of the continuous variable and 
 #' the factor. However, if \code{smooth = "splines"}, the formula is based on the function
 #' formula.gam of the mgcv package.
+#' 
+#' According with the \code{model} argument, if \code{model = "np"} the 
+#' estimated regression model will be of the type
+#' 
+#' \deqn{Y = m(X) + e}
+#' being \eqn{m} an smooth and unknown function and \eqn{e}
+#' the regression error with zero mean. If \code{model = "allo"}, users could estimate
+#' the classical allometric model (Huxley, 1924) with a regression curve 
+#' 
+#' \deqn{m(X) = a X^b}
+#' being \eqn{a} and \eqn{b} the parameters of the model.
+#' 
 #' @return An object is returned with the following elements:
 #' \item{x}{Vector of values of the grid points at which model is to 
 #' be estimate.}
@@ -149,10 +161,16 @@
 #' @author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #' 
 #' @references 
+#' Huxley, J. S. (1924). Constant differential growth-ratios and their 
+#' significance. Nature, 114:895--896.
+#' 
 #' Sestelo, M. (2013). Development and computational implementation of 
 #' estimation and inference methods in flexible regression models. 
 #' Applications in Biology, Engineering and Environment. PhD Thesis, Department
 #' of Statistics and O.R. University of Vigo.
+#' 
+#' 
+#' 
 #' 
 #' @examples
 #' library(npregfast)
