@@ -108,7 +108,6 @@ plot(fit2, der = 1, fac = "lens")
 autoplot(fit2, fac = "barca", diffwith = "lens")
 autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
 
-
 }
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.

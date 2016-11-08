@@ -20,4 +20,9 @@ This file documents software changes since the previous edition.
 # npregfast 1.3.0 (2016-04-29)
 
    * the argument smooth has been incorporated to the functions. Users can select now the type of smoother: kernel (by default) or splines.
+   
+   
+   # npregfast 1.4.0 (2016-11-08)
+
+   * the argument smooth has been incorporated to the functions. Users can select now the type of smoother: kernel (by default) or splines.
  

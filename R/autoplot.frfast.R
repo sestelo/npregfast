@@ -71,10 +71,10 @@
 #' autoplot(fit2, fac = "barca", diffwith = "lens")
 #' autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
 #' 
-#' 
-#' @importFrom graphics lines par plot
-#' @import ggplot2
-#' @export
+#' @import ggplot2 
+#' @importFrom ggplot2 autoplot
+#' @export 
+
 
 
 
