@@ -40,16 +40,17 @@ loss of information,  a bootstrap-based procedure, that test whether the
 data can be modelled by an allometric model, was developed.  Therefore,
 \code{allotest} tests the null hypothesis of an allometric model taking 
 into account the logarithm of the original variable
- (\eqn{X^* = log(X)}{} and \eqn{Y^* =log (Y)}{}). 
+ (\eqn{X^* = log(X)} and \eqn{Y^* = log(Y)}). 
+ 
 Based on a general model of the type 
-\deqn{Y^*=m(X^*)+\varepsilon}{} 
+\deqn{Y^*=m(X^*)+\varepsilon}
 the aim here is to test the null hypothesis of an allometric model 
-\deqn{H_0 = m(x^*) =  a^*+ b^* x^*}{} 
-\eqn{vs.}{} the general hypothesis 
-\eqn{H_1}{}, with \eqn{m}{} 
+\deqn{H_0 = m(x^*) =  a^*+ b^* x^*}
+\eqn{vs.} the general hypothesis 
+\eqn{H_1}, with \eqn{m}
 being an unknown nonparametric function; or analogously,
-\deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}{}
-with \eqn{g(x^*)}{} being an unknown function not equal to zero. 
+\deqn{H_1: m(x^*)= a^*+ b^* x^* + g(x^*)}
+with \eqn{g(x^*)} being an unknown function not equal to zero. 
 
 To implement this test we have used the wild bootstrap.
 }
