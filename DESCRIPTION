@@ -18,7 +18,8 @@ Description: A method for obtain nonparametric estimates of regression models
     estimated.
 BugReports: http://github.com/sestelo/npregfast/issues
 Depends:
-    R (>= 3.2.0)
+    R (>= 3.2.0),
+    ggplot2
 License: MIT + file LICENSE
 LazyData: true
 Imports:
@@ -26,7 +27,6 @@ Imports:
     stats,
     utils,
     shiny,
-    ggplot2,
     gridExtra,
     doParallel,
     foreach,

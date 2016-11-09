@@ -4,8 +4,7 @@
 #'  Additionally, with the 
 #' \code{diffwith} argument it is possible to draw the differences between
 #'  two factor's levels.
-#' @param x \code{frfast} object.
-#' @param y NULL.
+#' @param object \code{frfast} object.
 #' @param fac Factor's level to be taken into account
 #' in the plot. By default is \code{NULL}.
 #' @param der Number which determines any inference process. 
@@ -14,7 +13,7 @@
 #' it is designed for the first or second derivative, respectively.
 #' @param diffwith Factor's level used for drawing the differences respect to the 
 #' level specified in the \code{fac} argument.  By default, \code{NULL}. 
-#' The differences are computed for the r-th derivative speciefied 
+#' The differences are computed for the r-th derivative specified 
 #' in the \code{der} argument.
 #' @param points Draw the original data into the plot. By default it is
 #' \code{TRUE}.
@@ -71,15 +70,13 @@
 #' autoplot(fit2, fac = "barca", diffwith = "lens")
 #' autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
 #' 
-#' @import ggplot2 
-#' @importFrom ggplot2 autoplot
+#' @importFrom ggplot2 autoplot geom_point aes_string geom_hline geom_ribbon geom_line ggtitle ggplot coord_cartesian
 #' @export 
 
 
 
 
-
-autoplot.frfast <- function(x = model, y, fac = NULL, der = 0, diffwith = NULL, 
+autoplot.frfast <- function(object = model, fac = NULL, der = 0, diffwith = NULL, 
                             points = TRUE, xlab = model$name[2], ylab = model$name[1], 
                             ylim = NULL, main = NULL, col = "black", 
                             CIcol = "black", CIlinecol = "transparent", 
@@ -87,13 +84,13 @@ autoplot.frfast <- function(x = model, y, fac = NULL, der = 0, diffwith = NULL,
                             ablinecol = "red", lty = 1, CIlty = 2, lwd = 1, 
                             CIlwd = 1, cex = 1.4, alpha = 0.2, ...) {
   
-  model <- x
+  model <- object
   nf <- model$nf
   
   # Control
   
-  if (missing(x)) 
-    stop("Argument \"x\" is missing, with no default. 
+  if (missing(object)) 
+    stop("Argument \"object\" is missing, with no default. 
          Must be a frfast object.")
   
   if ((nf == 1) & (!is.null(fac))) 

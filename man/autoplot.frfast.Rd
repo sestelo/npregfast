@@ -4,7 +4,7 @@
 \alias{autoplot.frfast}
 \title{Visualization of \code{frfast} objects with ggplot2 graphics}
 \usage{
-\method{autoplot}{frfast}(x = model, y, fac = NULL, der = 0,
+\method{autoplot}{frfast}(object = model, fac = NULL, der = 0,
   diffwith = NULL, points = TRUE, xlab = model$name[2],
   ylab = model$name[1], ylim = NULL, main = NULL, col = "black",
   CIcol = "black", CIlinecol = "transparent", pcol = "grey80",
@@ -12,9 +12,7 @@
   CIlwd = 1, cex = 1.4, alpha = 0.2, ...)
 }
 \arguments{
-\item{x}{\code{frfast} object.}
-
-\item{y}{NULL.}
+\item{object}{\code{frfast} object.}
 
 \item{fac}{Factor's level to be taken into account
 in the plot. By default is \code{NULL}.}
@@ -26,7 +24,7 @@ it is designed for the first or second derivative, respectively.}
 
 \item{diffwith}{Factor's level used for drawing the differences respect to the 
 level specified in the \code{fac} argument.  By default, \code{NULL}. 
-The differences are computed for the r-th derivative speciefied 
+The differences are computed for the r-th derivative specified 
 in the \code{der} argument.}
 
 \item{points}{Draw the original data into the plot. By default it is
