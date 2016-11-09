@@ -43,44 +43,70 @@ shinyServer(function(input, output) {
     
     
     
-  
+    
     fit <- frfast(form, data = keep, nboot = 100, kernel = input$kernel,
                   h0 = h0, h = h, p = input$poly)
-    plot(fit, der = der, points = input$show_points, 
-         CIcol = input$colci, col = input$colmu, CIlwd = 2, 
-         ablinecol = "#24281A", pch = 16, pcol = input$pcol)
+    # plot(fit, der = der, points = input$show_points, 
+    #       CIcol = input$colci, col = input$colmu, CIlwd = 2, 
+    #      ablinecol = "#24281A", pch = 16, pcol = input$pcol)
+    
+    if(input$type == "without"){
+      
+      if(length(der) == 1){
+        autoplot(fit, der = der, points = input$show_points, 
+                 CIcol = input$colci, col = input$colmu, CIlwd = 2, 
+                 ablinecol = "#24281A", pch = 16, pcol = input$pcol)
+      }else{
+        p <- lapply(der, function(x){autoplot(fit, der = x, points = input$show_points, 
+                                              CIcol = input$colci, col = input$colmu, CIlwd = 2, 
+                                              ablinecol = "#24281A", pch = 16, pcol = input$pcol)})
+        gridExtra::grid.arrange(grobs = p, ncol = length(der))
+      }
+      }else{
+      p1 <- lapply(der, function(x){autoplot(fit , der = x, fac = fit$label[1],
+                                             points = input$show_points, 
+                                             CIcol = input$colci, col = input$colmu, CIlwd = 2, 
+                                             ablinecol = "#24281A", pch = 16, pcol = input$pcol)})
+      p2 <- lapply(der, function(x){autoplot(fit , der = x, fac = fit$label[2], 
+                                             points = input$show_points, 
+                                             CIcol = input$colci, col = input$colmu, CIlwd = 2, 
+                                             ablinecol = "#24281A", pch = 16, pcol = input$pcol)})
+      gridExtra::grid.arrange(grobs = c(p1, p2), ncol = length(der), nrow = 2)
+    }
+    
     
   })
-  
-  # Toggle points that are clicked
-  observeEvent(input$plot1_click, {
-    res <- nearPoints(data, input$plot1_click, allRows = TRUE,
-                      xvar = "RC", yvar = "DW")
-    
-    vals$keeprows <- xor(vals$keeprows, res$selected_)
-  })
-  
-  # Toggle points that are brushed, when button is clicked
-  observeEvent(input$exclude_toggle, {
-    res <- brushedPoints(data, input$plot1_brush, allRows = TRUE,
-                         xvar = "RC", yvar = "DW")
-    
-    vals$keeprows <- xor(vals$keeprows, res$selected_)
-  })
-  
-  # Reset all points
-  observeEvent(input$exclude_reset, {
-    vals$keeprows <- rep(TRUE, nrow(data))
-  })
-  
-  observeEvent(input$info_btn, {
-    shinyjs::info("This plot supports mouse based-interaction, via clicking and brushing. The points selected or included in the selected area will be deleted and will not be considered in the analysis. In order to use this option correctly, the selection of the points must be carried out with only one graphical output marked and without interaction. Once the points have been deleted, the other graphical output and estimation options can be marked.")
+      
+      # Toggle points that are clicked
+      observeEvent(input$plot1_click, {
+        res <- nearPoints(data, input$plot1_click, allRows = TRUE,
+                          xvar = "RC", yvar = "DW")
+        
+        vals$keeprows <- xor(vals$keeprows, res$selected_)
       })
-  
-  
-  
-  # hide the loading message
-  shinyjs::hide("loading-content", TRUE, "fade")
+      
+      # Toggle points that are brushed, when button is clicked
+      observeEvent(input$exclude_toggle, {
+        res <- brushedPoints(data, input$plot1_brush, allRows = TRUE,
+                             xvar = "RC", yvar = "DW")
+        
+        vals$keeprows <- xor(vals$keeprows, res$selected_)
+      })
+      
+      # Reset all points
+      observeEvent(input$exclude_reset, {
+        vals$keeprows <- rep(TRUE, nrow(data))
+      })
+      
+      observeEvent(input$info_btn, {
+        shinyjs::info("This plot supports mouse based-interaction, via clicking and brushing. The points selected or included in the selected area will be deleted and will not be considered in the analysis. In order to use this option correctly, the selection of the points must be carried out with only one graphical output marked and without interaction. Once the points have been deleted, the other graphical output and estimation options can be marked.")
+      })
+      
+      
+      
+      # hide the loading message
+      shinyjs::hide("loading-content", TRUE, "fade")
 })
-
-
+  
+  
+  
