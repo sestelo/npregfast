@@ -3,7 +3,7 @@ Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
 Version: 1.3.0.9000
-Date: 2016-11-08
+Date: 2016-11-16
 Author: Marta Sestelo [aut, cre],
     Nora M. Villanueva [aut],
     Javier Roca-Pardinas [aut]
@@ -18,8 +18,9 @@ Description: A method for obtain nonparametric estimates of regression models
     estimated.
 BugReports: http://github.com/sestelo/npregfast/issues
 Depends:
-    R (>= 3.2.0),
-    ggplot2
+    R (>= 3.2.0)
+Suggests:
+    gridExtra
 License: MIT + file LICENSE
 LazyData: true
 Imports:
@@ -32,5 +33,6 @@ Imports:
     mgcv,
     sfsmisc,
     shinyjs,
-    wesanderson
-RoxygenNote: 5.0.0
+    wesanderson,
+    ggplot2
+RoxygenNote: 5.0.1

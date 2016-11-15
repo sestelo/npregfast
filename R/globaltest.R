@@ -299,9 +299,10 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
                            r = as.integer(der), 
                            T = as.double(rep(-1, 1)), 
                            pvalor = as.double(rep(-1, 1)), 
-                           seed = as.integer(seed),
                            #  umatrix = as.double(umatrix)
-                           umatrix = array(umatrix, c(n, nboot))
+                           #seed = as.integer(seed),
+                           umatrix = array(umatrix, c(n, nboot)),
+                           PACKAGE = "npregfast"
     )
     
     if (globaltest$pvalor < 0.05) {

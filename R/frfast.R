@@ -211,6 +211,7 @@
 #' # fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo", nboot = 100)
 #' # summary(fit4)
 #' 
+#' @useDynLib npregfast, .registration = TRUE
 #' @useDynLib npregfast frfast_
 #' @importFrom stats na.omit runif lm predict quantile
 #' @importFrom mgcv interpret.gam gam predict.gam
@@ -329,7 +330,7 @@ model specification in 'Details' of the frfast help." )
       stop("The actual version of the package only supports 'na.omit' (observations are removed 
            if they contain any missing values)")
     }
-  
+    
     n <- nrow(data)
   }
   
@@ -397,8 +398,8 @@ model specification in 'Details' of the frfast help." )
                         n = as.integer(n),
                         h0 = as.double(h0),
                         h = as.double(h),
-                        c2 = as.integer(c2),
-                        ncmax = as.integer(ncmax),
+                        #c2 = as.integer(c2),
+                        #ncmax = as.integer(ncmax),
                         p = as.integer(p),
                         kbin = as.integer(kbin),
                         #fact = as.integer(c(1:nf)), 
@@ -435,8 +436,9 @@ model specification in 'Details' of the frfast help." )
                         predict = array(rep(-1.0), c(kbin, 3, nf)),
                         predictl = array(as.double(-1.0), c(kbin, 3, nf)),
                         predictu = array(as.double(-1.0), c(kbin, 3, nf)),
-                        seed = as.integer(seed),
-                        umatrix = as.double(umatrix)
+                        #seed = as.integer(seed),
+                        umatrix = as.double(umatrix),
+                        PACKAGE = "npregfast"
     )
     
     if (tmodel != 2) {

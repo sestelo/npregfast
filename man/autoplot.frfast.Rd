@@ -87,7 +87,11 @@ first and second derivative (for each factor's level) using ggplot2 graphics.
  two factor's levels.
 }
 \examples{
+
 library(npregfast)
+library(ggplot2)
+
+
 data(barnacle)
 
 # Nonparametric regression without interactions
@@ -105,6 +109,21 @@ plot(fit2, der = 1, fac = "lens")
 # Visualization of the differences between two factor's levels
 autoplot(fit2, fac = "barca", diffwith = "lens")
 autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
+
+
+#Plotting in the same graphics device
+
+if (requireNamespace("gridExtra", quietly = TRUE)) {
+
+# For plotting two derivatives in the same graphic windows 
+ders <- lapply(0:1, function(x) autoplot(fit, der = x))
+gridExtra::grid.arrange(grobs = ders, ncol = 2, nrow = 1)
+
+# For plotting two levels in the same graphic windows 
+facs <- lapply(c("barca", "lens"), function(x) autoplot(fit2, der = 0, fac = x))
+gridExtra::grid.arrange(grobs = facs, ncol = 2, nrow = 1)
+
+}
 
 }
 \author{

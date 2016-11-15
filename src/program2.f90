@@ -11,7 +11,7 @@
 
 
 
-subroutine allotest_(X,Y,W,n,kbin,nboot,seed,T,pvalor,umatrix)
+subroutine allotest_(X,Y,W,n,kbin,nboot,T,pvalor,umatrix)
 implicit none
 
 !!DEC$ ATTRIBUTES DLLEXPORT::test_allo
@@ -20,12 +20,12 @@ implicit none
 integer n,kbin,p,iboot,nboot,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
-normrnd, umatrix(n,nboot)
+umatrix(n,nboot)
 !real u, rand
 double precision u
 real,external::rnnof
 integer,external::which_min,which_max2
-integer seed
+
 
 
 
@@ -271,7 +271,7 @@ end subroutine
 
 
 subroutine localtest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
-pcmax,pcmin,r,D,Ci,Cs,seed,umatrix)
+pcmax,pcmin,r,D,Ci,Cs,umatrix)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::localtest
@@ -280,9 +280,9 @@ pcmax,pcmin,r,D,Ci,Cs,seed,umatrix)
 implicit none
 integer,parameter::kfino=1000
 integer i,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,&
-nh,nboot,kernel,r,index,posmin,posmax,seed
-double precision X(n),Y(n),W(n),Waux(n),C2(5,nf),xb(kbin),pb(kbin,3,nf),&
-u,h(nf),h1(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
+nh,nboot,kernel,r,index,posmin,posmax
+double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
+u,h(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
 C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
 Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0,&
 umatrix(n,nboot)
@@ -380,7 +380,7 @@ end do
 ! Max de estimación, max de primera derivada
 !********************************************
 
-
+index=-1
 C=-1
 
 do j=1,nf
@@ -459,7 +459,8 @@ end do
 
 
 
-
+posmin=-1
+posmax=-1
 
 xminc=99999.999
 xmaxc=-xminc
@@ -724,14 +725,14 @@ end subroutine
 
 
 subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,&
-pvalor,seed,umatrix)
+pvalor,umatrix)
 
 !!DEC$ ATTRIBUTES DLLEXPORT::globaltest
 !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
-nh,nboot,kernel,r,pp,seed
+nh,nboot,kernel,r,pp
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
 u,Tboot,T,pvalor,umatrix(n,nboot)
@@ -916,11 +917,11 @@ end subroutine
 
 
 
-subroutine frfast_(F,X,Y,W,n,h0,h,C2,ncmax,p,kbin,fact,&
+subroutine frfast_(F,X,Y,W,n,h0,h,p,kbin,fact,&
 nf,nboot,xb,pb,li,ls,dif,difi,difs,model,&
  c,cs,ci,difc,difcs,difci,pboot,pcmin,pcmax,cboot,&
 kernel,nh,a,ainf,asup,b,binf,bsup,ipredict,&
-predict,predictl,predictu,seed,umatrix)
+predict,predictl,predictu,umatrix)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::frfast
@@ -929,16 +930,16 @@ predict,predictl,predictu,seed,umatrix)
 implicit none
 integer,parameter::kfino=1000
 integer n,i,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,m,kernel,&
-ncmax,nboot,index,pasox,pasoxfino,model,C2(ncmax,nf),&
-icont(kbin,3,nf),nh,ipredict,II(n),r,seed
+nboot,index,pasox,pasoxfino,model,&
+icont(kbin,3,nf),nh,ipredict,II(n)
 double precision x(n),y(n),W(n),Waux(n),xfino(kfino),Li(kbin,3,nf),ls(kbin,3,nf),P_0(n),&
 Pb(kbin,3,nf),h(nf),Xb(kbin),xmin(nf),Pb_0(kbin,3),&
 xmax(nf),Err(n),Dif(kbin,3,nf,nf),Difi(kbin,3,nf,nf),Difs(kbin,3,nf,nf),&
 C(3,nf),Pfino(kfino),Ci(3,nf),Cs(3,nf),pboot(kbin,3,nf,nboot),&
-DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,Pba(kbin,3,nf),&
+DifC(3,nf,nf),DifCI(3,nf,nf),DifCs(3,nf,nf),pmax,&
 u,pcmax(nf),pcmin(nf),Cboot(3,nf,nboot),a(nf),b(nf),aboot(nf,nboot),bboot(nf,nboot),&
 asup(nf),ainf(nf),bsup(nf),binf(nf),predict(n,3,nf),predictu(n,3,nf),predictl(n,3,nf),&
-res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,sesg(n),umatrix(n,nboot)
+res(n),Pb_0boot(kbin,3,nboot),h0,meanerr,umatrix(n,nboot)
 double precision,allocatable::Pred(:),P0(:,:),Yboot(:),&
 bi(:,:,:),bs(:,:,:),Vb(:,:),&
 Difbi(:,:,:,:),Difbs(:,:,:,:),V(:),pboota(:,:,:,:),&
@@ -980,8 +981,8 @@ pasox=0
 call GRID(X,W,n,Xb,kbin)
 call GRID(X,W,n,Xfino,kfino)
 
-pasox=Xb(2)-Xb(1)
-pasoxfino=Xfino(2)-Xfino(1)
+pasox=floor(Xb(2)-Xb(1))
+pasoxfino=floor(Xfino(2)-Xfino(1))
 
 
 
@@ -1064,7 +1065,7 @@ end if
 ! Max de estimación, max de primera derivada
 !********************************************
 
-
+index=-1
 C=-1
 
 do j=1,nf
@@ -1706,7 +1707,7 @@ do i=1,size
 !II(i)=1+rand()*n
 !call test_random(u)
 u=uvector(i)
-II(i)=1+u*n
+II(i)=floor(1+u*n)
 if (ii(i).le.1) ii(i)=1
 if (ii(i).ge.n) ii(i)=n
 end do
@@ -3481,7 +3482,7 @@ double precision X(n),alfa(nalfa),Q(nalfa),R,xest
 call qsortd(x,ind,n)
 
 do j=1,nalfa
-IP=alfa(j)*(n+1.)
+IP=floor(alfa(j)*(n+1.))
 XEST=alfa(j)*(n+1.)
 IF(ip .lt. 1) then
 Q(j)=X(ind(1))
@@ -3507,7 +3508,7 @@ implicit none
 integer n,ip,ind(n)
 double precision X(n),alfa,Q,R,xest
 call qsortd(x,ind,n)
-IP=alfa*(n+1.)
+IP=floor(alfa*(n+1.))
 XEST=alfa*(n+1.)
 IF(ip .lt. 1) then
 Q=X(ind(1))
@@ -3712,7 +3713,7 @@ END IF
 
 ! SELECT A CENTRAL ELEMENT OF X AND SAVE IT IN T
 
-ij = i + r*(j-i)
+ij = floor(i + r*(j-i))
 it = ind(ij)
 t = x(it)
 

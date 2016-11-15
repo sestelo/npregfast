@@ -322,8 +322,9 @@ localtest <- function(formula, data = data, na.action = "na.omit",
                           D = as.double(rep(-1.0,1)),
                           Ci = as.double(rep(-1.0,1)),
                           Cs = as.double(rep(-1.0,1)),
-                          seed = as.integer(seed),
-                          umatrix = as.double(umatrix)
+                         # seed = as.integer(seed),
+                          umatrix = as.double(umatrix),
+                          PACKAGE = "npregfast"
     )
     
     

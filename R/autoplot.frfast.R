@@ -1,3 +1,8 @@
+#' @importFrom ggplot2 autoplot
+#' @export
+ggplot2::autoplot
+
+
 #' Visualization of \code{frfast} objects with ggplot2 graphics
 #' @description Useful for drawing the estimated regression function, 
 #' first and second derivative (for each factor's level) using ggplot2 graphics.
@@ -51,7 +56,11 @@
 #' 
 #'@author Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 #'@examples
+#'
 #' library(npregfast)
+#' library(ggplot2)
+#' 
+#' 
 #' data(barnacle)
 #' 
 #' # Nonparametric regression without interactions
@@ -70,8 +79,26 @@
 #' autoplot(fit2, fac = "barca", diffwith = "lens")
 #' autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
 #' 
-#' @importFrom ggplot2 autoplot geom_point aes_string geom_hline geom_ribbon geom_line ggtitle ggplot coord_cartesian
-#' @export 
+#' 
+#' #Plotting in the same graphics device
+#' 
+#' if (requireNamespace("gridExtra", quietly = TRUE)) {
+#' 
+#' # For plotting two derivatives in the same graphic windows 
+#' ders <- lapply(0:1, function(x) autoplot(fit, der = x))
+#' gridExtra::grid.arrange(grobs = ders, ncol = 2, nrow = 1)
+#' 
+#' # For plotting two levels in the same graphic windows 
+#' facs <- lapply(c("barca", "lens"), function(x) autoplot(fit2, der = 0, fac = x))
+#' gridExtra::grid.arrange(grobs = facs, ncol = 2, nrow = 1)
+#' 
+#' }
+#' 
+#' @importFrom ggplot2 autoplot geom_point aes_string ylab
+#' @importFrom ggplot2 geom_hline geom_ribbon geom_line 
+#' @importFrom ggplot2 ggtitle ggplot coord_cartesian
+#' @export
+
 
 
 
@@ -163,7 +190,8 @@ autoplot.frfast <- function(object = model, fac = NULL, der = 0, diffwith = NULL
     
     
     if ((points == TRUE) & (jder == 1)) {
-      points_layer <- geom_point(data = data_ori, aes_string(x = "xdata",
+      points_layer <- ggplot2::geom_point(data = data_ori, 
+                                          ggplot2::aes_string(x = "xdata",
                                                              y = "ydata"),
                                  colour = pcol, size = cex)
     }else{
@@ -172,27 +200,27 @@ autoplot.frfast <- function(object = model, fac = NULL, der = 0, diffwith = NULL
     
     
     if ((jder == 3) & (abline == TRUE)) {
-      abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+      abline_layer <- ggplot2::geom_hline(yintercept = 0, colour = ablinecol)
     }else{
       abline_layer <- NULL
     }
     
     
-    ggplot() +
+    ggplot2::ggplot() +
       points_layer +
-      geom_ribbon(data = data_bin, aes_string(x = "x", 
+      ggplot2::geom_ribbon(data = data_bin, ggplot2::aes_string(x = "x", 
                                               ymin = "pl", 
                                               ymax = "pu"), 
                   alpha = alpha, fill = CIcol, linetype = lty,
                   size = CIlwd, col = CIlinecol) +
-      geom_line(data = data_bin, aes_string(x = "x", 
+      ggplot2::geom_line(data = data_bin, ggplot2::aes_string(x = "x", 
                                             y = "p"), 
                 size = lwd, colour = col, linetype = lty, na.rm = TRUE) +
       abline_layer +
-      coord_cartesian(ylim = ylim) +
-      ylab(ylab2) +
-      xlab(xlab) +
-      ggtitle(main)
+      ggplot2::coord_cartesian(ylim = ylim) +
+      ggplot2::ylab(ylab2) +
+      ggplot2::xlab(xlab) +
+      ggplot2::ggtitle(main)
     
   }else{ # diffwith != NULL
     
@@ -246,26 +274,26 @@ autoplot.frfast <- function(object = model, fac = NULL, der = 0, diffwith = NULL
                              pu = -1 * model$diffu[, der = jder, jnf[1], jnf[2]])
       
       if (abline == TRUE){
-        abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        abline_layer <- ggplot2::geom_hline(yintercept = 0, colour = ablinecol)
       }else{
         abline_layer <- NULL
       }
       
       
-      ggplot() +
-        geom_ribbon(data = data_bin, aes_string(x = "x", 
+      ggplot2::ggplot() +
+        ggplot2::geom_ribbon(data = data_bin, ggplot2::aes_string(x = "x", 
                                                 ymin = "pl", 
                                                 ymax = "pu"), 
                     alpha = alpha, fill = CIcol, linetype = lty,
                     size = CIlwd, col = CIlinecol) +
-        geom_line(data = data_bin, aes_string(x = "x", 
+        ggplot2::geom_line(data = data_bin, ggplot2::aes_string(x = "x", 
                                               y = "p"), 
                   size = lwd, colour = col, linetype = lty, na.rm = TRUE) +
         abline_layer +
-        coord_cartesian(ylim = ylim) +
-        ylab(ylab2) +
-        xlab(xlab) +
-        ggtitle(main)
+        ggplot2::coord_cartesian(ylim = ylim) +
+        ggplot2::ylab(ylab2) +
+        ggplot2::xlab(xlab) +
+        ggplot2::ggtitle(main)
       
       
     } else {
@@ -288,26 +316,26 @@ autoplot.frfast <- function(object = model, fac = NULL, der = 0, diffwith = NULL
                              pu = model$diffu[, der = jder, jnf[2], jnf[1]])
       
       if (abline == TRUE) {
-        abline_layer <- geom_hline(yintercept = 0, colour = ablinecol)
+        abline_layer <- ggplot2::geom_hline(yintercept = 0, colour = ablinecol)
       }else{
         abline_layer <- NULL
       }
       
       
-      ggplot() +
-        geom_ribbon(data = data_bin, aes_string(x = "x", 
+      ggplot2::ggplot() +
+        ggplot2::geom_ribbon(data = data_bin, ggplot2::aes_string(x = "x", 
                                                 ymin = "pl", 
                                                 ymax = "pu"), 
                     alpha = alpha, fill = CIcol, linetype = lty,
                     size = CIlwd, col = CIlinecol) +
-        geom_line(data = data_bin, aes_string(x = "x", 
+        ggplot2::geom_line(data = data_bin, ggplot2::aes_string(x = "x", 
                                               y = "p"), 
                   size = lwd, colour = col, linetype = lty, na.rm = TRUE) +
         abline_layer +
-        coord_cartesian(ylim = ylim) +
-        ylab(ylab2) +
-        xlab(xlab) +
-        ggtitle(main)
+        ggplot2::coord_cartesian(ylim = ylim) +
+        ggplot2::ylab(ylab2) +
+        ggplot2::xlab(xlab) +
+        ggplot2::ggtitle(main)
       
     }
   }

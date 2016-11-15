@@ -54,7 +54,7 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' allotest(DW ~ RC, data = barnacle, nboot = 100, seed = 130853)
+#' allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853)
 #' 
 #' @useDynLib npregfast allotest_
 #' @importFrom stats na.omit runif
@@ -123,10 +123,11 @@ allotest <- function(formula, data = data, na.action = "na.omit",
                     n = as.integer(n), 
                     kbin = as.integer(kbin), 
                     nboot = as.integer(nboot), 
-                    seed = as.integer(seed), 
+                   # seed = as.integer(seed),
                     T = as.double(-1), 
                     pvalue = as.double(-1),
-                    umatrix = as.double(umatrix)
+                    umatrix = as.double(umatrix),
+                    PACKAGE = "npregfast"
                     )
     
     res[[i]] <- list(statistic = fit$T, pvalue = fit$pvalue)

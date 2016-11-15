@@ -122,8 +122,8 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
                       n      = as.integer(n),
                       h0      = as.double(h0),
                       h      = as.double(h),
-                      c2     = as.integer(c2),
-                      ncmax  = as.integer(ncmax),
+                      #c2     = as.integer(c2),
+                      #ncmax  = as.integer(ncmax),
                       p      = as.integer(p),
                       kbin   = as.integer(kbin),
                       fact   = as.integer(c(1:nf)),
@@ -159,8 +159,9 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
                       predict = array(as.double(-1.0), c(n, 3, nf)),
                       predictl = array(as.double(-1.0), c(n, 3, nf)),
                       predictu = array(as.double(-1.0), c(n, 3, nf)),
-                      seed = as.integer(seed),
-                      umatrix = as.double(umatrix)
+                      #seed = as.integer(seed),
+                      umatrix = as.double(umatrix),
+                      PACKAGE = "npregfast"
   )
   
   
