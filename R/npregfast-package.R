@@ -14,7 +14,7 @@
 #' @name npregfast
 #' @docType package
 #' @details \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
-#' Version: \tab 1.3.0\cr Date: \tab 2016-11-16\cr License: \tab MIT + file LICENSE\cr}
+#' Version: \tab 1.4.0\cr Date: \tab 2016-11-16\cr License: \tab MIT + file LICENSE\cr}
 #'
 #'\code{npregfast} is designed along lines similar to those of other \code{R} 
 #'regression packages. The main function of the library is \code{frfast} 
