@@ -20,7 +20,7 @@ implicit none
 integer n,kbin,p,iboot,nboot,i
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
-umatrix(n,nboot)
+umatrix(n,nboot), aux
 !real u, rand
 double precision u
 real,external::rnnof
@@ -32,10 +32,10 @@ integer,external::which_min,which_max2
 
 
 h=-1.0
-
+aux = 0.001
 do i=1,n
- X2(i)=max(X(i),0.001)
- Y2(i)=max(Y(i),0.001)
+ X2(i)=max(X(i),aux)
+ Y2(i)=max(Y(i),aux)
 end do
 
 
@@ -3190,7 +3190,7 @@ implicit none
 integer n,i,j,kbin,p
 double precision x(n),y(n),W(n),Xb(kbin),Yb(kbin),Wb(kbin),&
 Area(2),dis1,dis2,Beta(5),&
-Pb(kbin,3),Xb2(kbin),Yb2(kbin),a,b
+Pb(kbin,3),Xb2(kbin),Yb2(kbin),a,b,aux
 
 
 
@@ -3228,9 +3228,9 @@ end do
 
 
 
-
-Xb2=max(Xb,0.001)
-Yb2=max(Yb,0.001)
+aux=0.001
+Xb2=max(Xb,aux)
+Yb2=max(Yb,aux)
 
 Xb2=log(Xb2)
 Yb2=log(Yb2)
@@ -3261,11 +3261,11 @@ implicit none
 integer n,i,kbin,p
 double precision x(n),y(n),W(n),Xb(kbin),&
 Beta(5),&
-Pb(kbin,3),X2(n),Y2(n),a,b
+Pb(kbin,3),X2(n),Y2(n),a,b,aux
 
-
-X2=max(X,0.001)
-Y2=max(Y,0.001)
+aux=0.001
+X2=max(X,aux)
+Y2=max(Y,aux)
 
 X2=log(X2)
 Y2=log(Y2)
