@@ -184,7 +184,7 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     len <- length(newdata)
   
     
-    mainfun <- function(formula, data, weights){
+    mainfun <- function(formula, data, weights, ...){
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = model$kbin)
       xgrid <- c(xgrid, newdata)
@@ -209,7 +209,7 @@ predict.frfast <- function(object = model, newdata, fac = NULL, der = NULL,
     
     
     
-    res <- mainfun(formula, data = data, weights = weights)
+    res <- mainfun(formula, data = data, weights = weights, ...)
     p <- res
 
     

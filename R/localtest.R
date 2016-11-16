@@ -121,6 +121,9 @@
 #' data(barnacle)
 #' localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 #' 
+#' #localtest(height ~ s(age, by = sex), data = children, seed = 130853, 
+#' der = 1, smooth = "splines") 
+#' 
 #' @useDynLib npregfast localtest_
 #' @importFrom stats na.omit runif
 #' @importFrom mgcv interpret.gam gam predict.gam
@@ -340,7 +343,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
     
   }else{
     
-    mainfun_localtest <- function(formula, data, weights){
+    mainfun_localtest <- function(formula, data, weights, ...){
       
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
@@ -409,7 +412,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
     
     
     
-    d <- mainfun_localtest(formula, data = data, weights = weights)
+    d <- mainfun_localtest(formula, data = data, weights = weights, ...)
     
     # bootstrap
     m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)

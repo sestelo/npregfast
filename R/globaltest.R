@@ -101,6 +101,9 @@
 #' data(barnacle)
 #' globaltest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 #' 
+#' # globaltest(height ~ s(age, by = sex), data = children, 
+#' seed = 130853, der = 0, smooth = "splines")
+#' 
 #' 
 #' @useDynLib npregfast globaltest_
 #' @importFrom stats na.omit runif
@@ -317,7 +320,7 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
     # 
   }else{
     
-    mainfun_globaltest <- function(formula, data, weights){
+    mainfun_globaltest <- function(formula, data, weights, ...){
       
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
@@ -350,7 +353,7 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
       return(t)
     }
     
-    d <- mainfun_globaltest(formula, data = data, weights = weights)
+    d <- mainfun_globaltest(formula, data = data, weights = weights, ...)
     
     
     
