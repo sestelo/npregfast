@@ -80,19 +80,19 @@ ggplot2::autoplot
 #' autoplot(fit2, der = 1, fac = "barca", diffwith = "lens")
 #' 
 #' 
-#' #Plotting in the same graphics device
-#' 
-#' if (requireNamespace("gridExtra", quietly = TRUE)) {
-#' 
-#' # For plotting two derivatives in the same graphic windows 
-#' ders <- lapply(0:1, function(x) autoplot(fit, der = x))
-#' gridExtra::grid.arrange(grobs = ders, ncol = 2, nrow = 1)
-#' 
-#' # For plotting two levels in the same graphic windows 
-#' facs <- lapply(c("barca", "lens"), function(x) autoplot(fit2, der = 0, fac = x))
-#' gridExtra::grid.arrange(grobs = facs, ncol = 2, nrow = 1)
-#' 
-#' }
+# ' #Plotting in the same graphics device
+# '
+# ' # if (requireNamespace("gridExtra", quietly = TRUE)) {
+# '
+# ' # # For plotting two derivatives in the same graphic windows
+# ' # ders <- lapply(0:1, function(x) autoplot(fit, der = x))
+# ' # gridExtra::grid.arrange(grobs = ders, ncol = 2, nrow = 1)
+# '
+# ' # # For plotting two levels in the same graphic windows
+# ' # facs <- lapply(c("barca", "lens"), function(x) autoplot(fit2, der = 0, fac = x))
+# ' # gridExtra::grid.arrange(grobs = facs, ncol = 2, nrow = 1)
+# '
+# ' # }
 #' 
 #' @importFrom ggplot2 autoplot geom_point aes_string ylab
 #' @importFrom ggplot2 geom_hline geom_ribbon geom_line 

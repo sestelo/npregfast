@@ -3885,7 +3885,7 @@ subroutine Interpola_alo (Xgrid,Pgrid,kbin,X0,P0,P1,n)
 USE lsq
 IMPLICIT NONE
 
-INTEGER*4                 :: i, ier, j, n, nk,next_knot,kbin,icont
+INTEGER                 :: i, ier, j, n, nk,next_knot,kbin,icont
 double precision               :: t, t1, y, dist,Xgrid(kbin),Pgrid(kbin),X0(n),P0(n),P1(n),P2(n)
 double precision, PARAMETER    :: one = 1.0_dp,cero=0.0_dp
 double precision, ALLOCATABLE  :: knot(:), xrow(:), b(:)
