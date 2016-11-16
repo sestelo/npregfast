@@ -124,7 +124,7 @@ data(barnacle)
 globaltest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 
 # globaltest(height ~ s(age, by = sex), data = children, 
-seed = 130853, der = 0, smooth = "splines")
+# seed = 130853, der = 0, smooth = "splines")
 
 
 }
