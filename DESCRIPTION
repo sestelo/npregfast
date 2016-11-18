@@ -3,7 +3,7 @@ Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
 Version: 1.4.0
-Date: 2016-11-16
+Date: 2016-11-18
 Author: Marta Sestelo [aut, cre],
     Nora M. Villanueva [aut],
     Javier Roca-Pardinas [aut]
@@ -12,7 +12,7 @@ Authors@R: c(
   person("Marta", "Sestelo",email= "sestelo@uvigo.es", role = c("aut", "cre")),
   person("Nora", "M. Villanueva",email= "nmvillanueva@uvigo.es", role = "aut"),
   person("Javier", "Roca-Pardinas",email= "roca@uvigo.es", role = "aut"))
-Description: A method for obtain nonparametric estimates of regression models
+Description: A method for obtaining nonparametric estimates of regression models
     with or without factor-by-curve interactions using local polynomial kernel
     smoothers or splines. Additionally, a parametric model (allometric model) can be
     estimated.
