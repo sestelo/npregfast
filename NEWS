@@ -22,7 +22,7 @@ This file documents software changes since the previous edition.
    * the argument smooth has been incorporated to the functions. Users can select now the type of smoother: kernel (by default) or splines.
    
    
-   # npregfast 1.4.0 (2016-11-16)
+   # npregfast 1.4.0 (2016-11-18)
 
    * the plotting functions have been changed. Users can choose between the plot.frfast function, used for base graphics, and the autoplot.frfast function, which is appropriate for ggplot2-type plot and returns objects of the ggplot class. 
    * we have merged the plottdiff function of the previous version of the package with plot.frfast and with  autoplot.frfast by means of the new argument diffwith. This new argument lets users visualize the differences between two factor’s levels.
