@@ -271,7 +271,7 @@ end subroutine
 
 
 subroutine localtest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
-pcmax,pcmin,r,D,Ci,Cs,umatrix)
+pcmax,pcmin,r,D,Ci,Cs,umatrix,level,nalfas)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::localtest
@@ -280,12 +280,12 @@ pcmax,pcmin,r,D,Ci,Cs,umatrix)
 implicit none
 integer,parameter::kfino=1000
 integer i,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,&
-nh,nboot,kernel,r,index,posmin,posmax
+nh,nboot,kernel,r,index,posmin,posmax,nalfas
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 u,h(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
-C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
+C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci(nalfas),Cs(nalfas),&
 Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0,&
-umatrix(n,nboot)
+umatrix(n,nboot),level(nalfas)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
 muhatgboot(:),Xfino(:),Pfino(:),p0(:,:),pred(:),pboot(:,:,:,:),cboot(:,:,:),&
@@ -709,11 +709,34 @@ end do
 Ci=-1
 Cs=-1
 
-
-call ICbootstrap(D,Dboot,nboot,Ci,Cs) 
-
+do i=1,nalfas
+  call ICbootstrap_beta_per(Dboot,nboot,1-level(i),Ci(i),Cs(i)) 
+end do
 
 end subroutine
+
+
+
+
+
+subroutine ICbootstrap_beta_per(X,nboot,beta,li,ls)
+implicit none
+integer nboot,nalfa
+double precision X(nboot),li,ls,alfa(3),Q(3),beta
+
+alfa(1)=beta/2
+alfa(2)=0.5
+alfa(3)=1-beta/2
+nalfa=3
+call quantile (X,nboot,alfa,nalfa,Q)
+
+li=Q(1)!-Q(2)
+ls=Q(3)!-Q(2)
+
+end subroutine
+
+
+
 
 
 

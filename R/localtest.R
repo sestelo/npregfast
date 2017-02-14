@@ -141,7 +141,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
                       nboot = 500, h0 = -1.0, h = -1.0, nh = 30, 
                       kernel = "epanech", p = 3, kbin = 100, rankl = NULL, 
                       ranku = NULL, seed = NULL, cluster = TRUE, 
-                      ncores = NULL, ...) {
+                      ncores = NULL, ci.level = 0.95, ...) {
   
   if(kernel == "gaussian")  kernel <- 3
   if(kernel == "epanech")   kernel <- 1
@@ -187,7 +187,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
   ncmax <- 5
   c2 <- NULL
   # if(is.null(seed)) seed <- -1
-  
+  nalfas <- length(ci.level)
   
   
   
@@ -323,22 +323,30 @@ localtest <- function(formula, data = data, na.action = "na.omit",
                           pcmin = as.double(rankl), # rango de busqueda maximo
                           r = as.integer(der),
                           D = as.double(rep(-1.0,1)),
-                          Ci = as.double(rep(-1.0,1)),
-                          Cs = as.double(rep(-1.0,1)),
+                          Ci = as.double(rep(-1.0,nalfas)),
+                          Cs = as.double(rep(-1.0,nalfas)),
                          # seed = as.integer(seed),
                           umatrix = as.double(umatrix),
+                         level = as.double(ci.level),
+                         nalfas = as.integer(nalfas),
                           PACKAGE = "npregfast"
     )
     
-    
-    
-    if (localtest$Ci <= 0 & 0 <= localtest$Cs) {
-      decision <- "Acepted"
-    } else {
-      decision <- "Rejected"
+    decision <- character(nalfas)
+    for(i in 1:nalfas){
+      if (localtest$Ci[i] <= 0 & 0 <= localtest$Cs[i]) {
+        decision[i] <- "Acepted"
+      } else {
+        decision[i] <- "Rejected"
+      }
     }
+    
+    
+    
+    
     res <- cbind(d = round(localtest$D, digits = 4), Lwr = round(localtest$Ci, digits = 4), 
-                 Upr = round(localtest$Cs, digits = 4), Decision = decision)
+                 Upr = round(localtest$Cs, digits = 4), Decision = decision,
+                 Ci.Level = round(ci.level, digits = 2))
     # class(res) <- 'localtest'
     
   }else{

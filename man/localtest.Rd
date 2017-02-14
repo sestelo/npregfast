@@ -7,7 +7,8 @@
 localtest(formula, data = data, na.action = "na.omit", der,
   smooth = "kernel", weights = NULL, nboot = 500, h0 = -1, h = -1,
   nh = 30, kernel = "epanech", p = 3, kbin = 100, rankl = NULL,
-  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
+  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL,
+  ci.level = 0.95, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
