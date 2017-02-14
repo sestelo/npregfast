@@ -55,6 +55,7 @@
 #'@param ncores An integer value specifying the number of cores to be used
 #' in the parallelized procedure. If \code{NULL} (default), the number of cores 
 #' to be used is equal to the number of cores of the machine - 1.
+#'@param ci.level Level of bootstrap confidence interval. Defaults to 0.95 (corresponding to 95\%). Note that the function accepts a vector of levels.
 #' @param \ldots Other options.
 #' 
 #' 
