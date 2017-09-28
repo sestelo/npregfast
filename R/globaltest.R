@@ -300,19 +300,25 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
                            kernel = as.integer(kernel), 
                            nboot = as.integer(nboot), 
                            r = as.integer(der), 
-                           T = as.double(rep(-1, 1)), 
-                           pvalor = as.double(rep(-1, 1)), 
+                           T = as.double(rep(-1, 4)), 
+                           pvalor = as.double(rep(-1, 4)), 
                            #  umatrix = as.double(umatrix)
                            #seed = as.integer(seed),
                            umatrix = array(umatrix, c(n, nboot)),
                            PACKAGE = "npregfast"
     )
     
-    if (globaltest$pvalor < 0.05) {
-      decision <- "Rejected"
+    decision <- character(4)
+    for (j in 1:4){
+    if (globaltest$pvalor[j] < 0.05) {
+      decision[j] <- "Rejected"
     } else {
-      decision <- "Acepted"
+      decision[j] <- "Accepted"
     }
+    }
+    
+    
+    
     res <- data.frame(cbind(Statistic = globaltest$T, pvalue = globaltest$pvalor), 
                       Decision = I(decision))
     # res=cbind(Statistic=round(globaltest$T,digits=4),pvalue=round(globaltest$pvalor,digits=4),Decision=I(decision))
