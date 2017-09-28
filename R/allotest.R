@@ -8,9 +8,13 @@
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #'@param nboot Number of bootstrap repeats.
-#'@param kbin Number of binning nodes over which the function
-#' is to be estimated.
 #'@param seed Seed to be used in the bootstrap procedure.
+#' \item{cluster}{Is the procedure parallelized? (for splines smoothers).}
+#' \item{ncores}{Number of cores used in the parallelized procedure? (for splines smoothers).}
+#' \item{test}{Statistic test to be used, based on residuals on the null model
+#'  (\code{res}) or based on the likelihood ratio test 
+#'  using rss0 and rss1 \code{lrt} .}
+#' 
 #'@details In order to facilitate the choice of a model appropriate
 #' to the data while at the same time endeavouring to minimise the 
 #' loss of information,  a bootstrap-based procedure, that test whether the 
@@ -65,7 +69,18 @@
 
 
 allotest <- function(formula, data = data, na.action = "na.omit",
-                     nboot = 500, kbin = 200, seed = NULL) {
+                     nboot = 500, seed = NULL, cluster = TRUE,
+                     ncores = NULL, test = "res", ...) {
+  
+  if (isTRUE(cluster)) {
+    if (is.null(ncores)) {
+      num_cores <- detectCores() - 1
+    }else{
+      num_cores <- ncores
+    }
+    registerDoParallel(cores = num_cores)
+  }
+  
   
   ffr <- interpret.frfastformula(formula, method = "frfast")
   varnames <- ffr$II[2, ]
@@ -101,7 +116,7 @@ allotest <- function(formula, data = data, na.action = "na.omit",
     set.seed(seed)
   }
   
-  umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
+  #umatrix <- matrix(runif(n*nboot), ncol = nboot, nrow = n)
   
   if (is.null(f)) 
     f <- rep(1, n)
@@ -116,21 +131,36 @@ allotest <- function(formula, data = data, na.action = "na.omit",
     xx <- data[, 2][f == i]
     n <- length(xx)
     w <- rep(1, n)
-    fit <- .Fortran("allotest_", 
-                    x = as.double(xx), 
-                    y = as.double(yy), 
-                    w = as.double(w), 
-                    n = as.integer(n), 
-                    kbin = as.integer(kbin), 
-                    nboot = as.integer(nboot), 
-                   # seed = as.integer(seed),
-                    T = as.double(-1), 
-                    pvalue = as.double(-1),
-                    umatrix = as.double(umatrix),
-                    PACKAGE = "npregfast"
-                    )
     
-    res[[i]] <- list(statistic = fit$T, pvalue = fit$pvalue)
+    m <- lm(log(yy) ~ log(xx), weights = w)
+    muhatg <- exp(coef(m)[1]) * xx**coef(m)[2]
+    errg <- yy - muhatg
+    
+   if(test == "res") {t <- sta_res(x = xx, y = yy)}
+   if(test == "lrt") {t <- sta_rss(x = xx, y = yy)}
+    #print(c(t1, t2))
+    
+    yboot <- replicate(nboot, muhatg + errg * 
+                         sample(c(-sqrt(5) + 1, sqrt(5) + 1)/2, size = n, 
+                                replace = TRUE, 
+                                prob = c(sqrt(5) + 1, sqrt(5) - 1)/(2 * sqrt(5))))
+    
+    if(test == "res") {
+      tboot <- unlist(foreach(i = 1:nboot) %dopar% {
+      sta_res(x = xx, y = yboot[, i])
+    })
+    }
+    
+    if(test == "lrt") {
+    tboot <- unlist(foreach(i = 1:nboot) %dopar% {
+      sta_rss(x = xx, y = yboot[, i])
+    })
+    }
+    pvalue <- mean(tboot>t)
+
+
+    res[[i]] <- list(statistic = c(t), pvalue = c(pvalue))
+    
   }
   
   
@@ -157,3 +187,37 @@ allotest <- function(formula, data = data, na.action = "na.omit",
   return(result)
   
 } 
+
+
+
+
+
+
+sta_res <- function(x, y){
+  model <- lm(log(y) ~ log(x))
+  muhat <- exp(coef(model)[1]) * x**coef(model)[2]
+  residuo <- y - muhat
+  pred <- as.numeric(predict(gam(residuo ~ s(x))))
+  #pred <- predict(frfast(residuo ~ x, data = data.frame(x, residuo), nboot = 0), newdata = data.frame(x=x))$Estimation[,1]
+  #pred <- pred - mean(pred)
+  #rango <- max(x) - min(x)
+  #ii <- abs(x) <= (max(x)-0.1*rango)
+  t <- sum(abs(pred))
+}
+
+sta_rss <- function(x, y){
+  model <- lm(log(y) ~ log(x))
+  m0 <- exp(coef(model)[1]) * x**coef(model)[2]
+  rss0 <- sum((y - m0)**2)
+  m1 <- as.numeric(predict(gam(y ~ s(x))))
+  rss1 <- sum((y - m1)**2)
+  #rango <- max(x) - min(x)
+  #ii <- abs(x) <= (max(x)-0.1*rango)
+  t <- (rss0 - rss1)/rss1
+}
+
+
+
+
+
+
