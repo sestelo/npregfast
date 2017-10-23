@@ -336,7 +336,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
     decision <- character(nalfas)
     for(i in 1:nalfas){
       if (localtest$Ci[i] <= 0 & 0 <= localtest$Cs[i]) {
-        decision[i] <- "Acepted"
+        decision[i] <- "Accepted"
       } else {
         decision[i] <- "Rejected"
       }
