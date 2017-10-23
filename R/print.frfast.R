@@ -56,6 +56,7 @@ print.frfast <- function(x = model, ...) {
         cat("Triangular")
       if (model$kernel == 3) 
         cat("Gaussian")
+      cat("\n")
     }
     
     
