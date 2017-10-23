@@ -13,7 +13,7 @@
 #' \item{ncores}{Number of cores used in the parallelized procedure? (for splines smoothers).}
 #' \item{test}{Statistic test to be used, based on residuals on the null model
 #'  (\code{res}) or based on the likelihood ratio test 
-#'  using rss0 and rss1 \code{lrt} .}
+#'  using rss0 and rss1 \code{lrt}.}
 #' 
 #'@details In order to facilitate the choice of a model appropriate
 #' to the data while at the same time endeavouring to minimise the 
