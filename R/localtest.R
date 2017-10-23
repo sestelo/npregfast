@@ -443,15 +443,30 @@ localtest <- function(formula, data = data, na.action = "na.omit",
     }
     
     
-    ci <- quantile(unlist(d_allboot), probs = c(0.025, 0.975), na.rm = TRUE)
+    
+    
+    decision <- character(nalfas)
+    cilower <- numeric(nalfas)
+    ciupper <- numeric(nalfas)
+    
+    for(i in 1:nalfas){
+      alpha <- 1-ci.level[i]
+      ci <- quantile(unlist(d_allboot), 
+                     probs = c(alpha/2, 1 - (alpha/2)), na.rm = TRUE)
     
     if (ci[1] <= 0 & 0 <= ci[2]) {
-      decision <- "Acepted"
+      decision[i] <- "Accepted"
     } else {
-      decision <- "Rejected"
+      decision[i] <- "Rejected"
     }
-    res <- cbind(d = round(d, digits = 4), Lwr = round(ci[1], digits = 4), 
-                 Upr = round(ci[2], digits = 4), Decision = decision)
+    cilower[i] <- ci[1]
+    ciupper[i] <- ci[2] 
+    }
+    
+    
+    res <- cbind(d = round(d, digits = 4), Lwr = round(cilower, digits = 4), 
+                 Upr = round(ciupper, digits = 4), Decision = decision,
+                 Ci.Level = round(ci.level, digits = 2))
     
     rownames(res) <- NULL
     
