@@ -35,4 +35,4 @@ Imports:
     shinyjs,
     wesanderson,
     ggplot2
-RoxygenNote: 5.0.0
+RoxygenNote: 6.0.1
