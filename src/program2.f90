@@ -311,7 +311,7 @@ call Interpola(Xb,Pb(1,1),kbin,X,pred1,n)
 
 do i=1,n
 !print *, residuo(1:n)
- print *, pred1(i)
+ !print *, pred1(i)
 end do
 
 
@@ -997,7 +997,7 @@ call GRID(X,W,n,Xb,kbin)
 call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
 
-print *, h0
+!print *, h0
 
 !print *, muhatg
 
