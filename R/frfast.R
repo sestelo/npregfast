@@ -219,6 +219,7 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach %dopar%
+#' @importFrom stats coef model.response model.weights
 #' 
 #' @export
 
