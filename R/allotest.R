@@ -209,6 +209,7 @@ allotest <- function(formula, data = data, na.action = "na.omit",
 
 
 sta_res <- function(x, y){
+  y[y == 0] <- 0.0001
   model <- lm(log(y) ~ log(x))
   muhat <- exp(coef(model)[1]) * x**coef(model)[2]
   residuo <- y - muhat
@@ -221,6 +222,7 @@ sta_res <- function(x, y){
 }
 
 sta_rss <- function(x, y){
+  y[y == 0] <- 0.0001
   model <- lm(log(y) ~ log(x))
   m0 <- exp(coef(model)[1]) * x**coef(model)[2]
   rss0 <- sum((y - m0)**2)
