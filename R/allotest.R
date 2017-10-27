@@ -9,11 +9,24 @@
 #' data contain 'NA's. The default is 'na.omit'.
 #'@param nboot Number of bootstrap repeats.
 #'@param seed Seed to be used in the bootstrap procedure.
-#' \item{cluster}{Is the procedure parallelized? (for splines smoothers).}
-#' \item{ncores}{Number of cores used in the parallelized procedure? (for splines smoothers).}
-#' \item{test}{Statistic test to be used, based on residuals on the null model
+#' @param cluster A logical value. If  \code{TRUE} (default), the
+#'  bootstrap procedure is  parallelized (only for \code{smooth = "splines"}).
+#'   Note that there are cases 
+#'  (e.g., a low number of bootstrap repetitions) that R will gain in
+#'  performance through serial computation. R takes time to distribute tasks
+#'  across the processors also it will need time for binding them all together
+#'  later on. Therefore, if the time for distributing and gathering pieces
+#'  together is greater than the time need for single-thread computing, it does
+#'  not worth parallelize.
+#'@param ncores An integer value specifying the number of cores to be used
+#' in the parallelized procedure. If \code{NULL} (default), the number of cores 
+#' to be used is equal to the number of cores of the machine - 1.
+#'@param test Statistic test to be used, based on residuals on the null model
 #'  (\code{res}) or based on the likelihood ratio test 
-#'  using rss0 and rss1 \code{lrt}.}
+#'  using rss0 and rss1 \code{lrt}.
+#' @param \ldots Other options.
+#'  
+#'  
 #' 
 #'@details In order to facilitate the choice of a model appropriate
 #' to the data while at the same time endeavouring to minimise the 
@@ -132,7 +145,7 @@ allotest <- function(formula, data = data, na.action = "na.omit",
     n <- length(xx)
     w <- rep(1, n)
     
-    m <- lm(log(yy) ~ log(xx), weights = w)
+    m <- lm(log(yy) ~ log(xx))
     muhatg <- exp(coef(m)[1]) * xx**coef(m)[2]
     errg <- yy - muhatg
     
