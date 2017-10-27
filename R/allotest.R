@@ -142,6 +142,8 @@ allotest <- function(formula, data = data, na.action = "na.omit",
   for (i in etiquetas) {
     yy <- data[, 1][f == i]
     xx <- data[, 2][f == i]
+    yy[yy == 0] <- 0.0001
+    xx[xx == 0] <- 0.0001
     n <- length(xx)
     w <- rep(1, n)
     
