@@ -27,3 +27,17 @@ This file documents software changes since the previous edition.
    * the plotting functions have been changed. Users can choose between the plot.frfast function, used for base graphics, and the autoplot.frfast function, which is appropriate for ggplot2-type plot and returns objects of the ggplot class. 
    * we have merged the plottdiff function of the previous version of the package with plot.frfast and with  autoplot.frfast by means of the new argument diffwith. This new argument lets users visualize the differences between two factor’s levels.
  
+ 
+ 
+  # npregfast 1.4.1 (2017-10-30)
+
+  * the localtest function has a new argument: ci.level.
+  * new implementation in R of the allotest. Now it is possible
+  to choose between two statistic test: "res" (based on residuals on the 
+  null model) or "lrt" (based on the likelihood ratio test using rss0 and rss1).
+  * fixed some bugs in the formula argument of frfast function.
+  
+  
+
+  
+ 
