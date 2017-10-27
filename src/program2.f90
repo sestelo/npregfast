@@ -64,7 +64,7 @@ end do
 !print *, errg(1:n)
 
 call RfastC3(X,Y,W,n,p,kbin,h,T)
-print *, T 
+!print *, T 
 
 pvalor=0
 do iboot=1,nboot
