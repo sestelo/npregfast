@@ -133,7 +133,7 @@ errg=Y-muhatg ! residuos modelo alometrico
 !print *, errg(1:n)
 
 call RfastC3_sestelo(X,Y,W,n,p,kbin,h,T)
-print *, T 
+!print *, T 
 
 pvalor=0
 do iboot=1,nboot
