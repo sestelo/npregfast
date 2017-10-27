@@ -55,6 +55,7 @@
 #'@param ncores An integer value specifying the number of cores to be used
 #' in the parallelized procedure. If \code{NULL} (default), the number of cores 
 #' to be used is equal to the number of cores of the machine - 1.
+#'@param ci.level Level of bootstrap confidence interval. Defaults to 0.95 (corresponding to 95\%). Note that the function accepts a vector of levels.
 #' @param \ldots Other options.
 #' 
 #' 
@@ -141,7 +142,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
                       nboot = 500, h0 = -1.0, h = -1.0, nh = 30, 
                       kernel = "epanech", p = 3, kbin = 100, rankl = NULL, 
                       ranku = NULL, seed = NULL, cluster = TRUE, 
-                      ncores = NULL, ...) {
+                      ncores = NULL, ci.level = 0.95, ...) {
   
   if(kernel == "gaussian")  kernel <- 3
   if(kernel == "epanech")   kernel <- 1
@@ -187,7 +188,7 @@ localtest <- function(formula, data = data, na.action = "na.omit",
   ncmax <- 5
   c2 <- NULL
   # if(is.null(seed)) seed <- -1
-  
+  nalfas <- length(ci.level)
   
   
   
@@ -323,22 +324,30 @@ localtest <- function(formula, data = data, na.action = "na.omit",
                           pcmin = as.double(rankl), # rango de busqueda maximo
                           r = as.integer(der),
                           D = as.double(rep(-1.0,1)),
-                          Ci = as.double(rep(-1.0,1)),
-                          Cs = as.double(rep(-1.0,1)),
+                          Ci = as.double(rep(-1.0,nalfas)),
+                          Cs = as.double(rep(-1.0,nalfas)),
                          # seed = as.integer(seed),
                           umatrix = as.double(umatrix),
+                         level = as.double(ci.level),
+                         nalfas = as.integer(nalfas),
                           PACKAGE = "npregfast"
     )
     
-    
-    
-    if (localtest$Ci <= 0 & 0 <= localtest$Cs) {
-      decision <- "Acepted"
-    } else {
-      decision <- "Rejected"
+    decision <- character(nalfas)
+    for(i in 1:nalfas){
+      if (localtest$Ci[i] <= 0 & 0 <= localtest$Cs[i]) {
+        decision[i] <- "Accepted"
+      } else {
+        decision[i] <- "Rejected"
+      }
     }
+    
+    
+    
+    
     res <- cbind(d = round(localtest$D, digits = 4), Lwr = round(localtest$Ci, digits = 4), 
-                 Upr = round(localtest$Cs, digits = 4), Decision = decision)
+                 Upr = round(localtest$Cs, digits = 4), Decision = decision,
+                 Ci.Level = round(ci.level, digits = 2))
     # class(res) <- 'localtest'
     
   }else{
@@ -434,15 +443,30 @@ localtest <- function(formula, data = data, na.action = "na.omit",
     }
     
     
-    ci <- quantile(unlist(d_allboot), probs = c(0.025, 0.975), na.rm = TRUE)
+    
+    
+    decision <- character(nalfas)
+    cilower <- numeric(nalfas)
+    ciupper <- numeric(nalfas)
+    
+    for(i in 1:nalfas){
+      alpha <- 1-ci.level[i]
+      ci <- quantile(unlist(d_allboot), 
+                     probs = c(alpha/2, 1 - (alpha/2)), na.rm = TRUE)
     
     if (ci[1] <= 0 & 0 <= ci[2]) {
-      decision <- "Acepted"
+      decision[i] <- "Accepted"
     } else {
-      decision <- "Rejected"
+      decision[i] <- "Rejected"
     }
-    res <- cbind(d = round(d, digits = 4), Lwr = round(ci[1], digits = 4), 
-                 Upr = round(ci[2], digits = 4), Decision = decision)
+    cilower[i] <- ci[1]
+    ciupper[i] <- ci[2] 
+    }
+    
+    
+    res <- cbind(d = round(d, digits = 4), Lwr = round(cilower, digits = 4), 
+                 Upr = round(ciupper, digits = 4), Decision = decision,
+                 Ci.Level = round(ci.level, digits = 2))
     
     rownames(res) <- NULL
     

@@ -17,10 +17,10 @@ implicit none
 !!DEC$ ATTRIBUTES DLLEXPORT::test_allo
 !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'test_allo_' :: test_allo
 
-integer n,kbin,p,iboot,nboot,i
+integer n,kbin,p,iboot,nboot,i,j
 double precision X(n),X2(n),Y(n),Y2(n),W(n),&
 errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
-umatrix(n,nboot), aux
+umatrix(n,nboot), aux, beta(10)
 !real u, rand
 double precision u
 real,external::rnnof
@@ -28,7 +28,7 @@ integer,external::which_min,which_max2
 
 
 
-
+w=1
 
 
 h=-1.0
@@ -44,15 +44,27 @@ Y=log(Y2)
 
 ! Estimación Piloto 
 
+!p=1
+!call Reglineal_pred(X,Y,W,n,p,muhatg)
+
+
 p=1
-call Reglineal_pred(X,Y,W,n,p,muhatg)
+call Reglineal (X,Y,W,n,p,Beta)
 do i=1,n
- errg(i)=Y(i)-muhatg(i)
+muhatg(i)=beta(1)
+do j=1,p
+muhatg(i)=muhatg(i)+beta(j+1)*X(i)**j
+end do
 end do
 
 
-call RfastC3(X,Y,W,n,p,kbin,h,T)
+ errg=Y-muhatg
 
+
+!print *, errg(1:n)
+
+call RfastC3(X,Y,W,n,p,kbin,h,T)
+!print *, T 
 
 pvalor=0
 do iboot=1,nboot
@@ -79,34 +91,132 @@ end subroutine
 
 
 
+subroutine allotest_sestelo_(X,Y,W,n,kbin,nboot,T,pvalor,umatrix)
+implicit none
 
-subroutine RfastC3(X,Y,W,n,p,kbin,h,T)
+!!DEC$ ATTRIBUTES DLLEXPORT::test_allo
+!!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'test_allo_' :: test_allo
+
+integer n,kbin,p,iboot,nboot,i,j
+double precision X(n),X2(n),Y(n),Y2(n),W(n),&
+errg(n),muhatg(n),Yboot(n),h,T,Tboot,pvalor,&
+umatrix(n,nboot), aux, beta(10)
+!real u, rand
+double precision u
+real,external::rnnof
+integer,external::which_min,which_max2
+
+
+h=-1.0
+aux = 0.001
+do i=1,n
+ X2(i)=max(X(i),aux)
+ Y2(i)=max(Y(i),aux)
+end do
+
+X2=log(X2)
+Y2=log(Y2)
+
+! Estimación Piloto escala normal
+p=1
+call Reglineal (X2,Y2,W,n,p,Beta)
+
+do i=1,n
+muhatg(i)=exp(beta(1))
+do j=1,p
+muhatg(i)=muhatg(i)*X(i)**beta(j+1)
+end do
+end do
+errg=Y-muhatg ! residuos modelo alometrico
+
+
+!print *, errg(1:n)
+
+call RfastC3_sestelo(X,Y,W,n,p,kbin,h,T)
+!print *, T 
+
+pvalor=0
+do iboot=1,nboot
+ do i=1,n
+  !u=RAND()
+  !call test_random(u)
+  u = umatrix(i,iboot)
+  if (u.le.(5.0+sqrt(5.0))/10) then
+   Yboot(i)=muhatg(i)+errg(i)*(1-sqrt(5.0))/2
+  else
+   Yboot(i)=muhatg(i)+errg(i)*(1+sqrt(5.0))/2
+  end if
+ end do
+ h=-1.0
+call RfastC3_sestelo(X,Yboot,W,n,p,kbin,h,Tboot)
+if(Tboot.gt.T) pvalor=pvalor+1
+end do
+
+pvalor=pvalor/nboot
+
+end subroutine
+
+
+subroutine RfastC3_sestelo(X,Y,W,n,p,kbin,h,T)
 implicit none
 
 integer,parameter::kernel=1,nh=20
-integer n,kbin,p,i
-double precision X(n),Y(n),W(n),Xb(kbin),pred1(n),pred2(n),h,&
-Pb(kbin),residuo(n),predg(n),T,sumw,sum2,xmin,xmax,rango
+integer n,kbin,p,i,j
+double precision X(n),Y(n),W(n),Xb(kbin),pred1(n),h,X2(n),Y2(n),&
+Pb(kbin,3),residuo(n),predg(n),T,sumw,sum2,xmin,xmax,rango,beta(10),aux
 integer,external::which_min
 
 
+
+aux = 0.001
+do i=1,n
+ X2(i)=max(X(i),aux)
+ Y2(i)=max(Y(i),aux)
+end do
 ! Ajustamos el modelo lineal primero
+X2=log(X2)
+Y2=log(Y2)
 
 p=1
-call Reglineal_pred(X,Y,W,n,p,predg)
+call Reglineal (X2,Y2,W,n,p,Beta)
 do i=1,n
-Residuo(i)=Y(i)-predg(i)
+predg(i)=exp(beta(1))
+do j=1,p
+predg(i)=predg(i)*X(i)**beta(j+1)
 end do
+end do
+
+Residuo=Y-predg
+
 ! -----------------------------------------
 
-p=2 
+!print *, predg
+
+!do i=1,n
+ ! print (*,*) predg(i)
+!end do
+
+p=3
+!call rfast_h_alo(X,Residuo,W,n,h,p,Xb,Pb,kbin,kernel,nh)
+call Grid1d(X,W,n,Xb,kbin)
 
 
-call rfast_h_alo(X,Residuo,W,n,h,p,Xb,Pb,kbin,kernel,nh)
 
-call Interpola_alo(Xb,Pb,kbin,X,pred1,pred2,n)
+call rfast_h(X,Residuo,W,n,h,p,Xb,Pb(1,1),kbin,kernel,nh)
 
 
+!stop
+
+!call Interpola_alo(Xb,Pb,kbin,X,pred1,pred2,n)
+call Interpola(Xb,Pb(1,1),kbin,X,pred1,n)
+
+!do i=1,n
+!print *, residuo(1:n)
+! print *, pred1(i)
+!end do
+
+
+ !print *, pred1(1:n)
 
 !Centro las pred1
 sumw=0
@@ -116,9 +226,113 @@ sumw=sumw+W(i)
 sum2=sum2+pred1(i)
 end do
 
+
+
 do i=1,n
-Pred1(i)=pred1(i)-sum2/sumw
+Pred1(i)=pred1(i)-(sum2/sumw)
 end do
+
+
+
+
+xmin=9999
+xmax=-xmin
+do i=1,n
+if(x(i).le.xmin) xmin=x(i)
+if(x(i).ge.xmax) xmax=x(i)
+end do
+
+rango=xmax-xmin
+
+T=0
+do i=1,n
+!if (abs(X(i)).le.xmax-(0.10*rango)) 
+T=T+abs(pred1(i))
+end do
+
+
+
+end subroutine
+
+
+
+subroutine RfastC3(X,Y,W,n,p,kbin,h,T)
+implicit none
+
+integer,parameter::kernel=1,nh=20
+integer n,kbin,p,i,j
+double precision X(n),Y(n),W(n),Xb(kbin),pred1(n),h,&
+Pb(kbin,3),residuo(n),predg(n),T,sumw,sum2,xmin,xmax,rango,beta(10)
+integer,external::which_min
+
+
+
+
+! Ajustamos el modelo lineal primero
+
+p=1
+!call Reglineal_pred(X,Y,W,n,p,predg)
+
+call Reglineal (X,Y,W,n,p,Beta)
+do i=1,n
+predg(i)=beta(1)
+do j=1,p
+predg(i)=predg(i)+beta(j+1)*X(i)**j
+end do
+end do
+
+Residuo=Y-predg
+
+! -----------------------------------------
+
+!print *, predg
+
+!do i=1,n
+ ! print (*,*) predg(i)
+!end do
+
+p=2
+
+
+
+!call rfast_h_alo(X,Residuo,W,n,h,p,Xb,Pb,kbin,kernel,nh)
+
+call Grid1d(X,W,n,Xb,kbin)
+
+
+
+call rfast_h(X,Residuo,W,n,h,p,Xb,Pb(1,1),kbin,kernel,nh)
+
+
+!stop
+
+!call Interpola_alo(Xb,Pb,kbin,X,pred1,pred2,n)
+call Interpola(Xb,Pb(1,1),kbin,X,pred1,n)
+
+do i=1,n
+!print *, residuo(1:n)
+ !print *, pred1(i)
+end do
+
+
+ !print *, pred1(1:n)
+
+!Centro las pred1
+sumw=0
+sum2=0
+do i=1,n
+sumw=sumw+W(i)
+sum2=sum2+pred1(i)
+end do
+
+
+
+do i=1,n
+Pred1(i)=pred1(i)-(sum2/sumw)
+end do
+
+
+
 
 xmin=9999
 xmax=-xmin
@@ -165,6 +379,8 @@ end do
 end do
 
 end
+
+
 
 
 
@@ -271,7 +487,7 @@ end subroutine
 
 
 subroutine localtest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,&
-pcmax,pcmin,r,D,Ci,Cs,umatrix)
+pcmax,pcmin,r,D,Ci,Cs,umatrix,level,nalfas)
 
 
 !!DEC$ ATTRIBUTES DLLEXPORT::localtest
@@ -280,12 +496,12 @@ pcmax,pcmin,r,D,Ci,Cs,umatrix)
 implicit none
 integer,parameter::kfino=1000
 integer i,n,j,kbin,p,nf,F(n),fact(nf),iboot,ir,l,k,&
-nh,nboot,kernel,r,index,posmin,posmax
+nh,nboot,kernel,r,index,posmin,posmax,nalfas
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 u,h(nf),Pb_0(kbin,3),res(n),Pb_0boot(kbin,3,nboot),meanerr,P_0(n),Err(n),&
-C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci,Cs,&
+C(3,nf),xmin(nf),xmax(nf),pcmax(nf),pcmin(nf),Ci(nalfas),Cs(nalfas),&
 Dboot(nboot),D,pmax,pasox,pasoxfino,icont(kbin,3,nf),xminc,xmaxc,h0,&
-umatrix(n,nboot)
+umatrix(n,nboot),level(nalfas)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
 muhatgboot(:),Xfino(:),Pfino(:),p0(:,:),pred(:),pboot(:,:,:,:),cboot(:,:,:),&
@@ -709,11 +925,34 @@ end do
 Ci=-1
 Cs=-1
 
-
-call ICbootstrap(D,Dboot,nboot,Ci,Cs) 
-
+do i=1,nalfas
+  call ICbootstrap_beta_per(Dboot,nboot,1-level(i),Ci(i),Cs(i)) 
+end do
 
 end subroutine
+
+
+
+
+
+subroutine ICbootstrap_beta_per(X,nboot,beta,li,ls)
+implicit none
+integer nboot,nalfa
+double precision X(nboot),li,ls,alfa(3),Q(3),beta
+
+alfa(1)=beta/2
+alfa(2)=0.5
+alfa(3)=1-beta/2
+nalfa=3
+call quantile (X,nboot,alfa,nalfa,Q)
+
+li=Q(1)!-Q(2)
+ls=Q(3)!-Q(2)
+
+end subroutine
+
+
+
 
 
 
@@ -732,18 +971,22 @@ pvalor,umatrix)
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
-nh,nboot,kernel,r,pp
+nh,nboot,kernel,r,pp,icont,ii
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
-u,Tboot,T,pvalor,umatrix(n,nboot)
+u,Tboot(4),pvalor(4),umatrix(n,nboot),h0i,hi(nf),hgi(nf),meanerr,T(4),&
+RSS0,RSS1,hg(nf)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
-muhatgboot(:),muhatg2(:)
+muhatgboot(:),muhatg2(:),fpar(:,:),fpar_est(:),Xaux(:)
 
 
-allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
+allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n),&
+  fpar_est(n),fpar(n,nf),Xaux(n))
 
-
+h0i = h0
+hi = h
+hgi = h0
 
 Xb=-1
 Pb=-1
@@ -754,6 +997,9 @@ call GRID(X,W,n,Xb,kbin)
 call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
 
+!print *, h0
+
+!print *, muhatg
 
 
 
@@ -761,9 +1007,9 @@ do i=1,n
  errg(i)=Y(i)-muhatg(i)
 end do
 
-do i=1,kbin
- pred0(i)=Pb(i,r+1,1)
-end do
+!do i=1,kbin
+! pred0(i)=Pb(i,r+1,1)
+!end do
 
 
 
@@ -777,10 +1023,40 @@ do j=1,nf
  do i=1,kbin
   pred1(i,j)=Pb(i,r+1,1)
  end do
+ call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n)
 end do
 
 
+do i=1,n
+ do j=1,nf
+  if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
+ end do
+end do
 
+! !interpolamos efectos parciales para RSS
+! icont=0
+!   do i=1,n
+!    if (F(i).eq.fact(j)) then
+!     icont=icont+1
+!     Xaux(icont)=X(i)
+!    end if
+!   end do
+!   call Interpola (Xb,Pb(1,1,1),kbin,Xaux,fpar,icont)
+  
+!   ii=0
+!   do i=1,n
+!   if (F(i).eq.fact(j)) then
+!    ii=ii+1
+!    fpar_est(i)=fpar(ii)
+!   end if
+!   end do
+
+! end do
+
+
+
+
+!print *, h(1), h(2)
 
 
 ! estimo polinomios
@@ -813,18 +1089,53 @@ end do
 errg(1:n)=Y(1:n)-muhatg2(1:n)
 !**********************************
 
+!centro errores
+meanerr=sum(errg(1:n))/n
+do i=1,n
+ errg(i)=errg(i)-meanerr
+end do
 
 
 
 !Estadistico
 
-T=0
+T(1)=0
 do j=1,nf
 do i=1,kbin
+!do i=1,n
 ! T=T+abs(pred0(i)-pred1(i,j))
-T=T+abs(pred1(i,j))
+if(Xb(i).ge.-1.and.Xb(i).le.1) T(1)=T(1)+abs(pred1(i,j))
+!if(X(i).ge.-1.5.and.X(i).le.1.5) T(1)=T(1)+abs(fpar(i,j))
 end do
 end do
+
+
+
+! para la g
+T(2)=0
+do j=1,nf
+ Waux=0
+ do i=1,n
+  if (F(i).eq.fact(j)) Waux(i)=W(i)
+ end do
+ call rfast_h(X,errg,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
+ do i=1,kbin
+   if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
+end do
+end do
+
+
+
+RSS0=0
+RSS1=0
+do i=1,n
+ RSS0=RSS0+(Y(i)-muhatg2(i))**2
+ RSS1=RSS1+(Y(i)- muhatg(i) - fpar_est(i) )**2
+end do
+T(3)=RSS0-RSS1
+T(4)=T(3)/RSS1
+
+
 
 
 
@@ -847,6 +1158,9 @@ do iboot=1,nboot
   end if
 end do
 
+!h0 = h0i
+!h = hi
+!hg = h0i
 
 call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatgboot,n)
@@ -862,30 +1176,112 @@ pred0(i)=Pb(i,r+1,1)
 end do
 
 
-
+!efectos parciales
 do j=1,nf
 Waux=0
 do i=1,n
 if (F(i).eq.fact(j)) Waux(i)=W(i)
 end do
 call rfast_h(X,errgboot,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
-
 do i=1,kbin
 pred1(i,j)=Pb(i,r+1,1)
 end do
+call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n) !interpolamos efectos parciales para RSS
 end do
 
-
-
-Tboot=0
-do k=1,nf
- do z=1,kbin
- ! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
-  Tboot=Tboot+abs(pred1(z,k))
+do i=1,n
+ do j=1,nf
+  if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
  end do
 end do
 
-if(Tboot.gt.T) pvalor=pvalor+1
+
+
+
+
+
+!polinomios
+
+
+! estimo polinomios
+hp=0 !ventana para pol
+
+
+if(r.eq.1) pp=0 !grado pol, solo calcula medias
+if(r.eq.2) pp=1
+
+
+do j=1,nf
+ Waux=0
+ do i=1,n
+  if (F(i).eq.fact(j)) Waux(i)=W(i)
+ end do
+ call rfast_h(X,errgboot,Waux,n,hp(j),pp,Xb,Pb,kbin,kernel,nh)
+ call Interpola (Xb,Pb(1,1,1),kbin,X,pol(1,j),n)
+end do
+
+if(r.eq.0) pol=0
+
+
+!**********************************
+do i=1,n
+ do j=1,nf
+  if(F(i).eq.fact(j)) muhatg2(i)=muhatgboot(i)+pol(i,j)
+ end do
+end do
+
+errgboot(1:n)=Yboot(1:n)-muhatg2(1:n)
+!**********************************
+
+
+
+
+
+
+
+Tboot(1)=0
+do k=1,nf
+ do z=1,kbin
+!  do z=1,n
+ ! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
+  if(Xb(z).ge.-1.and.Xb(z).le.1) Tboot(1)=Tboot(1)+abs(pred1(z,k))
+!   if(X(z).ge.-1.and.X(z).le.1) Tboot(1)=Tboot(1)+abs(fpar(z,k))
+ end do
+end do
+
+
+
+
+
+! para la g
+Tboot(2)=0
+do j=1,nf
+ Waux=0
+ do i=1,n
+  if (F(i).eq.fact(j)) Waux(i)=W(i)
+ end do
+ call rfast_h(X,errgboot,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
+ do i=1,kbin
+   if(Xb(i).ge.-2.and.Xb(i).le.2) Tboot(2)=Tboot(2)+abs(Pb(i,1,1))
+     ! if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
+end do
+end do
+
+RSS0=0
+RSS1=0
+do i=1,n
+ RSS0=RSS0+(Yboot(i)-muhatg2(i))**2
+ RSS1=RSS1+(Yboot(i)- muhatgboot(i)-fpar_est(i) )**2
+end do
+Tboot(3)=RSS0-RSS1
+Tboot(4)=Tboot(3)/RSS1
+
+
+
+do j=1,4
+if(Tboot(j).gt.T(j)) pvalor(j)=pvalor(j)+1
+end do
+
 
 end do
 

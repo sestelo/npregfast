@@ -115,4 +115,3 @@ plot(fit2, fac = "barca", diffwith = "lens", der = 1)
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 }
-

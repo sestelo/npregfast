@@ -31,4 +31,3 @@ length-weight relationship of \eqn{Pollicipes}  \eqn{pollicipes}
 aspects of its biology and management. Journal of Shellfish Research, 
 30(3), 939--948.
 }
-

@@ -1,0 +1,15 @@
+language: r
+cache: packages
+sudo: true
+
+r:
+#  - oldrel
+  - release
+  - devel
+
+
+warnings_are_errors: true
+
+
+notifications:
+    slack: newstat:ZqBL05R4NoRMqPZXnuzbF4OZ

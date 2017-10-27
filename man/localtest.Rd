@@ -7,7 +7,8 @@
 localtest(formula, data = data, na.action = "na.omit", der,
   smooth = "kernel", weights = NULL, nboot = 500, h0 = -1, h = -1,
   nh = 30, kernel = "epanech", p = 3, kbin = 100, rankl = NULL,
-  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
+  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL,
+  ci.level = 0.95, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -82,6 +83,8 @@ not worth parallelize.}
 in the parallelized procedure. If \code{NULL} (default), the number of cores 
 to be used is equal to the number of cores of the machine - 1.}
 
+\item{ci.level}{Level of bootstrap confidence interval. Defaults to 0.95 (corresponding to 95\%). Note that the function accepts a vector of levels.}
+
 \item{\ldots}{Other options.}
 }
 \value{
@@ -149,13 +152,12 @@ localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 # der = 1, smooth = "splines") 
 
 }
-\author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
-}
 \references{
 Sestelo, M. (2013). Development and computational implementation of 
 estimation and inference methods in flexible regression models. 
 Applications in Biology, Engineering and Environment. PhD Thesis, Department
 of Statistics and O.R. University of Vigo.
 }
-
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}

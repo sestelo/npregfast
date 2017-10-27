@@ -132,4 +132,3 @@ gridExtra::grid.arrange(grobs = facs, ncol = 2, nrow = 1)
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 }
-

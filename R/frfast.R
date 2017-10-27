@@ -219,13 +219,14 @@
 #' @importFrom doParallel registerDoParallel
 #' @importFrom parallel detectCores
 #' @importFrom foreach foreach %dopar%
+#' @importFrom stats coef model.response model.weights
 #' 
 #' @export
 
 
 
 
-frfast <- function(formula, data = data, na.action = "na.omit",
+frfast <- function(formula, data, na.action = "na.omit",
                    model = "np", smooth = "kernel", 
                    h0 = -1.0, h = -1.0, 
                    nh = 30, weights = NULL, kernel = "epanech", p = 3, 
@@ -239,9 +240,9 @@ frfast <- function(formula, data = data, na.action = "na.omit",
   if (missing(formula)) {
     stop("Argument \"formula\" is missing, with no default")
   }
-  if (missing(data)) {
-    stop("Argument \"data\" is missing, with no default")
-  }
+  #if (missing(data)) {
+  #  stop("Argument \"data\" is missing, with no default")
+  #}
   if (!(kernel %in% 1:3)) {
     stop("Kernel not suported")
   }
@@ -274,37 +275,89 @@ frfast <- function(formula, data = data, na.action = "na.omit",
   ncmax <- 5
   c2 <- NULL
   
+
   
   
-  
+ 
   if (smooth != "splines") {
     
-    ffr <- interpret.frfastformula(formula, method = "frfast")
-    varnames <- ffr$II[2, ]
-    aux <- unlist(strsplit(varnames,split = ":"))
+    cl <- match.call()
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(x = c("formula", "data", "subset", "weights", "na.action", "offset"), 
+               table = names(mf), nomatch = 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- quote(stats::model.frame)
+    
+    
+    
+    
+    
+    mf <- eval(expr = mf, envir = parent.frame())
+    
+    mt <- attr(mf, "terms")
+    y <- model.response(mf, "numeric")
+    w <- as.vector(model.weights(mf))
+    if (!is.null(w) && !is.numeric(w)) 
+      stop("'weights' must be a numeric vector")
+    
+    terms <- attr(mt, "term.labels")
+    
+    
+    
+    aux <- unlist(strsplit(terms,split = ":"))
     varnames <- aux[1]
+    namef <- aux[2]
+    response <- as.character(attr(mt, "variables")[2])
     if (unlist(strsplit(varnames,split = ""))[1] == "s") {
       stop("Argument \"formula\" is wrong specified, see details of
-model specification in 'Details' of the frfast help." )
+           model specification in 'Details' of the frfast help." )
     }
-    namef <- aux[2]
-    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
-    newdata <- data
-    data <- data[ ,c(ffr$response, varnames)]
     
+
+    #newdata <- data
+    data <- mf
     
-    if (na.action == "na.omit"){ # ver la f
+    if (na.action == "na.omit"){ # ver la f, corregido
       data <- na.omit(data)
     }else{
       stop("The actual version of the package only supports 'na.omit' (observations are removed 
            if they contain any missing values)")
     }
-    #newdata <- na.omit(newdata[ ,varnames])
+    
+    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     n <- nrow(data)
     
+
   }else{
+    
+    
     ffr <- interpret.gam(formula)
-    varnames <- ffr$pred.names[1]
+    cl <- match.call()
+    mf <- match.call(expand.dots = FALSE)
+    mf$formula <- ffr$fake.formula
+    
+    m <- match(x = c("formula", "data", "subset", "weights", "na.action", "offset"), 
+              table = names(mf), nomatch = 0L)
+   mf <- mf[c(1L, m)]
+    
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- quote(stats::model.frame)
+    
+    mf <- eval(expr = mf, envir = parent.frame())
+    
+    mt <- attr(mf, "terms")
+    y <- model.response(mf, "numeric")
+    w <- as.vector(model.weights(mf))
+    if (!is.null(w) && !is.numeric(w)) 
+      stop("'weights' must be a numeric vector")
+    
+    terms <- attr(mt, "term.labels")
+    
+    response <- as.character(attr(mt, "variables")[2])
+    
+
+    varnames <- terms[1]
     if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
       stop("Argument \"formula\" is wrong specified, see details of
            model specification in 'Details' of the frfast help." )
@@ -314,28 +367,70 @@ model specification in 'Details' of the frfast help." )
            model specification in 'Details' of the frfast help." )
     }
     
-    namef <- ffr$pred.names[2]
-    if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
-    newdata <- data
     
-    if (length(ffr$pred.names) == 1) {
-      data <- data[ ,c(ffr$response, varnames)]
-    }else{
-      data <- data[ ,c(ffr$response, varnames, namef)]
-    }
+    
+    # newdata <- data
+    
+    # if (length(ffr$pred.names) == 1) {
+    #   data <- data[ ,c(ffr$response, varnames)]
+    # }else{
+    #   data <- data[ ,c(ffr$response, varnames, namef)]
+    # }
+    # 
+    datam <- mf
+    
     
     if (na.action == "na.omit"){
-      data <- na.omit(data)
+      datam <- na.omit(datam)
     }else{
       stop("The actual version of the package only supports 'na.omit' (observations are removed 
            if they contain any missing values)")
     }
     
-    n <- nrow(data)
+    
+    if (length(terms) == 1) {
+      f <- NULL
+      namef <- 1
+    }else{
+      namef <- terms[2]
+      f <- mf[ ,namef]
+    }
+    n <- nrow(datam)
   }
   
   
   
+  
+  
+  if(missing(data)) {
+    
+    response <- strsplit(response, "\\$")[[1]][2]
+    terms2 <- strsplit(terms, "\\$")
+    
+    if(length(terms) == 1){
+      formula <- as.formula(paste0(response, "~s(",terms2[[1]][2],")"))
+      #data <- data
+      names(datam) <- c(response, terms2[[1]][2])
+      varnames <- terms2[[1]][2]
+      namef <- "F"
+    }else{
+      formula <- as.formula(paste0(response, "~s(",terms2[[1]][2],", by = ", terms2[[2]][2],")"))
+      #data2 <- data
+      names(datam) <- c(response, terms2[[1]][2], terms2[[2]][2])
+      varnames <- terms2[[1]][2]
+      namef <- terms2[[2]][2]
+    }
+    
+    
+    
+  data <- datam
+
+  
+  
+  }
+
+  
+#   strsplit(formula,split = "$")
   
   
   if (is.null(f)) f <- rep(1.0, n)
@@ -356,7 +451,7 @@ model specification in 'Details' of the frfast help." )
     if (length(h) == 1) h <- rep(h, nf)
   }
   
-  
+  weights <- w
   if (is.null(weights)) {
     weights <- rep(1.0, n)
   }else{
@@ -393,7 +488,7 @@ model specification in 'Details' of the frfast help." )
     frfast  <- .Fortran("frfast_",
                         f = as.integer(f),
                         x = as.double(data[ ,varnames]),
-                        y = as.double(data[ ,ffr$response]),
+                        y = as.double(data[ ,response]),
                         w = as.double(weights),
                         n = as.integer(n),
                         h0 = as.double(h0),
@@ -511,7 +606,7 @@ model specification in 'Details' of the frfast help." )
                 b = frfast$b,
                 bl = frfast$binf,
                 bu = frfast$bsup,
-                name = c(ffr$response,varnames),
+                name = c(response,varnames),
                 formula = formula,
                 nh = frfast$nh,
                 r2 = r2,
@@ -527,8 +622,8 @@ model specification in 'Details' of the frfast help." )
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
       newd <- expand.grid(xgrid, unique(f))
-      names(newd) <- ffr$pred.names
-      
+      names(newd) <- c(varnames, namef)
+     
       # estimations
       p <- array(NA, dim = c(kbin, 3, nf))
       m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
@@ -549,7 +644,8 @@ model specification in 'Details' of the frfast help." )
                           FUN.VALUE = numeric(kfino))
       
       newdfino <- data.frame(as.vector(xgridfino), rep(unique(f), each = kfino))
-      names(newdfino) <- ffr$pred.names
+        names(newdfino) <- c(varnames, namef)
+     
       
       # max
       muhatfino <- as.vector(predict(m, newdata = newdfino, type = "response"))
@@ -619,7 +715,7 @@ model specification in 'Details' of the frfast help." )
     # bootstrap
     m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
     muhat <- as.vector(predict(m, type = "response"))
-    err <- data[, ffr$response] - muhat
+    err <- data[, response] - muhat
     err <- err - mean(err)
     yboot <- replicate(nboot, muhat + err *
                          sample(c(-sqrt(5) + 1, sqrt(5) + 1)/2, size = n,
@@ -630,7 +726,7 @@ model specification in 'Details' of the frfast help." )
     
     allboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
-      datab[, ffr$response] <- yboot[, i]
+      datab[, response] <- yboot[, i]
       aux <- mainfun(formula, data = data.frame(datab, weights), 
                      weights = weights, ...)
       return(aux)
@@ -729,7 +825,7 @@ model specification in 'Details' of the frfast help." )
                 h0 = NA,
                 fmod = f,
                 xdata = data[, varnames],
-                ydata = data[, ffr$response],
+                ydata = data[, response],
                 w = weights,
                 #fact=fact,  # Lo tuve que comentar pq me daba error
                 kbin = kbin,
@@ -753,7 +849,7 @@ model specification in 'Details' of the frfast help." )
                 b = NA,
                 bl = NA,
                 bu = NA,
-                name = c(ffr$response,varnames),
+                name = c(response,varnames),
                 formula = formula,
                 nh = nh,
                 r2 = NA,

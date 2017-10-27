@@ -3,7 +3,7 @@ Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
 Version: 1.4.0.9000
-Date: 2016-11-18
+Date: 2017-10-27
 Author: Marta Sestelo [aut, cre],
     Nora M. Villanueva [aut],
     Javier Roca-Pardinas [aut]
@@ -35,4 +35,4 @@ Imports:
     shinyjs,
     wesanderson,
     ggplot2
-RoxygenNote: 5.0.1
+RoxygenNote: 6.0.1

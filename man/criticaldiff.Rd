@@ -49,13 +49,12 @@ criticaldiff(fit2, der = 1)
 criticaldiff(fit2, der = 1, level1 = "lens", level2 = "barca")
 
 }
-\author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
-}
 \references{
 Sestelo, M. (2013). Development and computational implementation of 
 estimation and inference methods in flexible regression models. 
 Applications in Biology, Engineering and Environment. PhD Thesis, Department
 of Statistics and O.R. University of Vigo.
 }
-
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}

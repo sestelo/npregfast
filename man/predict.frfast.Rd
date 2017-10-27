@@ -55,4 +55,3 @@ predict(fit, newdata = nd)
 \author{
 Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
 }
-
