@@ -152,13 +152,12 @@ localtest(DW ~ RC : F, data = barnacle, der = 1, seed = 130853, nboot = 100)
 # der = 1, smooth = "splines") 
 
 }
-\author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
-}
 \references{
 Sestelo, M. (2013). Development and computational implementation of 
 estimation and inference methods in flexible regression models. 
 Applications in Biology, Engineering and Environment. PhD Thesis, Department
 of Statistics and O.R. University of Vigo.
 }
-
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}

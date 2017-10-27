@@ -60,9 +60,6 @@ For a listing of all routines in the NPRegfast package type:
 View a \href{http://sestelo.shinyapps.io/npregfast}{demo Shiny app}
 or see the full \href{https://github.com/sestelo/npregfast}{README} on GitHub.
 }
-\author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
-}
 \references{
 Efron, B. (1979). Bootstrap methods: another look at the jackknife. 
 Annals of Statistics, 7, 1--26.
@@ -86,4 +83,6 @@ aspects of its biology and management. Journal of Shellfish Research,
 
 Wand, M. P. and Jones, M. C. (1995). Kernel Smoothing. Chapman & Hall, London.
 }
-
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}

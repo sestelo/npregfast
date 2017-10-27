@@ -2,9 +2,10 @@
 % Please edit documentation in R/autoplot.frfast.R
 \docType{import}
 \name{reexports}
-\alias{autoplot}
 \alias{reexports}
+\alias{autoplot}
 \title{Objects exported from other packages}
+\keyword{internal}
 \description{
 These objects are imported from other packages. Follow the links
 below to see their documentation.
@@ -12,5 +13,4 @@ below to see their documentation.
 \describe{
   \item{ggplot2}{\code{\link[ggplot2]{autoplot}}}
 }}
-\keyword{internal}
 

@@ -4,7 +4,7 @@
 \alias{frfast}
 \title{Fitting nonparametric models}
 \usage{
-frfast(formula, data = data, na.action = "na.omit", model = "np",
+frfast(formula, data, na.action = "na.omit", model = "np",
   smooth = "kernel", h0 = -1, h = -1, nh = 30, weights = NULL,
   kernel = "epanech", p = 3, kbin = 100, nboot = 500, rankl = NULL,
   ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
@@ -227,9 +227,6 @@ summary(fit3)
 # summary(fit4)
 
 }
-\author{
-Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
-}
 \references{
 Huxley, J. S. (1924). Constant differential growth-ratios and their 
 significance. Nature, 114:895--896.
@@ -239,4 +236,6 @@ estimation and inference methods in flexible regression models.
 Applications in Biology, Engineering and Environment. PhD Thesis, Department
 of Statistics and O.R. University of Vigo.
 }
-
+\author{
+Marta Sestelo, Nora M. Villanueva and Javier Roca-Pardinas.
+}
