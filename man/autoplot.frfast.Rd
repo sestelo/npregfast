@@ -95,14 +95,14 @@ library(ggplot2)
 data(barnacle)
 
 # Nonparametric regression without interactions
-fit <- frfast(DW ~ RC, data = barnacle, nboot = 100) 
+fit <- frfast(DW ~ RC, data = barnacle, nboot = 50) 
 autoplot(fit)
 autoplot(fit, points = FALSE) + ggtitle("Title")
 autoplot(fit, der = 1) + xlim(4, 20)
 #autoplot(fit, der = 1, col = "red", CIcol = "blue")
 
 # Nonparametric regression with interactions
-fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 100) 
+fit2 <- frfast(DW ~ RC : F, data = barnacle, nboot = 50) 
 autoplot(fit2, fac = "barca")
 # autoplot(fit2, der = 1, fac = "lens")
 
