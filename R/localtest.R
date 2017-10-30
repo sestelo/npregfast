@@ -4,8 +4,10 @@
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
 #' specification are given under 'Details'.
-#'@param data A data frame or matrix containing the model response variable
-#' and covariates required by the \code{formula}.
+#' @param data An optional data frame, matrix or list required by 
+#' the formula. If not found in data, the variables are taken from 
+#' \code{environment(formula)}, typically the environment from which
+#'  \code{localtest} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #' @param der Number which determines any inference process. 
@@ -155,9 +157,9 @@ localtest <- function(formula, data = data, na.action = "na.omit",
   if (missing(formula)) {
     stop("Argument \"formula\" is missing, with no default")
   }
-  if (missing(data)) {
-    stop("Argument \"data\" is missing, with no default")
-  }
+ # if (missing(data)) {
+#    stop("Argument \"data\" is missing, with no default")
+ # }
   
   if(!isTRUE(der %in% c(0, 1, 2))) {
     stop("",paste(der)," is not a r-th derivative implemented, only 

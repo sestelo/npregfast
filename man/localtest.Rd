@@ -15,8 +15,10 @@ localtest(formula, data = data, na.action = "na.omit", der,
 description of the model to be fitted. The details of model 
 specification are given under 'Details'.}
 
-\item{data}{A data frame or matrix containing the model response variable
-and covariates required by the \code{formula}.}
+\item{data}{An optional data frame, matrix or list required by 
+the formula. If not found in data, the variables are taken from 
+\code{environment(formula)}, typically the environment from which
+ \code{localtest} is called.}
 
 \item{na.action}{A function which indicates what should happen when the 
 data contain 'NA's. The default is 'na.omit'.}

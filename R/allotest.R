@@ -6,7 +6,7 @@
 #' @param data An optional data frame, matrix or list required by 
 #' the formula. If not found in data, the variables are taken from 
 #' \code{environment(formula)}, typically the environment from which
-#'  \code{frfast} is called.
+#'  \code{allotest} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #'@param nboot Number of bootstrap repeats.
