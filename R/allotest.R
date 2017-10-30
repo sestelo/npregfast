@@ -252,6 +252,7 @@ allotest <- function(formula, data, na.action = "na.omit",
   colnames(result) <- c("Statistic", "pvalue")
   
   
+  if(length(res) > 1){
   # factores=paste('Factor',1:length(res))
   factores <- paste("Level", etiquetas[1:length(etiquetas)])
   
@@ -259,6 +260,11 @@ allotest <- function(formula, data, na.action = "na.omit",
   for (i in 1:length(res)) {
     rownames(result) <- c(factores)
   }
+  
+  }else{
+    rownames(result) <- ""
+  }
+  
   
   return(result)
   
