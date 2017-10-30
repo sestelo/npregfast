@@ -213,8 +213,6 @@
 #' # fit4 <- frfast(DW ~ RC : F, data = barnacle, model = "allo", nboot = 100)
 #' # summary(fit4)
 #' 
-#' @useDynLib npregfast, .registration = TRUE
-#' @useDynLib npregfast frfast_
 #' @importFrom stats na.omit runif lm predict quantile
 #' @importFrom mgcv interpret.gam gam predict.gam
 #' @importFrom sfsmisc D1D2

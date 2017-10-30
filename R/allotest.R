@@ -73,13 +73,13 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853)
+#' allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853, cluster = FALSE)
 #' 
-#' @useDynLib npregfast allotest_
 #' @importFrom stats na.omit runif
 #' @export
 
 
+# @useDynLib npregfast allotest_
 
 
 

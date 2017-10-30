@@ -127,7 +127,6 @@
 #' # localtest(height ~ s(age, by = sex), data = children, seed = 130853, 
 #' # der = 1, smooth = "splines") 
 #' 
-#' @useDynLib npregfast localtest_
 #' @importFrom stats na.omit runif
 #' @importFrom mgcv interpret.gam gam predict.gam
 #' @importFrom sfsmisc D1D2

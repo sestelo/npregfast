@@ -107,7 +107,6 @@
 #' # seed = 130853, der = 0, smooth = "splines")
 #' 
 #' 
-#' @useDynLib npregfast globaltest_
 #' @importFrom stats na.omit runif
 #' @importFrom mgcv interpret.gam gam predict.gam
 #' @importFrom sfsmisc D1D2
