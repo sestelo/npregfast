@@ -76,7 +76,8 @@ To implement this test we have used the wild bootstrap.
 \examples{
 library(npregfast)
 data(barnacle)
-allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853)
+allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853, 
+cluster = FALSE)
 
 }
 \references{

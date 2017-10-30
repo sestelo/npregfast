@@ -73,7 +73,8 @@
 #'@examples
 #' library(npregfast)
 #' data(barnacle)
-#' allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853, cluster = FALSE)
+#' allotest(DW ~ RC, data = barnacle, nboot = 50, seed = 130853, 
+#' cluster = FALSE)
 #' 
 #' @importFrom stats na.omit runif
 #' @export
@@ -203,8 +204,8 @@ allotest <- function(formula, data, na.action = "na.omit",
   for (i in etiquetas) {
     yy <- data[, 1][f == i]
     xx <- data[, 2][f == i]
-    yy[yy == 0] <- 0.0001
-    xx[xx == 0] <- 0.0001
+    yy[yy <= 0] <- 0.0001
+    xx[xx <= 0] <- 0.0001
     n <- length(xx)
     w <- rep(1, n)
     
@@ -276,7 +277,7 @@ allotest <- function(formula, data, na.action = "na.omit",
 
 
 sta_res <- function(x, y){
-  y[y == 0] <- 0.0001
+  y[y <= 0] <- 0.0001
   model <- lm(log(y) ~ log(x))
   muhat <- exp(coef(model)[1]) * x**coef(model)[2]
   residuo <- y - muhat
@@ -289,7 +290,7 @@ sta_res <- function(x, y){
 }
 
 sta_rss <- function(x, y){
-  y[y == 0] <- 0.0001
+  y[y <= 0] <- 0.0001
   model <- lm(log(y) ~ log(x))
   m0 <- exp(coef(model)[1]) * x**coef(model)[2]
   rss0 <- sum((y - m0)**2)
