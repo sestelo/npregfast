@@ -3,8 +3,10 @@
 #' can be modelled by an allometric model.
 #'@param formula An object of class \code{formula}: a sympbolic description
 #' of the model to be fitted.
-#'@param data A data frame argumment or matrix containing the model response variable
-#' and covariates required by the \code{formula}.
+#' @param data An optional data frame, matrix or list required by 
+#' the formula. If not found in data, the variables are taken from 
+#' \code{environment(formula)}, typically the environment from which
+#'  \code{allotest} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #'@param nboot Number of bootstrap repeats.
@@ -81,7 +83,7 @@
 
 
 
-allotest <- function(formula, data = data, na.action = "na.omit",
+allotest <- function(formula, data, na.action = "na.omit",
                      nboot = 500, seed = NULL, cluster = TRUE,
                      ncores = NULL, test = "res", ...) {
   
@@ -95,35 +97,94 @@ allotest <- function(formula, data = data, na.action = "na.omit",
   }
   
   
-  ffr <- interpret.frfastformula(formula, method = "frfast")
-  varnames <- ffr$II[2, ]
-  aux <- unlist(strsplit(varnames, split = ":"))
+  cl <- match.call()
+  mf <- match.call(expand.dots = FALSE)
+  m <- match(x = c("formula", "data", "subset", "weights", "na.action", "offset"), 
+             table = names(mf), nomatch = 0L)
+  mf <- mf[c(1L, m)]
+  mf$drop.unused.levels <- TRUE
+  mf[[1L]] <- quote(stats::model.frame)
+  
+  
+  
+  
+  
+  mf <- eval(expr = mf, envir = parent.frame())
+  
+  mt <- attr(mf, "terms")
+  y <- model.response(mf, "numeric")
+  w <- as.vector(model.weights(mf))
+  if (!is.null(w) && !is.numeric(w)) 
+    stop("'weights' must be a numeric vector")
+  
+  terms <- attr(mt, "term.labels")
+  
+  
+  
+  aux <- unlist(strsplit(terms,split = ":"))
   varnames <- aux[1]
   namef <- aux[2]
-  if (length(aux) == 1) {
-    f <- NULL
-  } else {
-    f <- data[, namef]
+  response <- as.character(attr(mt, "variables")[2])
+  if (unlist(strsplit(varnames,split = ""))[1] == "s") {
+    stop("Argument \"formula\" is wrong specified, see details of
+         model specification in 'Details' of the frfast help." )
   }
-  newdata <- data
-  data <- data[, c(ffr$response, varnames)]
-  newdata <- newdata[, varnames]
   
-  if (na.action == "na.omit") { # ver la f
+  
+  #newdata <- data
+  data <- mf
+  
+  if (na.action == "na.omit"){ # ver la f, corregido
     data <- na.omit(data)
-    newdata <- na.omit(newdata)
   }else{
     stop("The actual version of the package only supports 'na.omit' (observations are removed 
          if they contain any missing values)")
   }
   
-  
+  if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
   n <- nrow(data)
   
-  #if (is.null(seed)) {
-  #  set.seed(NULL)
-  #  seed <- .Random.seed[3]
-  #}
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # 
+  # 
+  # 
+  # ffr <- interpret.frfastformula(formula, method = "frfast")
+  # varnames <- ffr$II[2, ]
+  # aux <- unlist(strsplit(varnames, split = ":"))
+  # varnames <- aux[1]
+  # namef <- aux[2]
+  # if (length(aux) == 1) {
+  #   f <- NULL
+  # } else {
+  #   f <- data[, namef]
+  # }
+  # newdata <- data
+  # data <- data[, c(ffr$response, varnames)]
+  # newdata <- newdata[, varnames]
+  # 
+  # if (na.action == "na.omit") { # ver la f
+  #   data <- na.omit(data)
+  #   newdata <- na.omit(newdata)
+  # }else{
+  #   stop("The actual version of the package only supports 'na.omit' (observations are removed 
+  #        if they contain any missing values)")
+  # }
+  # 
+  # 
+  # n <- nrow(data)
+  # 
+  # #if (is.null(seed)) {
+  # #  set.seed(NULL)
+  # #  seed <- .Random.seed[3]
+  # #}
   
   if (!is.null(seed)){
     set.seed(seed)
@@ -191,6 +252,7 @@ allotest <- function(formula, data = data, na.action = "na.omit",
   colnames(result) <- c("Statistic", "pvalue")
   
   
+  if(length(res) > 1){
   # factores=paste('Factor',1:length(res))
   factores <- paste("Level", etiquetas[1:length(etiquetas)])
   
@@ -198,6 +260,11 @@ allotest <- function(formula, data = data, na.action = "na.omit",
   for (i in 1:length(res)) {
     rownames(result) <- c(factores)
   }
+  
+  }else{
+    rownames(result) <- ""
+  }
+  
   
   return(result)
   

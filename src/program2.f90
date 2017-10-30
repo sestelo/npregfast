@@ -958,11 +958,6 @@ end subroutine
 
 
 
-!*************************************************
-!*************************************************
-
-
-
 subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,&
 pvalor,umatrix)
 
@@ -971,22 +966,18 @@ pvalor,umatrix)
 
 implicit none
 integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
-nh,nboot,kernel,r,pp,icont,ii
+nh,nboot,kernel,r,pp
 double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
 h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
-u,Tboot(4),pvalor(4),umatrix(n,nboot),h0i,hi(nf),hgi(nf),meanerr,T(4),&
-RSS0,RSS1,hg(nf)
+u,Tboot,T,pvalor,umatrix(n,nboot)
 !REAL(4) rand 
 double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
-muhatgboot(:),muhatg2(:),fpar(:,:),fpar_est(:),Xaux(:)
+muhatgboot(:),muhatg2(:)
 
 
-allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n),&
-  fpar_est(n),fpar(n,nf),Xaux(n))
+allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n))
 
-h0i = h0
-hi = h
-hgi = h0
+
 
 Xb=-1
 Pb=-1
@@ -997,9 +988,6 @@ call GRID(X,W,n,Xb,kbin)
 call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
 
-!print *, h0
-
-!print *, muhatg
 
 
 
@@ -1007,9 +995,9 @@ do i=1,n
  errg(i)=Y(i)-muhatg(i)
 end do
 
-!do i=1,kbin
-! pred0(i)=Pb(i,r+1,1)
-!end do
+do i=1,kbin
+ pred0(i)=Pb(i,r+1,1)
+end do
 
 
 
@@ -1023,40 +1011,10 @@ do j=1,nf
  do i=1,kbin
   pred1(i,j)=Pb(i,r+1,1)
  end do
- call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n)
 end do
 
 
-do i=1,n
- do j=1,nf
-  if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
- end do
-end do
 
-! !interpolamos efectos parciales para RSS
-! icont=0
-!   do i=1,n
-!    if (F(i).eq.fact(j)) then
-!     icont=icont+1
-!     Xaux(icont)=X(i)
-!    end if
-!   end do
-!   call Interpola (Xb,Pb(1,1,1),kbin,Xaux,fpar,icont)
-  
-!   ii=0
-!   do i=1,n
-!   if (F(i).eq.fact(j)) then
-!    ii=ii+1
-!    fpar_est(i)=fpar(ii)
-!   end if
-!   end do
-
-! end do
-
-
-
-
-!print *, h(1), h(2)
 
 
 ! estimo polinomios
@@ -1089,53 +1047,18 @@ end do
 errg(1:n)=Y(1:n)-muhatg2(1:n)
 !**********************************
 
-!centro errores
-meanerr=sum(errg(1:n))/n
-do i=1,n
- errg(i)=errg(i)-meanerr
-end do
 
 
 
 !Estadistico
 
-T(1)=0
+T=0
 do j=1,nf
 do i=1,kbin
-!do i=1,n
 ! T=T+abs(pred0(i)-pred1(i,j))
-if(Xb(i).ge.-1.and.Xb(i).le.1) T(1)=T(1)+abs(pred1(i,j))
-!if(X(i).ge.-1.5.and.X(i).le.1.5) T(1)=T(1)+abs(fpar(i,j))
+T=T+abs(pred1(i,j))
 end do
 end do
-
-
-
-! para la g
-T(2)=0
-do j=1,nf
- Waux=0
- do i=1,n
-  if (F(i).eq.fact(j)) Waux(i)=W(i)
- end do
- call rfast_h(X,errg,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
- do i=1,kbin
-   if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
-end do
-end do
-
-
-
-RSS0=0
-RSS1=0
-do i=1,n
- RSS0=RSS0+(Y(i)-muhatg2(i))**2
- RSS1=RSS1+(Y(i)- muhatg(i) - fpar_est(i) )**2
-end do
-T(3)=RSS0-RSS1
-T(4)=T(3)/RSS1
-
-
 
 
 
@@ -1158,9 +1081,6 @@ do iboot=1,nboot
   end if
 end do
 
-!h0 = h0i
-!h = hi
-!hg = h0i
 
 call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
 call Interpola (Xb,Pb(1,1,1),kbin,X,muhatgboot,n)
@@ -1176,112 +1096,30 @@ pred0(i)=Pb(i,r+1,1)
 end do
 
 
-!efectos parciales
+
 do j=1,nf
 Waux=0
 do i=1,n
 if (F(i).eq.fact(j)) Waux(i)=W(i)
 end do
 call rfast_h(X,errgboot,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
+
 do i=1,kbin
 pred1(i,j)=Pb(i,r+1,1)
 end do
-call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n) !interpolamos efectos parciales para RSS
-end do
-
-do i=1,n
- do j=1,nf
-  if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
- end do
 end do
 
 
 
-
-
-
-!polinomios
-
-
-! estimo polinomios
-hp=0 !ventana para pol
-
-
-if(r.eq.1) pp=0 !grado pol, solo calcula medias
-if(r.eq.2) pp=1
-
-
-do j=1,nf
- Waux=0
- do i=1,n
-  if (F(i).eq.fact(j)) Waux(i)=W(i)
- end do
- call rfast_h(X,errgboot,Waux,n,hp(j),pp,Xb,Pb,kbin,kernel,nh)
- call Interpola (Xb,Pb(1,1,1),kbin,X,pol(1,j),n)
-end do
-
-if(r.eq.0) pol=0
-
-
-!**********************************
-do i=1,n
- do j=1,nf
-  if(F(i).eq.fact(j)) muhatg2(i)=muhatgboot(i)+pol(i,j)
- end do
-end do
-
-errgboot(1:n)=Yboot(1:n)-muhatg2(1:n)
-!**********************************
-
-
-
-
-
-
-
-Tboot(1)=0
+Tboot=0
 do k=1,nf
  do z=1,kbin
-!  do z=1,n
  ! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
-  if(Xb(z).ge.-1.and.Xb(z).le.1) Tboot(1)=Tboot(1)+abs(pred1(z,k))
-!   if(X(z).ge.-1.and.X(z).le.1) Tboot(1)=Tboot(1)+abs(fpar(z,k))
+  Tboot=Tboot+abs(pred1(z,k))
  end do
 end do
 
-
-
-
-
-! para la g
-Tboot(2)=0
-do j=1,nf
- Waux=0
- do i=1,n
-  if (F(i).eq.fact(j)) Waux(i)=W(i)
- end do
- call rfast_h(X,errgboot,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
- do i=1,kbin
-   if(Xb(i).ge.-2.and.Xb(i).le.2) Tboot(2)=Tboot(2)+abs(Pb(i,1,1))
-     ! if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
-end do
-end do
-
-RSS0=0
-RSS1=0
-do i=1,n
- RSS0=RSS0+(Yboot(i)-muhatg2(i))**2
- RSS1=RSS1+(Yboot(i)- muhatgboot(i)-fpar_est(i) )**2
-end do
-Tboot(3)=RSS0-RSS1
-Tboot(4)=Tboot(3)/RSS1
-
-
-
-do j=1,4
-if(Tboot(j).gt.T(j)) pvalor(j)=pvalor(j)+1
-end do
-
+if(Tboot.gt.T) pvalor=pvalor+1
 
 end do
 
@@ -1293,6 +1131,351 @@ pvalor=pvalor/nboot
 
 
 end subroutine
+
+
+
+
+
+
+
+
+
+
+! !*************************************************
+! !************************************************* propuesta para 4 estadisticos (no funciona)
+
+
+
+! subroutine globaltest_(F,X,Y,W,n,h0,h,nh,p,kbin,fact,nf,kernel,nboot,r,T,&
+! pvalor,umatrix)
+
+! !!DEC$ ATTRIBUTES DLLEXPORT::globaltest
+! !!DEC$ ATTRIBUTES C, REFERENCE, ALIAS:'globaltest_' :: globaltest
+
+! implicit none
+! integer i,z,n,j,kbin,p,nf,F(n),fact(nf),iboot,k,&
+! nh,nboot,kernel,r,pp,icont,ii
+! double precision X(n),Y(n),W(n),Waux(n),xb(kbin),pb(kbin,3,nf),&
+! h(nf),h0,hp(nf),pred1(kbin,nf),pred0(kbin),pol(n,nf),&
+! u,Tboot(4),pvalor(4),umatrix(n,nboot),h0i,hi(nf),hgi(nf),meanerr,T(4),&
+! RSS0,RSS1,hg(nf)
+! !REAL(4) rand 
+! double precision, allocatable:: Yboot(:),muhatg(:),errg(:),errgboot(:),&
+! muhatgboot(:),muhatg2(:),fpar(:,:),fpar_est(:),Xaux(:)
+
+
+! allocate (errg(n),muhatg(n),Yboot(n),errgboot(n),muhatgboot(n),muhatg2(n),&
+!   fpar_est(n),fpar(n,nf),Xaux(n))
+
+! h0i = h0
+! hi = h
+! hgi = h0
+
+! Xb=-1
+! Pb=-1
+! call GRID(X,W,n,Xb,kbin)
+
+
+! !estimo efecto global
+! call rfast_h(X,Y,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+! call Interpola (Xb,Pb(1,1,1),kbin,X,muhatg,n)
+
+! !print *, h0
+
+! !print *, muhatg
+
+
+
+! do i=1,n
+!  errg(i)=Y(i)-muhatg(i)
+! end do
+
+! !do i=1,kbin
+! ! pred0(i)=Pb(i,r+1,1)
+! !end do
+
+
+
+! ! estimo efectos parciales
+! do j=1,nf
+!  Waux=0
+!  do i=1,n
+!   if (F(i).eq.fact(j)) Waux(i)=W(i)
+!  end do
+!  call rfast_h(X,errg,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
+!  do i=1,kbin
+!   pred1(i,j)=Pb(i,r+1,1)
+!  end do
+!  call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n)
+! end do
+
+
+! do i=1,n
+!  do j=1,nf
+!   if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
+!  end do
+! end do
+
+! ! !interpolamos efectos parciales para RSS
+! ! icont=0
+! !   do i=1,n
+! !    if (F(i).eq.fact(j)) then
+! !     icont=icont+1
+! !     Xaux(icont)=X(i)
+! !    end if
+! !   end do
+! !   call Interpola (Xb,Pb(1,1,1),kbin,Xaux,fpar,icont)
+  
+! !   ii=0
+! !   do i=1,n
+! !   if (F(i).eq.fact(j)) then
+! !    ii=ii+1
+! !    fpar_est(i)=fpar(ii)
+! !   end if
+! !   end do
+
+! ! end do
+
+
+
+
+! !print *, h(1), h(2)
+
+
+! ! estimo polinomios
+! hp=0 !ventana para pol
+
+
+! if(r.eq.1) pp=0 !grado pol, solo calcula medias
+! if(r.eq.2) pp=1
+
+
+! do j=1,nf
+!  Waux=0
+!  do i=1,n
+!   if (F(i).eq.fact(j)) Waux(i)=W(i)
+!  end do
+!  call rfast_h(X,errg,Waux,n,hp(j),pp,Xb,Pb,kbin,kernel,nh)
+!  call Interpola (Xb,Pb(1,1,1),kbin,X,pol(1,j),n)
+! end do
+
+! if(r.eq.0) pol=0
+
+! !para las bootstraps
+! !**********************************
+! do i=1,n
+!  do j=1,nf
+!   if(F(i).eq.fact(j)) muhatg2(i)=muhatg(i)+pol(i,j)
+!  end do
+! end do
+
+! errg(1:n)=Y(1:n)-muhatg2(1:n)
+! !**********************************
+
+! !centro errores
+! meanerr=sum(errg(1:n))/n
+! do i=1,n
+!  errg(i)=errg(i)-meanerr
+! end do
+
+
+
+! !Estadistico
+
+! T(1)=0
+! do j=1,nf
+! do i=1,kbin
+! !do i=1,n
+! ! T=T+abs(pred0(i)-pred1(i,j))
+! if(Xb(i).ge.-1.and.Xb(i).le.1) T(1)=T(1)+abs(pred1(i,j))
+! !if(X(i).ge.-1.5.and.X(i).le.1.5) T(1)=T(1)+abs(fpar(i,j))
+! end do
+! end do
+
+
+
+! ! para la g
+! T(2)=0
+! do j=1,nf
+!  Waux=0
+!  do i=1,n
+!   if (F(i).eq.fact(j)) Waux(i)=W(i)
+!  end do
+!  call rfast_h(X,errg,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
+!  do i=1,kbin
+!    if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
+! end do
+! end do
+
+
+
+! RSS0=0
+! RSS1=0
+! do i=1,n
+!  RSS0=RSS0+(Y(i)-muhatg2(i))**2
+!  RSS1=RSS1+(Y(i)- muhatg(i) - fpar_est(i) )**2
+! end do
+! T(3)=RSS0-RSS1
+! T(4)=T(3)/RSS1
+
+
+
+
+
+
+
+
+! ! Bootstrap
+
+
+! pvalor=0
+! do iboot=1,nboot
+!  do z=1,n
+!   !u=RAND()
+!   !call test_random(u)
+!   u=umatrix(z,iboot)
+!   if (u.le.(5.0+sqrt(5.0))/10) then
+!    Yboot(z)=muhatg2(z)+errg(z)*(1-sqrt(5.0))/2
+!   else
+!    Yboot(z)=muhatg2(z)+errg(z)*(1+sqrt(5.0))/2
+!   end if
+! end do
+
+! !h0 = h0i
+! !h = hi
+! !hg = h0i
+
+! call rfast_h(X,Yboot,W,n,h0,p,Xb,Pb,kbin,kernel,nh)
+! call Interpola (Xb,Pb(1,1,1),kbin,X,muhatgboot,n)
+
+
+! do i=1,n
+! errgboot(i)=Yboot(i)-muhatgboot(i)
+! end do
+
+
+! do i=1,kbin
+! pred0(i)=Pb(i,r+1,1)
+! end do
+
+
+! !efectos parciales
+! do j=1,nf
+! Waux=0
+! do i=1,n
+! if (F(i).eq.fact(j)) Waux(i)=W(i)
+! end do
+! call rfast_h(X,errgboot,Waux,n,h(j),p,Xb,Pb,kbin,kernel,nh)
+! do i=1,kbin
+! pred1(i,j)=Pb(i,r+1,1)
+! end do
+! call Interpola (Xb,Pb(1,1,1),kbin,X,fpar(1,j),n) !interpolamos efectos parciales para RSS
+! end do
+
+! do i=1,n
+!  do j=1,nf
+!   if(F(i).eq.fact(j)) fpar_est(i)=fpar(i,j)
+!  end do
+! end do
+
+
+
+
+
+
+! !polinomios
+
+
+! ! estimo polinomios
+! hp=0 !ventana para pol
+
+
+! if(r.eq.1) pp=0 !grado pol, solo calcula medias
+! if(r.eq.2) pp=1
+
+
+! do j=1,nf
+!  Waux=0
+!  do i=1,n
+!   if (F(i).eq.fact(j)) Waux(i)=W(i)
+!  end do
+!  call rfast_h(X,errgboot,Waux,n,hp(j),pp,Xb,Pb,kbin,kernel,nh)
+!  call Interpola (Xb,Pb(1,1,1),kbin,X,pol(1,j),n)
+! end do
+
+! if(r.eq.0) pol=0
+
+
+! !**********************************
+! do i=1,n
+!  do j=1,nf
+!   if(F(i).eq.fact(j)) muhatg2(i)=muhatgboot(i)+pol(i,j)
+!  end do
+! end do
+
+! errgboot(1:n)=Yboot(1:n)-muhatg2(1:n)
+! !**********************************
+
+
+
+
+
+
+
+! Tboot(1)=0
+! do k=1,nf
+!  do z=1,kbin
+! !  do z=1,n
+!  ! Tboot=Tboot+abs(pred0(z)-pred1(z,k))
+!   if(Xb(z).ge.-1.and.Xb(z).le.1) Tboot(1)=Tboot(1)+abs(pred1(z,k))
+! !   if(X(z).ge.-1.and.X(z).le.1) Tboot(1)=Tboot(1)+abs(fpar(z,k))
+!  end do
+! end do
+
+
+
+
+
+! ! para la g
+! Tboot(2)=0
+! do j=1,nf
+!  Waux=0
+!  do i=1,n
+!   if (F(i).eq.fact(j)) Waux(i)=W(i)
+!  end do
+!  call rfast_h(X,errgboot,Waux,n,hg(j),p,Xb,Pb,kbin,kernel,nh)
+!  do i=1,kbin
+!    if(Xb(i).ge.-2.and.Xb(i).le.2) Tboot(2)=Tboot(2)+abs(Pb(i,1,1))
+!      ! if(Xb(i).ge.-2.and.Xb(i).le.2) T(2)=T(2)+abs(Pb(i,1,1))
+! end do
+! end do
+
+! RSS0=0
+! RSS1=0
+! do i=1,n
+!  RSS0=RSS0+(Yboot(i)-muhatg2(i))**2
+!  RSS1=RSS1+(Yboot(i)- muhatgboot(i)-fpar_est(i) )**2
+! end do
+! Tboot(3)=RSS0-RSS1
+! Tboot(4)=Tboot(3)/RSS1
+
+
+
+! do j=1,4
+! if(Tboot(j).gt.T(j)) pvalor(j)=pvalor(j)+1
+! end do
+
+
+! end do
+
+! pvalor=pvalor/nboot
+
+
+! !print *,pvalor
+
+
+
+! end subroutine
 
 
 

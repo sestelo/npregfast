@@ -29,13 +29,13 @@ This file documents software changes since the previous edition.
  
  
  
-  # npregfast 1.4.1 (2017-10-30)
+  # npregfast 1.5.0 (2017-10-30)
 
-  * the localtest function has a new argument: ci.level.
   * new implementation in R of the allotest. Now it is possible
   to choose between two statistic test: "res" (based on residuals on the 
   null model) or "lrt" (based on the likelihood ratio test using rss0 and rss1).
-  * fixed some bugs in the formula argument of frfast function.
+  * the localtest function has a new argument: ci.level.
+  * fixed some bugs in the formula argument of frfast, globaltest, localtest and allotest functions.
   
   
 

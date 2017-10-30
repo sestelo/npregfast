@@ -4,8 +4,10 @@
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
 #' specification are given under 'Details'.
-#'@param data A data frame or matrix containing the model response variable
-#' and covariates required by the \code{formula}.
+#' @param data An optional data frame, matrix or list required by 
+#' the formula. If not found in data, the variables are taken from 
+#' \code{environment(formula)}, typically the environment from which
+#'  \code{globaltest} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #' @param der Number which determines any inference process. 
@@ -116,7 +118,7 @@
 
 
 
-globaltest <- function(formula, data = data, na.action = "na.omit",
+globaltest <- function(formula, data, na.action = "na.omit",
                        der, smooth = "kernel", weights = NULL, 
                        nboot = 500, h0 = -1, h = -1, nh = 30, 
                        kernel = "epanech", p = 3, kbin = 100, seed = NULL, 
@@ -134,9 +136,9 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
   if (missing(formula)) {
     stop("Argument \"formula\" is missing, with no default")
   }
-  if (missing(data)) {
-    stop("Argument \"data\" is missing, with no default")
-  }
+  # if (missing(data)) {
+  #   stop("Argument \"data\" is missing, with no default")
+  # }
   
   if(!isTRUE(der %in% c(0, 1, 2))) {
     stop("",paste(der)," is not a r-th derivative implemented, only 
@@ -181,35 +183,70 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
   
   
   
-  
   if (smooth != "splines") {
     
-    ffr <- interpret.frfastformula(formula, method = "frfast")
-    varnames <- ffr$II[2, ]
-    aux <- unlist(strsplit(varnames,split = ":"))
+    cl <- match.call()
+    mf <- match.call(expand.dots = FALSE)
+    m <- match(x = c("formula", "data", "subset", "weights", 
+                     "na.action", "offset"), table = names(mf), nomatch = 0L)
+    mf <- mf[c(1L, m)]
+    mf$drop.unused.levels <- TRUE
+    mf[[1L]] <- quote(stats::model.frame)
+    mf <- eval(expr = mf, envir = parent.frame())
+    mt <- attr(mf, "terms")
+    y <- model.response(mf, "numeric")
+    w <- as.vector(model.weights(mf))
+    if (!is.null(w) && !is.numeric(w)) 
+      stop("'weights' must be a numeric vector")
+    
+    terms <- attr(mt, "term.labels")
+    aux <- unlist(strsplit(terms,split = ":"))
     varnames <- aux[1]
+    namef <- aux[2]
+    response <- as.character(attr(mt, "variables")[2])
+    
     if (unlist(strsplit(varnames,split = ""))[1] == "s") {
       stop("Argument \"formula\" is wrong specified, see details of
            model specification in 'Details' of the frfast help." )
     }
-    namef <- aux[2]
-    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
-    newdata <- data
-    data <- data[ ,c(ffr$response, varnames)]
     
+    data <- mf
     
-    if (na.action == "na.omit"){ # ver la f
+    if (na.action == "na.omit"){ # ver la f, corregido
       data <- na.omit(data)
     }else{
       stop("The actual version of the package only supports 'na.omit' (observations are removed 
            if they contain any missing values)")
     }
-    #newdata <- na.omit(newdata[ ,varnames])
+    
+    if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     n <- nrow(data)
     
+    
+    
     }else{
+      
+      
       ffr <- interpret.gam(formula)
-      varnames <- ffr$pred.names[1]
+      cl <- match.call()
+      mf <- match.call(expand.dots = FALSE)
+      mf$formula <- ffr$fake.formula
+      
+      m <- match(x = c("formula", "data", "subset", "weights", 
+                       "na.action", "offset"), table = names(mf), nomatch = 0L)
+      mf <- mf[c(1L, m)]
+      mf$drop.unused.levels <- TRUE
+      mf[[1L]] <- quote(stats::model.frame)
+      mf <- eval(expr = mf, envir = parent.frame())
+      mt <- attr(mf, "terms")
+      y <- model.response(mf, "numeric")
+      w <- as.vector(model.weights(mf))
+      if (!is.null(w) && !is.numeric(w)) 
+        stop("'weights' must be a numeric vector")
+      
+      terms <- attr(mt, "term.labels")
+      response <- as.character(attr(mt, "variables")[2])
+      varnames <- terms[1]
       if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
         stop("Argument \"formula\" is wrong specified, see details of
              model specification in 'Details' of the frfast help." )
@@ -219,28 +256,121 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
                 model specification in 'Details' of the frfast help." )
       }
       
-      namef <- ffr$pred.names[2]
-      if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
-      newdata <- data
-      
-      if (length(ffr$pred.names) == 1) {
-        data <- data[ ,c(ffr$response, varnames)]
-      }else{
-        data <- data[ ,c(ffr$response, varnames, namef)]
-      }
+      datam <- mf
       
       if (na.action == "na.omit"){
-        data <- na.omit(data)
+        datam <- na.omit(datam)
       }else{
-        stop("The actual version of the package only supports 'na.omit' (observations are removed 
-             if they contain any missing values)")
+        stop("The actual version of the package only supports 'na.omit' 
+             (observations are removed if they contain any missing values)")
       }
       
-      n <- nrow(data)
+      if (length(terms) == 1) {
+        f <- NULL
+        namef <- 1
+      }else{
+        namef <- terms[2]
+        f <- mf[ ,namef]
+      }
+      n <- nrow(datam)
       }
   
   
+  if(missing(data)) {
+    
+    response <- strsplit(response, "\\$")[[1]][2]
+    terms2 <- strsplit(terms, "\\$")
+    
+    if(length(terms) == 1){
+      formula <- as.formula(paste0(response, "~s(",terms2[[1]][2],")"))
+      names(datam) <- c(response, terms2[[1]][2])
+      varnames <- terms2[[1]][2]
+      namef <- "F"
+    }else{
+      formula <- as.formula(paste0(response, "~s(",terms2[[1]][2],", by = ", terms2[[2]][2],")"))
+      #data2 <- data
+      names(datam) <- c(response, terms2[[1]][2], terms2[[2]][2])
+      varnames <- terms2[[1]][2]
+      namef <- terms2[[2]][2]
+    }
+    
+    data <- datam
+  }
   
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  # 
+  # 
+  # if (smooth != "splines") {
+  #   
+  #   ffr <- interpret.frfastformula(formula, method = "frfast")
+  #   varnames <- ffr$II[2, ]
+  #   aux <- unlist(strsplit(varnames,split = ":"))
+  #   varnames <- aux[1]
+  #   if (unlist(strsplit(varnames,split = ""))[1] == "s") {
+  #     stop("Argument \"formula\" is wrong specified, see details of
+  #          model specification in 'Details' of the frfast help." )
+  #   }
+  #   namef <- aux[2]
+  #   if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
+  #   newdata <- data
+  #   data <- data[ ,c(ffr$response, varnames)]
+  #   
+  #   
+  #   if (na.action == "na.omit"){ # ver la f
+  #     data <- na.omit(data)
+  #   }else{
+  #     stop("The actual version of the package only supports 'na.omit' (observations are removed 
+  #          if they contain any missing values)")
+  #   }
+  #   #newdata <- na.omit(newdata[ ,varnames])
+  #   n <- nrow(data)
+  #   
+  #   }else{
+  #     ffr <- interpret.gam(formula)
+  #     varnames <- ffr$pred.names[1]
+  #     if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
+  #       stop("Argument \"formula\" is wrong specified, see details of
+  #            model specification in 'Details' of the frfast help." )
+  #     }
+  #     if (length(ffr$smooth.spec) == 0) {
+  #       warning("Argument \"formula\" could be wrong specified without an 's', see details of
+  #               model specification in 'Details' of the frfast help." )
+  #     }
+  #     
+  #     namef <- ffr$pred.names[2]
+  #     if (length(ffr$pred.names) == 1) {f <- NULL}else{f <- data[ ,namef]}
+  #     newdata <- data
+  #     
+  #     if (length(ffr$pred.names) == 1) {
+  #       data <- data[ ,c(ffr$response, varnames)]
+  #     }else{
+  #       data <- data[ ,c(ffr$response, varnames, namef)]
+  #     }
+  #     
+  #     if (na.action == "na.omit"){
+  #       data <- na.omit(data)
+  #     }else{
+  #       stop("The actual version of the package only supports 'na.omit' (observations are removed 
+  #            if they contain any missing values)")
+  #     }
+  #     
+  #     n <- nrow(data)
+  #     }
+  # 
+  # 
+  # 
   
   
   
@@ -285,8 +415,8 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
     
     globaltest <- .Fortran("globaltest_", 
                            f = as.integer(f), 
-                           x = as.double(data[, varnames]), 
-                           y = as.double(data[, ffr$response]), 
+                           x = as.double(data[ ,varnames]), 
+                           y = as.double(data[ ,response]), 
                            w = as.double(weights), 
                            n = as.integer(n), 
                            h0 = as.double(h0), 
@@ -319,8 +449,8 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
     
     
     
-    res <- data.frame(cbind(Statistic = globaltest$T, pvalue = globaltest$pvalor), 
-                      Decision = I(decision))
+    res <- data.frame(cbind(Statistic = globaltest$T[1], pvalue = globaltest$pvalor[1]), 
+                      Decision = I(decision)[1])
     # res=cbind(Statistic=round(globaltest$T,digits=4),pvalue=round(globaltest$pvalor,digits=4),Decision=I(decision))
     # res=as.numeric(res) res=as.data.frame(res) class(res) <- 'globaltest'
     # 
@@ -331,7 +461,7 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
       # grid
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
       newd <- expand.grid(xgrid, unique(f))
-      names(newd) <- ffr$pred.names
+      names(newd) <- c(varnames, namef)
       
       # estimations
       data0 <- data
@@ -339,9 +469,9 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
       p <- array(NA, dim = c(kbin, 3, nf))
       m <- gam(formula, weights = weights, data = data.frame(data0, weights), ...)
       muhat <- as.vector(predict(m, type = "response"))
-      e <- data0[,ffr$response] - muhat
+      e <- data0[ ,response] - muhat
       data2 <- data
-      data2[, ffr$response] <- e
+      data2[ ,response] <- e
       m <- gam(formula, weights = weights, data = data.frame(data2, weights), ...)
       pred1 <- as.vector(predict(m, newdata = newd, type = "response"))
       p[, 1, 1:nf] <- pred1
@@ -367,27 +497,27 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
     data0[,namef] <- 1
     m <- gam(formula, weights = weights, data = data.frame(data0, weights), ...)
     muhatg <- as.vector(predict(m, type = "response"))
-    errg <- data0[,ffr$response] - muhatg
+    errg <- data0[ ,response] - muhatg
     
     #estimo polinomios
     #
     if (der == 0) {pred1 <- rep(0, n)}
     if (der == 1) {
       data2 <- data
-      data2[, ffr$response] <- errg
-      formula0 <- paste(ffr$response, "~", namef)
+      data2[ ,response] <- errg
+      formula0 <- paste(response, "~", namef)
       m <- lm(formula0, weights = weights, data = data.frame(data2, weights), ...)
       pred1 <- as.vector(predict(m, type = "response"))
     }
     if (der == 2) {
       data2 <- data
-      data2[, ffr$response] <- errg
-      formula0 <- paste(ffr$response,"~", varnames, "*",namef)
+      data2[ ,response] <- errg
+      formula0 <- paste(response,"~", varnames, "*",namef)
       m <- lm(formula0, weights = weights, data = data.frame(data2, weights), ...)
       pred1 <- as.vector(predict(m, type = "response"))
     }
     muhatg2 <- muhatg + pred1
-    errg2 <- data0[,ffr$response] - muhatg2
+    errg2 <- data0[ ,response] - muhatg2
     
     
     yboot <- replicate(nboot, muhatg2 + errg2 *
@@ -398,7 +528,7 @@ globaltest <- function(formula, data = data, na.action = "na.omit",
     i <- NULL
     dboot <- foreach(i = 1:nboot) %dopar% {
       datab <- data
-      datab[, ffr$response] <- yboot[, i]
+      datab[ ,response] <- yboot[, i]
       aux <- mainfun_globaltest(formula, data = data.frame(datab, weights), 
                                 weights = weights, ...)
       return(aux)

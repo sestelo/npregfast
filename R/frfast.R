@@ -8,8 +8,10 @@
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
 #' specification are given under 'Details'.
-#' @param data A data frame or matrix containing the model response
-#' variable and covariates required by the \code{formula}.
+#' @param data An optional data frame, matrix or list required by 
+#' the formula. If not found in data, the variables are taken from 
+#' \code{environment(formula)}, typically the environment from which
+#'  \code{frfast} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #' @param model Type model used: \code{model = "np"} for a nonparametric
@@ -275,26 +277,22 @@ frfast <- function(formula, data, na.action = "na.omit",
   ncmax <- 5
   c2 <- NULL
   
-
   
   
- 
+  
+  
+  
+  
   if (smooth != "splines") {
     
     cl <- match.call()
     mf <- match.call(expand.dots = FALSE)
-    m <- match(x = c("formula", "data", "subset", "weights", "na.action", "offset"), 
-               table = names(mf), nomatch = 0L)
+    m <- match(x = c("formula", "data", "subset", "weights", 
+                     "na.action", "offset"), table = names(mf), nomatch = 0L)
     mf <- mf[c(1L, m)]
     mf$drop.unused.levels <- TRUE
     mf[[1L]] <- quote(stats::model.frame)
-    
-    
-    
-    
-    
     mf <- eval(expr = mf, envir = parent.frame())
-    
     mt <- attr(mf, "terms")
     y <- model.response(mf, "numeric")
     w <- as.vector(model.weights(mf))
@@ -302,20 +300,16 @@ frfast <- function(formula, data, na.action = "na.omit",
       stop("'weights' must be a numeric vector")
     
     terms <- attr(mt, "term.labels")
-    
-    
-    
     aux <- unlist(strsplit(terms,split = ":"))
     varnames <- aux[1]
     namef <- aux[2]
     response <- as.character(attr(mt, "variables")[2])
+    
     if (unlist(strsplit(varnames,split = ""))[1] == "s") {
       stop("Argument \"formula\" is wrong specified, see details of
            model specification in 'Details' of the frfast help." )
     }
     
-
-    #newdata <- data
     data <- mf
     
     if (na.action == "na.omit"){ # ver la f, corregido
@@ -328,7 +322,8 @@ frfast <- function(formula, data, na.action = "na.omit",
     if (length(aux) == 1) {f <- NULL}else{f <- data[ ,namef]}
     n <- nrow(data)
     
-
+    
+    
   }else{
     
     
@@ -337,15 +332,12 @@ frfast <- function(formula, data, na.action = "na.omit",
     mf <- match.call(expand.dots = FALSE)
     mf$formula <- ffr$fake.formula
     
-    m <- match(x = c("formula", "data", "subset", "weights", "na.action", "offset"), 
-              table = names(mf), nomatch = 0L)
-   mf <- mf[c(1L, m)]
-    
+    m <- match(x = c("formula", "data", "subset", "weights", 
+                     "na.action", "offset"), table = names(mf), nomatch = 0L)
+    mf <- mf[c(1L, m)]
     mf$drop.unused.levels <- TRUE
     mf[[1L]] <- quote(stats::model.frame)
-    
     mf <- eval(expr = mf, envir = parent.frame())
-    
     mt <- attr(mf, "terms")
     y <- model.response(mf, "numeric")
     w <- as.vector(model.weights(mf))
@@ -353,10 +345,7 @@ frfast <- function(formula, data, na.action = "na.omit",
       stop("'weights' must be a numeric vector")
     
     terms <- attr(mt, "term.labels")
-    
     response <- as.character(attr(mt, "variables")[2])
-    
-
     varnames <- terms[1]
     if (":" %in% unlist(strsplit(ffr$fake.names,split = ""))) {
       stop("Argument \"formula\" is wrong specified, see details of
@@ -366,27 +355,15 @@ frfast <- function(formula, data, na.action = "na.omit",
       warning("Argument \"formula\" could be wrong specified without an 's', see details of
            model specification in 'Details' of the frfast help." )
     }
-    
-    
-    
-    # newdata <- data
-    
-    # if (length(ffr$pred.names) == 1) {
-    #   data <- data[ ,c(ffr$response, varnames)]
-    # }else{
-    #   data <- data[ ,c(ffr$response, varnames, namef)]
-    # }
-    # 
+
     datam <- mf
-    
     
     if (na.action == "na.omit"){
       datam <- na.omit(datam)
     }else{
-      stop("The actual version of the package only supports 'na.omit' (observations are removed 
-           if they contain any missing values)")
+      stop("The actual version of the package only supports 'na.omit' 
+(observations are removed if they contain any missing values)")
     }
-    
     
     if (length(terms) == 1) {
       f <- NULL
@@ -398,10 +375,7 @@ frfast <- function(formula, data, na.action = "na.omit",
     n <- nrow(datam)
   }
   
-  
-  
-  
-  
+
   if(missing(data)) {
     
     response <- strsplit(response, "\\$")[[1]][2]
@@ -409,7 +383,6 @@ frfast <- function(formula, data, na.action = "na.omit",
     
     if(length(terms) == 1){
       formula <- as.formula(paste0(response, "~s(",terms2[[1]][2],")"))
-      #data <- data
       names(datam) <- c(response, terms2[[1]][2])
       varnames <- terms2[[1]][2]
       namef <- "F"
@@ -420,17 +393,12 @@ frfast <- function(formula, data, na.action = "na.omit",
       varnames <- terms2[[1]][2]
       namef <- terms2[[2]][2]
     }
-    
-    
-    
-  data <- datam
 
+    data <- datam
+}
   
   
-  }
-
-  
-#   strsplit(formula,split = "$")
+  #   strsplit(formula,split = "$")
   
   
   if (is.null(f)) f <- rep(1.0, n)
@@ -623,7 +591,7 @@ frfast <- function(formula, data, na.action = "na.omit",
       xgrid <- seq(min(data[ ,varnames]), max(data[ ,varnames]), length.out = kbin)
       newd <- expand.grid(xgrid, unique(f))
       names(newd) <- c(varnames, namef)
-     
+      
       # estimations
       p <- array(NA, dim = c(kbin, 3, nf))
       m <- gam(formula, weights = weights, data = data.frame(data, weights), ...)
@@ -644,8 +612,8 @@ frfast <- function(formula, data, na.action = "na.omit",
                           FUN.VALUE = numeric(kfino))
       
       newdfino <- data.frame(as.vector(xgridfino), rep(unique(f), each = kfino))
-        names(newdfino) <- c(varnames, namef)
-     
+      names(newdfino) <- c(varnames, namef)
+      
       
       # max
       muhatfino <- as.vector(predict(m, newdata = newdfino, type = "response"))

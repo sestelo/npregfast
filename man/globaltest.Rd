@@ -4,18 +4,20 @@
 \alias{globaltest}
 \title{Testing the equality of the \emph{M} curves specific to each level}
 \usage{
-globaltest(formula, data = data, na.action = "na.omit", der,
-  smooth = "kernel", weights = NULL, nboot = 500, h0 = -1, h = -1,
-  nh = 30, kernel = "epanech", p = 3, kbin = 100, seed = NULL,
-  cluster = TRUE, ncores = NULL, ...)
+globaltest(formula, data, na.action = "na.omit", der, smooth = "kernel",
+  weights = NULL, nboot = 500, h0 = -1, h = -1, nh = 30,
+  kernel = "epanech", p = 3, kbin = 100, seed = NULL, cluster = TRUE,
+  ncores = NULL, ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
 description of the model to be fitted. The details of model 
 specification are given under 'Details'.}
 
-\item{data}{A data frame or matrix containing the model response variable
-and covariates required by the \code{formula}.}
+\item{data}{An optional data frame, matrix or list required by 
+the formula. If not found in data, the variables are taken from 
+\code{environment(formula)}, typically the environment from which
+ \code{globaltest} is called.}
 
 \item{na.action}{A function which indicates what should happen when the 
 data contain 'NA's. The default is 'na.omit'.}
