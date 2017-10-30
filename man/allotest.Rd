@@ -4,15 +4,17 @@
 \alias{allotest}
 \title{Bootstrap based test for testing an allometric model}
 \usage{
-allotest(formula, data = data, na.action = "na.omit", nboot = 500,
-  seed = NULL, cluster = TRUE, ncores = NULL, test = "res", ...)
+allotest(formula, data, na.action = "na.omit", nboot = 500, seed = NULL,
+  cluster = TRUE, ncores = NULL, test = "res", ...)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic description
 of the model to be fitted.}
 
-\item{data}{A data frame argumment or matrix containing the model response variable
-and covariates required by the \code{formula}.}
+\item{data}{An optional data frame, matrix or list required by 
+the formula. If not found in data, the variables are taken from 
+\code{environment(formula)}, typically the environment from which
+ \code{frfast} is called.}
 
 \item{na.action}{A function which indicates what should happen when the 
 data contain 'NA's. The default is 'na.omit'.}
