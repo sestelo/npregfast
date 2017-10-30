@@ -12,4 +12,6 @@ warnings_are_errors: true
 
 
 notifications:
-    slack: newstat:ZqBL05R4NoRMqPZXnuzbF4OZ
+    slack: 
+      newstat:ZqBL05R4NoRMqPZXnuzbF4OZ
+      on_success: change
