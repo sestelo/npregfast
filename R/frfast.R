@@ -8,8 +8,10 @@
 #' @param formula An object of class \code{formula}: a sympbolic 
 #' description of the model to be fitted. The details of model 
 #' specification are given under 'Details'.
-#' @param data A data frame or matrix containing the model response
-#' variable and covariates required by the \code{formula}.
+#' @param data An optional data frame, matrix or list required by 
+#' the formula. If not found in data, the variables are taken from 
+#' \code{environment(formula)}, typically the environment from which
+#'  \code{frfast} is called.
 #' @param na.action A function which indicates what should happen when the 
 #' data contain 'NA's. The default is 'na.omit'.
 #' @param model Type model used: \code{model = "np"} for a nonparametric
