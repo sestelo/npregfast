@@ -201,9 +201,9 @@ allotest <- function(formula, data, na.action = "na.omit",
   
   res <- list()
   
-  for (i in etiquetas) {
-    yy <- data[, 1][f == i]
-    xx <- data[, 2][f == i]
+  for (j in etiquetas) {
+    yy <- data[, 1][f == j]
+    xx <- data[, 2][f == j]
     yy[yy <= 0] <- 0.0001
     xx[xx <= 0] <- 0.0001
     n <- length(xx)
@@ -236,7 +236,7 @@ allotest <- function(formula, data, na.action = "na.omit",
     pvalue <- mean(tboot>t)
 
 
-    res[[i]] <- list(statistic = c(t), pvalue = c(pvalue))
+    res[[j]] <- list(statistic = c(t), pvalue = c(pvalue))
     
   }
   
