@@ -13,6 +13,6 @@ warnings_are_errors: true
 notifications:
   slack:
     rooms:
-      - newstat:ZqBL05R4NoRMqPZXnuzbF4OZ
+    
     on_success: change # default: always
     on_failure: always # default: always
