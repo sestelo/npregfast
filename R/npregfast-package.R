@@ -11,10 +11,10 @@
 #' Binning techniques were applied to speed up computation in the estimation 
 #' and testing processes.
 #'
-#' @name npregfast
-#' @docType package
-#' @details \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
-#' Version: \tab 1.4.0\cr Date: \tab 2016-11-18\cr License: \tab MIT + file LICENSE\cr}
+# #' @name npregfast
+# #' @docType package
+# #' @details \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
+# #' Version: \tab 1.5.0\cr Date: \tab 2016-11-18\cr License: \tab MIT + file LICENSE\cr}
 #'
 #'\code{npregfast} is designed along lines similar to those of other \code{R} 
 #'regression packages. The main function of the library is \code{frfast} 
