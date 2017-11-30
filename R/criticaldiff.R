@@ -33,6 +33,10 @@
 #' Applications in Biology, Engineering and Environment. PhD Thesis, Department
 #' of Statistics and O.R. University of Vigo.
 #' 
+#' Sestelo, M., Villanueva, N.M., Meira-Machado, L., Roca-Pardinas, J. (2017). 
+#' npregfast: An R Package for Nonparametric Estimation and Inference in Life 
+#' Sciences. Journal of Statistical Software, 82(12), 1-27. 
+#' 
 #'@examples
 #' library(npregfast)
 #' data(barnacle)

@@ -1,0 +1,21 @@
+bibentry(bibtype = "Article",
+  title        = "{npregfast}: An {R} Package for Nonparametric Estimation and Inference in Life Sciences",
+  author       = c(person(given = "Marta",
+                          family = "Sestelo",
+                          email = "sestelo@uvigo.es"),
+                   person(given = c("Nora", "M."),
+                          family = "Villanueva"),
+                   person(given = "Luis",
+                          family = "Meira-Machado"),
+                   person(given = "Javier",
+                          family = "Roca-Pardi{\\~n}as")),
+  journal      = "Journal of Statistical Software",
+  year         = "2017",
+  volume       = "82",
+  number       = "12",
+  pages        = "1--27",
+  doi          = "10.18637/jss.v082.i12",
+
+  header       = "To cite npregfast in publications use:"
+)
+

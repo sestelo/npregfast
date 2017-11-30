@@ -30,4 +30,8 @@ length-weight relationship of \eqn{Pollicipes}  \eqn{pollicipes}
 (Gmelin, 1789) on the Atlantic coast of Galicia (Northwest Spain): some 
 aspects of its biology and management. Journal of Shellfish Research, 
 30(3), 939--948.
+
+Sestelo, M., Villanueva, N.M., Meira-Machado, L., Roca-Pardinas, J. (2017). 
+npregfast: An R Package for Nonparametric Estimation and Inference in Life 
+Sciences. Journal of Statistical Software, 82(12), 1-27.
 }
