@@ -38,6 +38,8 @@ This file documents software changes since the previous edition.
   * fixed some bugs in the formula argument of frfast, globaltest, localtest and allotest functions.
   
   
-
+  # npregfast 1.5.1 (2017-11-30)
   
+
+  * the DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
  

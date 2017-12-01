@@ -11,11 +11,6 @@
 #' Binning techniques were applied to speed up computation in the estimation 
 #' and testing processes.
 #'
-#' @name npregfast
-#' @docType package
-#' @details \tabular{ll}{ Package: \tab npregfast\cr Type: \tab Package\cr
-#' Version: \tab 1.4.0\cr Date: \tab 2016-11-18\cr License: \tab MIT + file LICENSE\cr}
-#'
 #'\code{npregfast} is designed along lines similar to those of other \code{R} 
 #'regression packages. The main function of the library is \code{frfast} 
 #'which, by default, fits a nonparametric regression model based on local 
@@ -80,12 +75,13 @@
 #' aspects of its biology and management. Journal of Shellfish Research, 
 #' 30(3), 939--948.
 #' 
+#' Sestelo, M., Villanueva, N.M., Meira-Machado, L., Roca-Pardinas, J. (2017). 
+#' npregfast: An R Package for Nonparametric Estimation and Inference in Life 
+#' Sciences. Journal of Statistical Software, 82(12), 1-27. 
+#' 
 #' Wand, M. P. and Jones, M. C. (1995). Kernel Smoothing. Chapman & Hall, London.
 #'
 #'
 #'
 #'
-
-
-
 NULL
