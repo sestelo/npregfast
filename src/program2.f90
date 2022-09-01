@@ -2562,7 +2562,7 @@ icont=0
 do i=1,n
 u=((X(i)-x0)/rango) /h2 
 if (W(i).gt.0) then
-
+ 
 if(ifcv.eq.1.and.u.eq.0) then
 
 waux=0
