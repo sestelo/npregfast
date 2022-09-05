@@ -12,7 +12,7 @@ the package.
 }
 \details{
 This example is also
-\href{http://sestelo.shinyapps.io/npregfast/}{available online}.
+\href{https://sestelo.shinyapps.io/npregfast/}{available online}.
 }
 \examples{
 ## Only run this example in interactive R sessions

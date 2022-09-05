@@ -68,7 +68,7 @@
 #'  
 #'  
 #' @details The models fitted by \code{frfast} function are specified 
-#' in a compact symbolic form. The \~ operator is basic in the formation 
+#' in a compact symbolic form. The ~ operator is basic in the formation 
 #' of such models. An expression of the form \code{y ~ model}  is interpreted as 
 #' a specification that the response \code{y} is modelled by a predictor 
 #' specified symbolically by \code{model}. The possible terms consist of a 

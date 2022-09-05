@@ -4,10 +4,27 @@
 \alias{frfast}
 \title{Fitting nonparametric models}
 \usage{
-frfast(formula, data, na.action = "na.omit", model = "np",
-  smooth = "kernel", h0 = -1, h = -1, nh = 30, weights = NULL,
-  kernel = "epanech", p = 3, kbin = 100, nboot = 500, rankl = NULL,
-  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL, ...)
+frfast(
+  formula,
+  data,
+  na.action = "na.omit",
+  model = "np",
+  smooth = "kernel",
+  h0 = -1,
+  h = -1,
+  nh = 30,
+  weights = NULL,
+  kernel = "epanech",
+  p = 3,
+  kbin = 100,
+  nboot = 500,
+  rankl = NULL,
+  ranku = NULL,
+  seed = NULL,
+  cluster = TRUE,
+  ncores = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -169,7 +186,7 @@ model (allometric model) can be estimated (or not).
 }
 \details{
 The models fitted by \code{frfast} function are specified 
-in a compact symbolic form. The \~ operator is basic in the formation 
+in a compact symbolic form. The ~ operator is basic in the formation 
 of such models. An expression of the form \code{y ~ model}  is interpreted as 
 a specification that the response \code{y} is modelled by a predictor 
 specified symbolically by \code{model}. The possible terms consist of a 

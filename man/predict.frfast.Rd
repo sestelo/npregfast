@@ -4,8 +4,7 @@
 \alias{predict.frfast}
 \title{Prediction from fitted \code{frfast} model}
 \usage{
-\method{predict}{frfast}(object = model, newdata, fac = NULL, der = NULL,
-  seed = NULL, ...)
+\method{predict}{frfast}(object = model, newdata, fac = NULL, der = NULL, seed = NULL, ...)
 }
 \arguments{
 \item{object}{A fitted \code{frfast} object as produced by \code{frfast()}.}

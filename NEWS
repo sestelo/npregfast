@@ -43,3 +43,8 @@ This file documents software changes since the previous edition.
 
   * the DOI in the CITATION is for a new JSS publication that will be registered after publication on CRAN.
  
+ 
+   # npregfast 1.5.2 (2022-09-02)
+  
+
+  * new version that solves math rendering problems.

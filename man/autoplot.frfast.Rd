@@ -4,12 +4,30 @@
 \alias{autoplot.frfast}
 \title{Visualization of \code{frfast} objects with ggplot2 graphics}
 \usage{
-\method{autoplot}{frfast}(object = model, fac = NULL, der = 0,
-  diffwith = NULL, points = TRUE, xlab = model$name[2],
-  ylab = model$name[1], ylim = NULL, main = NULL, col = "black",
-  CIcol = "black", CIlinecol = "transparent", pcol = "grey80",
-  abline = TRUE, ablinecol = "red", lty = 1, CIlty = 2, lwd = 1,
-  CIlwd = 1, cex = 1.4, alpha = 0.2, ...)
+\method{autoplot}{frfast}(
+  object = model,
+  fac = NULL,
+  der = 0,
+  diffwith = NULL,
+  points = TRUE,
+  xlab = model$name[2],
+  ylab = model$name[1],
+  ylim = NULL,
+  main = NULL,
+  col = "black",
+  CIcol = "black",
+  CIlinecol = "transparent",
+  pcol = "grey80",
+  abline = TRUE,
+  ablinecol = "red",
+  lty = 1,
+  CIlty = 2,
+  lwd = 1,
+  CIlwd = 1,
+  cex = 1.4,
+  alpha = 0.2,
+  ...
+)
 }
 \arguments{
 \item{object}{\code{frfast} object.}

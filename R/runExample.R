@@ -4,14 +4,14 @@
 #' the package.
 #'
 #' This example is also
-#' \href{http://sestelo.shinyapps.io/npregfast/}{available online}.
+#' \href{https://sestelo.shinyapps.io/npregfast/}{available online}.
 #'
 #' @examples
 #' ## Only run this example in interactive R sessions
 #' if (interactive()) {
 #'   runExample()
 #' }
-#' @importFrom shinyjs colourInput useShinyjs colourpicker
+#' @importFrom shinyjs colourInput useShinyjs 
 #' @importFrom wesanderson wes_palettes
 #' @export
 

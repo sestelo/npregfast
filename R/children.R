@@ -17,7 +17,7 @@
 #'  }
 #'  
 #'@note Other data sets of this type can be obtained 
-#'from \url{http://www.who.int/childgrowth/en/}.
+#'from \url{https://www.who.int/toolkits/child-growth-standards}.
 #' @examples
 #' data(children)
 #' head(children)

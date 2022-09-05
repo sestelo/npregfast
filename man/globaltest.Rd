@@ -4,10 +4,25 @@
 \alias{globaltest}
 \title{Testing the equality of the \emph{M} curves specific to each level}
 \usage{
-globaltest(formula, data, na.action = "na.omit", der, smooth = "kernel",
-  weights = NULL, nboot = 500, h0 = -1, h = -1, nh = 30,
-  kernel = "epanech", p = 3, kbin = 100, seed = NULL, cluster = TRUE,
-  ncores = NULL, ...)
+globaltest(
+  formula,
+  data,
+  na.action = "na.omit",
+  der,
+  smooth = "kernel",
+  weights = NULL,
+  nboot = 500,
+  h0 = -1,
+  h = -1,
+  nh = 30,
+  kernel = "epanech",
+  p = 3,
+  kbin = 100,
+  seed = NULL,
+  cluster = TRUE,
+  ncores = NULL,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -95,7 +110,7 @@ following null hypothesis:
 versus the general alternative
 
 \deqn{H_1^r: m_i^r (\cdot)  \ne m_j^r (\cdot) \quad  \rm{for} \quad \rm{some}
- \quad \emph{i}, \emph{j} \in \{ 1, \ldots, M\}. }
+ \quad i, j \in \{ 1, \ldots, M\}. }
 
 Note that, if \eqn{H_0} is not rejected, then the equality of critical points
 will also accepted. 
@@ -111,7 +126,7 @@ obtain this percentile, we have used bootstrap techniques. See details in
 references.
 
 Note that the models fitted by \code{globaltest} function are specified 
-in a compact symbolic form. The \~ operator is basic in the formation 
+in a compact symbolic form. The ~ operator is basic in the formation 
 of such models. An expression of the form \code{y ~ model}  is interpreted as 
 a specification that the response \code{y} is modelled by a predictor 
 specified symbolically by \code{model}. The possible terms consist of a 

@@ -4,13 +4,15 @@
 \name{barnacle}
 \alias{barnacle}
 \title{Barnacle dataset.}
-\format{\code{barnacle} is a data frame with 2000 cases (rows) and 
+\format{
+\code{barnacle} is a data frame with 2000 cases (rows) and 
 3 variables (columns).
 \describe{
  \item{DW}{Dry weight (in g.)} 
  \item{RC}{Rostro-carinal lenght (in mm).}
  \item{F}{Factor indicating the sites of harvest: \code{barca} and \code{lens}.}
- }}
+ }
+}
 \usage{
 barnacle
 }

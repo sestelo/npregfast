@@ -2,3 +2,6 @@
 ^\.Rproj\.user$
 .travis.yml
 .lsq.mod
+^_pkgdown\.yml$
+^docs$
+^pkgdown$

@@ -4,8 +4,17 @@
 \alias{allotest}
 \title{Bootstrap based test for testing an allometric model}
 \usage{
-allotest(formula, data, na.action = "na.omit", nboot = 500, seed = NULL,
-  cluster = TRUE, ncores = NULL, test = "res", ...)
+allotest(
+  formula,
+  data,
+  na.action = "na.omit",
+  nboot = 500,
+  seed = NULL,
+  cluster = TRUE,
+  ncores = NULL,
+  test = "res",
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic description

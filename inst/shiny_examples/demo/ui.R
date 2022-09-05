@@ -102,14 +102,14 @@ shinyUI(fluidPage(
              
              
              div(id = "marginal-settings",
-                 colourpicker::colourInput("colmu", "Line color", "#D67236", 
+                 shinyjs::colourInput("colmu", "Line color", "#D67236", 
                                       showColour = "background",
                                       palette = "limited",
                                       allowedCols = unlist(wesanderson::wes_palettes),
                                       allowTransparent = FALSE),
                  
                  
-                 colourpicker::colourInput("colci", "CI color", "#5B1A18", 
+                 shinyjs::colourInput("colci", "CI color", "#5B1A18", 
                                       showColour = "background",
                                       palette = "limited",
                                       allowedCols = unlist(wesanderson::wes_palettes),
@@ -121,7 +121,7 @@ shinyUI(fluidPage(
                checkboxInput("show_points", "Show data points", TRUE),
                conditionalPanel(
                  condition ="input.show_points == true",
-                 colourpicker::colourInput("pcol", "Points color", "#899DA4", 
+                 shinyjs::colourInput("pcol", "Points color", "#899DA4", 
                                       showColour = "background",
                                       palette = "limited",
                                       allowedCols = unlist(wesanderson::wes_palettes),

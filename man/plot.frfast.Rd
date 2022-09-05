@@ -4,12 +4,31 @@
 \alias{plot.frfast}
 \title{Visualization of \code{frfast} objects with the base graphics}
 \usage{
-\method{plot}{frfast}(x = model, y, fac = NULL, der = NULL,
-  diffwith = NULL, points = TRUE, xlab = model$name[2],
-  ylab = model$name[1], ylim = NULL, main = NULL, col = "black",
-  CIcol = "black", pcol = "grey80", ablinecol = "red", abline = TRUE,
-  type = "l", CItype = "l", lwd = 2, CIlwd = 1, lty = 1, CIlty = 2,
-  cex = 0.6, ...)
+\method{plot}{frfast}(
+  x = model,
+  y,
+  fac = NULL,
+  der = NULL,
+  diffwith = NULL,
+  points = TRUE,
+  xlab = model$name[2],
+  ylab = model$name[1],
+  ylim = NULL,
+  main = NULL,
+  col = "black",
+  CIcol = "black",
+  pcol = "grey80",
+  ablinecol = "red",
+  abline = TRUE,
+  type = "l",
+  CItype = "l",
+  lwd = 2,
+  CIlwd = 1,
+  lty = 1,
+  CIlty = 2,
+  cex = 0.6,
+  ...
+)
 }
 \arguments{
 \item{x}{\code{frfast} object.}

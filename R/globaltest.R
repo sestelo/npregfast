@@ -61,7 +61,7 @@
 #' versus the general alternative
 #' 
 #' \deqn{H_1^r: m_i^r (\cdot)  \ne m_j^r (\cdot) \quad  \rm{for} \quad \rm{some}
-#'  \quad \emph{i}, \emph{j} \in \{ 1, \ldots, M\}. }
+#'  \quad i, j \in \{ 1, \ldots, M\}. }
 #' 
 #' Note that, if \eqn{H_0} is not rejected, then the equality of critical points
 #' will also accepted. 
@@ -77,7 +77,7 @@
 #' references.
 #' 
 #' Note that the models fitted by \code{globaltest} function are specified 
-#' in a compact symbolic form. The \~ operator is basic in the formation 
+#' in a compact symbolic form. The ~ operator is basic in the formation 
 #' of such models. An expression of the form \code{y ~ model}  is interpreted as 
 #' a specification that the response \code{y} is modelled by a predictor 
 #' specified symbolically by \code{model}. The possible terms consist of a 

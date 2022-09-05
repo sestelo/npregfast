@@ -4,11 +4,28 @@
 \alias{localtest}
 \title{Testing the equality of critical points}
 \usage{
-localtest(formula, data = data, na.action = "na.omit", der,
-  smooth = "kernel", weights = NULL, nboot = 500, h0 = -1, h = -1,
-  nh = 30, kernel = "epanech", p = 3, kbin = 100, rankl = NULL,
-  ranku = NULL, seed = NULL, cluster = TRUE, ncores = NULL,
-  ci.level = 0.95, ...)
+localtest(
+  formula,
+  data = data,
+  na.action = "na.omit",
+  der,
+  smooth = "kernel",
+  weights = NULL,
+  nboot = 500,
+  h0 = -1,
+  h = -1,
+  nh = 30,
+  kernel = "epanech",
+  p = 3,
+  kbin = 100,
+  rankl = NULL,
+  ranku = NULL,
+  seed = NULL,
+  cluster = TRUE,
+  ncores = NULL,
+  ci.level = 0.95,
+  ...
+)
 }
 \arguments{
 \item{formula}{An object of class \code{formula}: a sympbolic 
@@ -113,7 +130,7 @@ interest lies in testing the following null hypothesis
 versus the general  alternative  
 
 \deqn{H_1: x_{0i} \ne x_{0j}  \quad {\rm{for}} \quad {\rm{some}} \quad 
-\emph{i}, \emph{j} \in \{ 1, \ldots, M\}.}
+i, j \in \{ 1, \ldots, M\}.}
 
 The above hypothesis is true if \eqn{d=x_{0j}-x_{0k}=0} where 
 \deqn{ (j,k)= argmax \quad (l,m) \quad \{1 \leq l<m \leq M\} \quad |x_{0l}-x_{0m}|, }
@@ -136,7 +153,7 @@ two levels), one option could be to use the \code{maxp.diff} function in
 order to obtain the differences between each pair of factor's levels.
 
 Note that the models fitted by \code{localtest} function are specified 
-in a compact symbolic form. The \~ operator is basic in the formation 
+in a compact symbolic form. The ~ operator is basic in the formation 
 of such models. An expression of the form \code{y ~ model}  is interpreted as 
 a specification that the response \code{y} is modelled by a predictor 
 specified symbolically by \code{model}. The possible terms consist of a 
