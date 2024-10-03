@@ -1,8 +1,12 @@
 # npregfast: Nonparametric Estimation of Regression Models with Factor-by-Curve Interactions
 
+[![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/npregfast)](https://cran.r-project.org/package=npregfast)
+[![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/npregfast)](https://cran.r-project.org/package=npregfast)
+
 
 [![Build Status](https://travis-ci.org/sestelo/npregfast.svg?branch=master)](https://travis-ci.org/sestelo/npregfast)
 [![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/npregfast)](https://cran.r-project.org/package=npregfast)
+
 
 
 ```npregfast``` is an R package for obtain nonparametric estimates of regression models 
