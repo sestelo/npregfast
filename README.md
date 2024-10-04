@@ -2,12 +2,7 @@
 
 [![CRAN Downloads](https://cranlogs.r-pkg.org/badges/grand-total/npregfast)](https://cran.r-project.org/package=npregfast)
 [![CRAN_Status_Badge](https://www.r-pkg.org/badges/version/npregfast)](https://cran.r-project.org/package=npregfast)
-
-
-[![Build Status](https://travis-ci.org/sestelo/npregfast.svg?branch=master)](https://travis-ci.org/sestelo/npregfast)
-[![CRAN_Status_Badge](http://www.r-pkg.org/badges/version/npregfast)](https://cran.r-project.org/package=npregfast)
-
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.13889485.svg)](https://doi.org/10.5281/zenodo.13889485)
 
 ```npregfast``` is an R package for obtain nonparametric estimates of regression models 
 with or without factor-by-curve interactions using local polynomial kernel smoothers or splines. 
