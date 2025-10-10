@@ -2,8 +2,8 @@ Package: npregfast
 Type: Package
 Title: Nonparametric Estimation of Regression Models with
     Factor-by-Curve Interactions
-Version: 1.5.2
-Date: 2022-09-01
+Version: 1.6.0
+Date: 2025-10-10
 Maintainer: Marta Sestelo <sestelo@uvigo.es>
 Authors@R: c(
   person("Marta", "Sestelo",email= "sestelo@uvigo.es", role = c("aut", "cre"),
