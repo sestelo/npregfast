@@ -3838,26 +3838,60 @@ end
 subroutine Rfast0_sinbinning(X,Y,n,W,Xb,Pb,kbin,a,b)
 implicit none
 integer n,i,kbin,p
-double precision x(n),y(n),W(n),Xb(kbin),&
+double precision x(n),y(n),W(n),Xb(kbin),pred(n),res(n),&
 Beta(5),&
-Pb(kbin,3),X2(n),Y2(n),a,b,aux
+Pb(kbin,3),X2(n),Y2(n),a,b,aux,var_res,bias_correction
 
 aux=0.001
 X2=max(X,aux)
 Y2=max(Y,aux)
 
 X2=log(X2)
-Y2=log(Y2)
+Y2=log(Y2) ! log(0.001) = -6.9077552314846873 de ahí el if the abajo!
+
 
 p=1
 call  Reglineal (X2,Y2,W,n,p,Beta)
 
 
-Beta(1)=exp(Beta(1))
+
+
+! modificación para meter corrección de bias log-normal
+! paper gorka 2025
+
+res=0.0
+do i=1,n
+pred(i)=Beta(1)+Beta(2)*X2(i)
+!print *, ' Y2', Y2(i)
+if(Y2(i).lt.-6) goto 100
+res(i)=Y2(i)-pred(i)
+100  continue
+end do
+
+var_res=0
+bias_correction=0
+do i=1,n
+var_res=var_res+res(i)**2
+end do
+var_res=var_res/(n-2)
+
+!print *, 'var_res', var_res
+
+bias_correction=var_res/2
+
+!print *, ' bias_correction= ', bias_correction
+Beta(1)=exp(Beta(1))*exp(bias_correction)
+
+
+!-------------------------
+
+!Beta(1)=exp(Beta(1))
 
 a=Beta(1)
 b=Beta(2)
 
+!print *, ' Beta(1)= ', a
+!print *, ' Beta(2)= ', b
 
 do i=1,kbin
 Pb(i,1)=Beta(1)*(Xb(i)**Beta(2))
