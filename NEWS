@@ -48,3 +48,16 @@ This file documents software changes since the previous edition.
   
 
   * new version that solves math rendering problems.
+  
+  
+     # npregfast 1.6.0 (2025-10-10)
+  
+
+  * added a standard bias-correction in the allometric models for the 
+  back-transformed slope to prevent systematic errors in the mean regression results, 
+  following Hayes et al.(1995) Efficiency and bias of estimators and sampling designs 
+  for determining length-weight relationships of fish. Can J. Fish. Aquat. Sci. 
+  52: 84-92
+  
+  
+  
