@@ -84,6 +84,5 @@
 #'
 #'
 #'
-#' @docType package
 #' @name npregfast
 NULL
